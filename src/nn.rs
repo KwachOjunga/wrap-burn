@@ -1,4 +1,5 @@
 #![allow(unused)]
+#![recursion_limit = "512"]
 
 //! [`wrap-burn`] attempts to expose burn's modules and methods in a manner that permits it to work
 //! as a python interface. This module exposes the [`burn::nn`] module.
@@ -130,7 +131,15 @@ pub mod wgpu {
     implement_wgpu_interface!(PyPositionalEncodingRecord, PositionalEncodingRecord);
     implement_wgpu_interface!(PyRmsNorm, RmsNorm);
     implement_wgpu_interface!(PyRmsNormRecord, RmsNormRecord);
+    implement_wgpu_interface!(PyRotaryEncoding, RotaryEncoding);
+    implement_wgpu_interface!(PyRotaryEncodingRecord, RotaryEncodingRecord);
+    implement_wgpu_interface!(PySwiGlu, SwiGlu);
+    // implement_wgpu_interface!(PySwiGluRecord, SwiGluRecord);
 
+    for_normal_struct_enums!(PyUnfold4d, Unfold4d);
+    for_normal_struct_enums!(PyUnfold4dConfig, Unfold4dConfig);
+    for_normal_struct_enums!(PyTanh, Tanh);
+    for_normal_struct_enums!(PySwiGluConfig, SwiGluConfig);
     for_normal_struct_enums!(PyPositionalEncodingConfig, PositionalEncodingConfig);
     for_normal_struct_enums!(PyPReluConfig, PReluConfig);
     for_normal_struct_enums!(PyLstmConfig, LstmConfig);
@@ -142,7 +151,16 @@ pub mod wgpu {
     for_normal_struct_enums!(PyInstanceNormConfig, InstanceNormConfig);
     for_normal_struct_enums!(PyLayerNormConfig, LayerNormConfig);
     for_normal_struct_enums!(PyRmsNormConfig, RmsNormConfig);
+    for_normal_struct_enums!(PySigmoid, Sigmoid);
+    for_normal_struct_enums!(PyInitializer, Initializer);
+    for_normal_struct_enums!(PyPaddingConfig1d, PaddingConfig1d);
+    for_normal_struct_enums!(PyPaddingConfig2d, PaddingConfig2d);
+    for_normal_struct_enums!(PyPaddingConfig3d, PaddingConfig3d);
 
+    implement_send_and_sync!(PySwiGlu);
+    // implement_send_and_sync!(PySwiGluRecord);
+    implement_send_and_sync!(PyRotaryEncoding);
+    implement_send_and_sync!(PyRotaryEncodingRecord);
     implement_send_and_sync!(PyRmsNorm);
     implement_send_and_sync!(PyRmsNormRecord);
     implement_send_and_sync!(PyPositionalEncodingRecord);
@@ -162,6 +180,8 @@ pub mod wgpu {
     implement_send_and_sync!(PyBatchNormRecord);
     implement_send_and_sync!(PyBiLSTM);
     implement_send_and_sync!(PyGateController);
+
+    
 }
 
 #[cfg(feature = "ndarray")]
