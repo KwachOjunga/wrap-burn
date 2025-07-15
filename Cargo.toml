@@ -1,0 +1,13 @@
+[package]
+name = "wrap-burn"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+burn = { version = "0.17.1", features = ["train", "wgpu", "ndarray"] }
+pyo3 = { version = "0.25.1", features = ["multiple-pymethods"] }
+
+[features]
+default = ["wgpu", "ndarray"]
+ndarray = ["burn/ndarray"]
+wgpu = ["burn/wgpu"]
