@@ -43,6 +43,7 @@ macro_rules! implement_ndarray_interface {
 }
 
 #[cfg(feature = "wgpu")]
+#[pymodule]
 pub mod wgpu {
 
     use super::*;
@@ -181,10 +182,75 @@ pub mod wgpu {
     implement_send_and_sync!(PyBiLSTM);
     implement_send_and_sync!(PyGateController);
 
-    
+    #[pymodule]
+    pub mod attention {
+        use burn::nn::attention::*;
+        use pyo3::prelude::*;
+        use burn::prelude::*;
+        use super::*;
+
+        // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
+
+        implement_wgpu_interface!(PyGeneratePaddingMask,GeneratePaddingMask);
+        implement_wgpu_interface!(PyMhaCache, MhaCache);
+        implement_wgpu_interface!(PyMhaInput, MhaInput);
+        implement_wgpu_interface!(PyMultiHeadAttention, MultiHeadAttention);
+        implement_wgpu_interface!(PyMhaOutput, MhaOutput);
+        implement_wgpu_interface!(PyMultiHeadAttentionRecord, MultiHeadAttentionRecord);
+
+        for_normal_struct_enums!(PyMultiHeadAttentionConfig, MultiHeadAttentionConfig);
+
+        implement_send_and_sync!(PyMultiHeadAttentionRecord);
+        implement_send_and_sync!(PyMultiHeadAttention);
+        implement_send_and_sync!(PyMhaOutput);
+        
+    }
+
+    #[pymodule]
+    pub mod conv {
+        use super::*;
+        use burn::prelude::*;
+        use burn::nn::conv::*;
+
+        implement_wgpu_interface!(PyDeformConv2d, DeformConv2d);
+        implement_wgpu_interface!(PyDeformConv2dRecord, DeformConv2dRecord);
+        implement_wgpu_interface!(PyConv1d, Conv1d);
+        implement_wgpu_interface!(PyConv1dRecord, Conv1dRecord);
+        implement_wgpu_interface!(PyConv2d, Conv2d);
+        implement_wgpu_interface!(PyConv2dRecord, Conv2dRecord);
+        implement_wgpu_interface!(PyConvTranspose1d, ConvTranspose1d);
+        implement_wgpu_interface!(PyConvTranspose1dRecord, ConvTranspose1dRecord);
+        implement_wgpu_interface!(PyConvTranspose2d, ConvTranspose2d);
+        implement_wgpu_interface!(PyConvTranspose2dRecord, ConvTranspose2dRecord);
+        implement_wgpu_interface!(PyConvTranspose3d, ConvTranspose3d);
+        implement_wgpu_interface!(PyConvTranspose3dRecord, ConvTranspose3dRecord);
+
+        for_normal_struct_enums!(PyConvTranspose1dConfig, ConvTranspose1dConfig);
+        for_normal_struct_enums!(PyConvTranspose2dConfig, ConvTranspose2dConfig);
+        for_normal_struct_enums!(PyConvTranspose3dConfig, ConvTranspose3dConfig);
+        for_normal_struct_enums!(PyConv1DConfig, Conv1dConfig);
+        for_normal_struct_enums!(PyConv2DConfig, Conv2dConfig);
+        for_normal_struct_enums!(PyConv3DConfig, Conv3dConfig);
+
+        implement_send_and_sync!(PyConv1d);
+        implement_send_and_sync!(PyConv1dRecord);
+        implement_send_and_sync!(PyConv2d);
+        implement_send_and_sync!(PyConv2dRecord);
+        implement_send_and_sync!(PyConvTranspose1d);
+        implement_send_and_sync!(PyConvTranspose1dRecord);
+        implement_send_and_sync!(PyConvTranspose2d);
+        implement_send_and_sync!(PyConvTranspose2dRecord);
+        implement_send_and_sync!(PyConvTranspose3d);
+        implement_send_and_sync!(PyConvTranspose3dRecord);
+        implement_send_and_sync!(PyDeformConv2d);
+        implement_send_and_sync!(PyDeformConv2dRecord);
+    }
+
+
 }
 
 #[cfg(feature = "ndarray")]
+#[pymodule]
 pub mod ndarray {
 
     use super::*;
@@ -200,3 +266,4 @@ pub mod ndarray {
 }
 
 // [`TODO`] Item types unimmplemented
+// [`TODO`] Implement configuration methods as python functions
