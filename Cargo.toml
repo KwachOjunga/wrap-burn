@@ -1,11 +1,11 @@
 [package]
-name = "wrap-burn"
+name = "wrapburn"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 burn = { version = "0.17.1", features = ["train", "wgpu", "ndarray"] }
-pyo3 = { version = "0.25.1", features = ["multiple-pymethods"] }
+pyo3 = { version = "0.25.1", features = ["multiple-pymethods", "extension-module"] }
 
 [features]
 # activate during development for analyzer to track effects

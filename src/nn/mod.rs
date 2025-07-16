@@ -12,15 +12,93 @@ use burn::nn::Linear;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
+mod wgpu_nn_exports;
+mod ndarray_nn_exports;
 // I thought send and Sync were implemented automatically??
 
+/// Neural network Module as implemented using a WGPU backend
+/// The module offers the typical building blocks relevant for
+/// building elaborate `nn` architectures.
+/// Includes; a conv module
+///           - attention module -- for building transformer architectures
+///           - cache module -- exposes the TensorCache
+///           - gru module for the `Gated Recurrent Unit`
+///           - loss module -- the loss functions
+///           - lstm module --
+///           - pool module -- exposing pooling layers particularly in use in CNN architectures
+///           - transformer module
+/// Some of these modules classes are re-exported at the base of the module
 #[cfg(feature = "wgpu")]
 #[pymodule]
-pub mod wgpu {
+pub mod wgpu_nn {
 
     use super::*;
     use burn::backend::wgpu::{Wgpu, WgpuDevice};
 
+    #[pymodule_export]
+    use wgpu_nn_exports::PyEmbedding;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyGateController;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyGeLu;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyGroupNorm;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyHardSigmoid;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyInitializer;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyInstanceNorm;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyInstanceNormConfig;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyInstanceNormRecord;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyLeakyRelu;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyLeakyReluConfig;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyLstm;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyLstmRecord;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyPRelu;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyLstmConfig;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyPReluRecord;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyPaddingConfig1d;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyPaddingConfig2d;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyPaddingConfig3d;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyPositionalEncoding;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyRmsNorm;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyRmsNormConfig;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyRmsNormRecord;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyRotaryEncoding;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyRotaryEncodingRecord;
+    #[pymodule_export]
+    use wgpu_nn_exports::PySigmoid;
+    #[pymodule_export]
+    use wgpu_nn_exports::PySwiGlu;
+    #[pymodule_export]
+    use wgpu_nn_exports::PySwiGluConfig;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyTanh;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyUnfold4d;
+    #[pymodule_export]
+    use wgpu_nn_exports::PyUnfold4dConfig;
+    
+    /// Applies Linear transformation over a tensor
     #[pyclass]
     #[derive(Debug)]
     #[repr(transparent)]
@@ -28,131 +106,85 @@ pub mod wgpu {
         pub inner: Linear<Wgpu>,
     }
 
+    /// Offers an avenue to configure the BatchNorm layer
     #[pyclass]
     #[derive(Debug)]
     #[repr(transparent)]
     pub struct PyBatchNormConfig(BatchNormConfig);
 
+    //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
+    /// The record type for the BatchNorm module
     #[pyclass]
     #[repr(transparent)]
     pub struct PyBatchNormRecord {
         pub inner: BatchNormRecord<Wgpu, 1>,
     }
 
+    /// The implementation of the Bidirectional LSTM module.
     #[pyclass]
     #[repr(transparent)]
     pub struct PyBiLSTM {
         pub inner: BiLstm<Wgpu>,
     }
 
+    /// Configuraation to build the BiLSTM module
     #[pyclass]
     pub struct PyBiLSTMConfig(pub BiLstmConfig);
 
+    /// The Dropout layer; set at random elements of the input tensor to zero during training.
     #[pyclass]
     #[derive(Debug)]
     #[repr(transparent)]
     pub struct PyDropout(pub Dropout);
 
+    implement_send_and_sync!(PyLinear);
+    implement_send_and_sync!(PyBatchNormRecord);
+    implement_send_and_sync!(PyBiLSTM);
+    
+    /// Loss module that exposes various loss functions
+    #[pymodule]
     pub mod loss {
         use super::*;
 
+        /// The BinaryCrossEntropyLoss; calculate oss from input logits and targets
         #[pyclass]
         pub struct PyBinaryCrossEntropy {
             pub inner: nn::loss::BinaryCrossEntropyLoss<Wgpu>,
         }
 
+        /// Configuration to build the BinaryCrossEntropyLoss
         #[pyclass]
         pub struct PyBinaryCrossEntropyConfig(pub nn::loss::BinaryCrossEntropyLossConfig);
 
+        /// calculate cross entropy loss from input logits to target
         #[pyclass]
         pub struct PyCrossEntropyLoss {
             pub inner: nn::loss::CrossEntropyLoss<Wgpu>,
         }
 
+        /// Calculate the HuberLoss between inputs and target
         #[pyclass]
         pub struct PyHuberLoss(pub nn::loss::HuberLoss);
 
+        /// Configuration to build the HuberLoss
         #[pyclass]
         pub struct PyHuberLossConfig(pub nn::loss::HuberLossConfig);
 
+        /// Calculate the mean squared error loss from the input logits and the targets.
         #[pyclass]
         pub struct MseLoss(pub nn::loss::MseLoss);
 
+        /// Negative Log Likelihood (NLL) loss with a Poisson distribution assumption for the target.
         #[pyclass]
         pub struct PoissonLoss(pub nn::loss::PoissonNllLoss);
 
+        /// Configuration to calculate the PoissonLoss
         #[pyclass]
         pub struct PoissonLossConfig(pub nn::loss::PoissonNllLossConfig);
 
         implement_send_and_sync!(PyBinaryCrossEntropy);
         implement_send_and_sync!(PyCrossEntropyLoss);
     }
-
-    implement_wgpu_interface!(PyGateController, GateController);
-    implement_wgpu_interface!(PyEmbedding, Embedding);
-    implement_wgpu_interface!(PyGroupNorm, GroupNorm);
-    implement_wgpu_interface!(PyInstanceNorm, InstanceNorm);
-    implement_wgpu_interface!(PyInstanceNormRecord, InstanceNormRecord);
-    implement_wgpu_interface!(PyLayerNorm, LayerNorm);
-    implement_wgpu_interface!(PyLayerNormRecord, LayerNormRecord);
-    // implement_wgpu_interface!(PyLinearRecord, LinearRecord);
-    implement_wgpu_interface!(PyLstm, Lstm);
-    implement_wgpu_interface!(PyLstmRecord, LstmRecord);
-    implement_wgpu_interface!(PyPRelu, PRelu);
-    implement_wgpu_interface!(PyPReluRecord, PReluRecord);
-    implement_wgpu_interface!(PyPositionalEncoding, PositionalEncoding);
-    implement_wgpu_interface!(PyPositionalEncodingRecord, PositionalEncodingRecord);
-    implement_wgpu_interface!(PyRmsNorm, RmsNorm);
-    implement_wgpu_interface!(PyRmsNormRecord, RmsNormRecord);
-    implement_wgpu_interface!(PyRotaryEncoding, RotaryEncoding);
-    implement_wgpu_interface!(PyRotaryEncodingRecord, RotaryEncodingRecord);
-    implement_wgpu_interface!(PySwiGlu, SwiGlu);
-    // implement_wgpu_interface!(PySwiGluRecord, SwiGluRecord);
-
-    for_normal_struct_enums!(PyUnfold4d, Unfold4d);
-    for_normal_struct_enums!(PyUnfold4dConfig, Unfold4dConfig);
-    for_normal_struct_enums!(PyTanh, Tanh);
-    for_normal_struct_enums!(PySwiGluConfig, SwiGluConfig);
-    for_normal_struct_enums!(PyPositionalEncodingConfig, PositionalEncodingConfig);
-    for_normal_struct_enums!(PyPReluConfig, PReluConfig);
-    for_normal_struct_enums!(PyLstmConfig, LstmConfig);
-    for_normal_struct_enums!(PyLeakyRelu, LeakyRelu);
-    for_normal_struct_enums!(PyLeakyReluConfig, LeakyReluConfig);
-    for_normal_struct_enums!(PyGeLu, Gelu);
-    for_normal_struct_enums!(PyHardSigmoid, HardSigmoid);
-    for_normal_struct_enums!(PyHardSigmoidConfig, HardSigmoidConfig);
-    for_normal_struct_enums!(PyInstanceNormConfig, InstanceNormConfig);
-    for_normal_struct_enums!(PyLayerNormConfig, LayerNormConfig);
-    for_normal_struct_enums!(PyRmsNormConfig, RmsNormConfig);
-    for_normal_struct_enums!(PySigmoid, Sigmoid);
-    for_normal_struct_enums!(PyInitializer, Initializer);
-    for_normal_struct_enums!(PyPaddingConfig1d, PaddingConfig1d);
-    for_normal_struct_enums!(PyPaddingConfig2d, PaddingConfig2d);
-    for_normal_struct_enums!(PyPaddingConfig3d, PaddingConfig3d);
-
-    implement_send_and_sync!(PySwiGlu);
-    // implement_send_and_sync!(PySwiGluRecord);
-    implement_send_and_sync!(PyRotaryEncoding);
-    implement_send_and_sync!(PyRotaryEncodingRecord);
-    implement_send_and_sync!(PyRmsNorm);
-    implement_send_and_sync!(PyRmsNormRecord);
-    implement_send_and_sync!(PyPositionalEncodingRecord);
-    implement_send_and_sync!(PyPositionalEncoding);
-    implement_send_and_sync!(PyPReluRecord);
-    implement_send_and_sync!(PyPRelu);
-    implement_send_and_sync!(PyLstm);
-    implement_send_and_sync!(PyLstmRecord);
-    // implement_send_and_sync!(PyLinearRecord);
-    implement_send_and_sync!(PyLayerNorm);
-    implement_send_and_sync!(PyLayerNormRecord);
-    implement_send_and_sync!(PyInstanceNormRecord);
-    implement_send_and_sync!(PyInstanceNorm);
-    implement_send_and_sync!(PyEmbedding);
-    implement_send_and_sync!(PyGroupNorm);
-    implement_send_and_sync!(PyLinear);
-    implement_send_and_sync!(PyBatchNormRecord);
-    implement_send_and_sync!(PyBiLSTM);
-    implement_send_and_sync!(PyGateController);
 
     #[pymodule]
     pub mod attention {
@@ -245,11 +277,11 @@ pub mod wgpu {
         for_normal_struct_enums!(PyInterpolateMode, InterpolateMode);
     }
 
-    #[pymodule]
-    pub mod pool {
-        use super::*;
+    mod pool_exports {
+        pub(crate) use super::*;
         use burn::nn::pool::*;
 
+        /// This is  the typical AdaptivePool1d layer
         for_normal_struct_enums!(PyAdaptiveAvgPool1d, AdaptiveAvgPool1d);
         for_normal_struct_enums!(PyAdaptiveAvgPool1dConfig, AdaptiveAvgPool1dConfig);
         for_normal_struct_enums!(PyAdaptiveAvgPool2d, AdaptiveAvgPool2d);
@@ -265,15 +297,41 @@ pub mod wgpu {
     }
 
     #[pymodule]
+    pub mod pool {
+        use super::*;
+
+        #[pymodule_export]
+        use super::pool_exports::PyAdaptiveAvgPool1d;
+
+        #[pymodule_export]
+        use super::pool_exports::PyAdaptiveAvgPool1dConfig;
+
+        #[pymodule_export]
+        use super::pool_exports::PyAdaptiveAvgPool2d;
+
+        #[pymodule_export]
+        use super::pool_exports::PyAdaptiveAvgPool2dConfig;
+
+        #[pymodule_export]
+        use super::pool_exports::PyAvgPool1d;
+    }
+
+    #[pymodule]
     pub mod transformer {
         use super::*;
         use burn::nn::transformer::*;
 
-        implement_wgpu_interface!(PyPositionWiseFeedForward, PositionWiseFeedForward);
+        #[pyclass]
+        pub struct PyPositionWiseFeedForward {
+            inner: PositionWiseFeedForward<Wgpu>,
+        }
+        // implement_wgpu_interface!(PyPositionWiseFeedForward, PositionWiseFeedForward);
+
         implement_wgpu_interface!(
             PyPositionWiseFeedForwardRecord,
             PositionWiseFeedForwardRecord
         );
+
         implement_wgpu_interface!(PyTransformerDecoder, TransformerDecoder);
         implement_wgpu_interface!(
             PyTransformerDecoderAutoregressiveCache,
@@ -322,6 +380,22 @@ pub mod wgpu {
     }
 }
 
+
+
+/// Neural network Module as implemented using a NdArray backend
+/// Basically, this means whatever training or inference will be perfomed
+/// by the CPU.
+/// The module offers the typical building blocks relevant for
+/// building elaborate `nn` architectures.
+/// Includes; a conv module
+///           - attention module -- for building transformer architectures
+///           - cache module -- exposes the TensorCache
+///           - gru module for the `Gated Recurrent Unit`
+///           - loss module -- the loss functions
+///           - lstm module --
+///           - pool module -- exposing pooling layers particularly in use in CNN architectures
+///           - transformer module
+/// Some of these modules classes are re-exported at the base of the module
 #[cfg(feature = "ndarray")]
 #[pymodule]
 pub mod ndarray {
@@ -329,6 +403,72 @@ pub mod ndarray {
     use super::*;
     use burn::backend::ndarray::*;
 
+
+    #[pymodule_export]
+    use ndarray_nn_exports::PyEmbedding;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyGateController;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyGeLu;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyGroupNorm;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyHardSigmoid;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyInitializer;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyInstanceNorm;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyInstanceNormConfig;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyInstanceNormRecord;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyLeakyRelu;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyLeakyReluConfig;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyLstm;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyLstmRecord;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyPRelu;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyLstmConfig;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyPReluRecord;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyPaddingConfig1d;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyPaddingConfig2d;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyPaddingConfig3d;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyPositionalEncoding;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyRmsNorm;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyRmsNormConfig;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyRmsNormRecord;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyRotaryEncoding;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyRotaryEncodingRecord;
+    #[pymodule_export]
+    use ndarray_nn_exports::PySigmoid;
+    #[pymodule_export]
+    use ndarray_nn_exports::PySwiGlu;
+    #[pymodule_export]
+    use ndarray_nn_exports::PySwiGluConfig;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyTanh;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyUnfold4d;
+    #[pymodule_export]
+    use ndarray_nn_exports::PyUnfold4dConfig;
+    
+    
+   
     #[pyclass]
     #[derive(Debug)]
     #[repr(transparent)]
@@ -396,71 +536,11 @@ pub mod ndarray {
         implement_send_and_sync!(PyCrossEntropyLoss);
     }
 
-    implement_ndarray_interface!(PyGateController, GateController);
-    implement_ndarray_interface!(PyEmbedding, Embedding);
-    implement_ndarray_interface!(PyGroupNorm, GroupNorm);
-    implement_ndarray_interface!(PyInstanceNorm, InstanceNorm);
-    implement_ndarray_interface!(PyInstanceNormRecord, InstanceNormRecord);
-    implement_ndarray_interface!(PyLayerNorm, LayerNorm);
-    implement_ndarray_interface!(PyLayerNormRecord, LayerNormRecord);
-    // implement_ndarray_interface!(PyLinearRecord, LinearRecord);
-    implement_ndarray_interface!(PyLstm, Lstm);
-    implement_ndarray_interface!(PyLstmRecord, LstmRecord);
-    implement_ndarray_interface!(PyPRelu, PRelu);
-    implement_ndarray_interface!(PyPReluRecord, PReluRecord);
-    implement_ndarray_interface!(PyPositionalEncoding, PositionalEncoding);
-    implement_ndarray_interface!(PyPositionalEncodingRecord, PositionalEncodingRecord);
-    implement_ndarray_interface!(PyRmsNorm, RmsNorm);
-    implement_ndarray_interface!(PyRmsNormRecord, RmsNormRecord);
-    implement_ndarray_interface!(PyRotaryEncoding, RotaryEncoding);
-    implement_ndarray_interface!(PyRotaryEncodingRecord, RotaryEncodingRecord);
-    implement_ndarray_interface!(PySwiGlu, SwiGlu);
-    // implement_ndarray_interface!(PySwiGluRecord, SwiGluRecord);
-
-    for_normal_struct_enums!(PyUnfold4d, Unfold4d);
-    for_normal_struct_enums!(PyUnfold4dConfig, Unfold4dConfig);
-    for_normal_struct_enums!(PyTanh, Tanh);
-    for_normal_struct_enums!(PySwiGluConfig, SwiGluConfig);
-    for_normal_struct_enums!(PyPositionalEncodingConfig, PositionalEncodingConfig);
-    for_normal_struct_enums!(PyPReluConfig, PReluConfig);
-    for_normal_struct_enums!(PyLstmConfig, LstmConfig);
-    for_normal_struct_enums!(PyLeakyRelu, LeakyRelu);
-    for_normal_struct_enums!(PyLeakyReluConfig, LeakyReluConfig);
-    for_normal_struct_enums!(PyGeLu, Gelu);
-    for_normal_struct_enums!(PyHardSigmoid, HardSigmoid);
-    for_normal_struct_enums!(PyHardSigmoidConfig, HardSigmoidConfig);
-    for_normal_struct_enums!(PyInstanceNormConfig, InstanceNormConfig);
-    for_normal_struct_enums!(PyLayerNormConfig, LayerNormConfig);
-    for_normal_struct_enums!(PyRmsNormConfig, RmsNormConfig);
-    for_normal_struct_enums!(PySigmoid, Sigmoid);
-    for_normal_struct_enums!(PyInitializer, Initializer);
-    for_normal_struct_enums!(PyPaddingConfig1d, PaddingConfig1d);
-    for_normal_struct_enums!(PyPaddingConfig2d, PaddingConfig2d);
-    for_normal_struct_enums!(PyPaddingConfig3d, PaddingConfig3d);
-
-    implement_send_and_sync!(PySwiGlu);
-    // implement_send_and_sync!(PySwiGluRecord);
-    implement_send_and_sync!(PyRotaryEncoding);
-    implement_send_and_sync!(PyRotaryEncodingRecord);
-    implement_send_and_sync!(PyRmsNorm);
-    implement_send_and_sync!(PyRmsNormRecord);
-    implement_send_and_sync!(PyPositionalEncodingRecord);
-    implement_send_and_sync!(PyPositionalEncoding);
-    implement_send_and_sync!(PyPReluRecord);
-    implement_send_and_sync!(PyPRelu);
-    implement_send_and_sync!(PyLstm);
-    implement_send_and_sync!(PyLstmRecord);
-    // implement_send_and_sync!(PyLinearRecord);
-    implement_send_and_sync!(PyLayerNorm);
-    implement_send_and_sync!(PyLayerNormRecord);
-    implement_send_and_sync!(PyInstanceNormRecord);
-    implement_send_and_sync!(PyInstanceNorm);
-    implement_send_and_sync!(PyEmbedding);
-    implement_send_and_sync!(PyGroupNorm);
+   
     implement_send_and_sync!(PyLinear);
     implement_send_and_sync!(PyBatchNormRecord);
     implement_send_and_sync!(PyBiLSTM);
-    implement_send_and_sync!(PyGateController);
+   
 
     #[pymodule]
     pub mod attention {

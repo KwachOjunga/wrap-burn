@@ -1,11 +1,25 @@
+#![recursion_limit = "256"]
+
+use pyo3::prelude::*;
+
 mod nn;
 mod optim;
-mod train;
 mod record;
+mod train;
 
 #[macro_export]
 macro_rules! implement_ndarray_interface {
-    ($name:ident, $actual_type:ident) => {
+    ($(#[$meta:meta])* $name:ident, $actual_type:ident ,$doc:literal) => {
+        use burn::backend::ndarray::*;
+
+        #[doc = $doc]
+        #[pyclass]
+        pub struct $name {
+            pub inner: $actual_type<NdArray>,
+        }
+    };
+
+    ($(#[$meta:meta])* $name:ident, $actual_type:ident) => {
         use burn::backend::ndarray::*;
 
         #[pyclass]
@@ -25,7 +39,16 @@ macro_rules! implement_send_and_sync {
 
 #[macro_export]
 macro_rules! implement_wgpu_interface {
-    ($name:ident, $actual_type:ident) => {
+    ($(#[$meta:meta])* $name:ident, $actual_type:ident, $doc:literal) => {
+        use burn::backend::wgpu::*;
+        #[doc = $doc]
+        #[pyclass]
+        pub struct $name {
+            pub inner: $actual_type<Wgpu>,
+        }
+    };
+
+    ($(#[$meta:meta])* $name:ident, $actual_type:ident) => {
         use burn::backend::wgpu::*;
 
         #[pyclass]
@@ -37,18 +60,32 @@ macro_rules! implement_wgpu_interface {
 
 #[macro_export]
 macro_rules! for_normal_struct_enums {
-    ($name:ident, $actual_type:ident) => {
+    ($(#[$meta:meta])* $name:ident, $actual_type:ident, $doc:literal) => {
+        #[doc = $doc]
+        #[pyclass]
+        pub struct $name(pub $actual_type);
+    };
+
+    ($(#[$meta:meta])* $name:ident, $actual_type:ident) => {
         #[pyclass]
         pub struct $name(pub $actual_type);
     };
 }
 
-
-
 #[cfg(feature = "wgpu")]
-pub use nn::wgpu as nn;
-// pub use optim::wgpu as optim;
+#[pymodule]
+mod wrapburn {
+    use super::*;
+
+    #[pymodule_export]
+    use super::nn::wgpu_nn;
+}
 
 #[cfg(feature = "ndarray")]
-pub use nn::ndarray as nn;
+#[pymodule]
+mod wrapburn {
+
+    #[pymodule_export]
+    use super::nn::ndarray as nn;
+}
 // pub use optim::ndarray as optim;

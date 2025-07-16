@@ -5402,7 +5402,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "wrap-burn"
+name = "wrapburn"
 version = "0.1.0"
 dependencies = [
  "burn",
