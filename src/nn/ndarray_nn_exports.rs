@@ -198,3 +198,24 @@ implement_send_and_sync!(PyInstanceNorm);
 implement_send_and_sync!(PyEmbedding);
 implement_send_and_sync!(PyGroupNorm);
 implement_send_and_sync!(PyGateController);
+
+pub mod attention_exports {
+    use super::*;
+        use burn::nn::attention::*;
+        
+
+        // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
+
+        implement_ndarray_interface!(PyGeneratePaddingMask, GeneratePaddingMask,"Generate a padding attention mask.");
+        implement_ndarray_interface!(PyMhaCache, MhaCache, "Cache for the Multi Head Attention layer.");
+        implement_ndarray_interface!(PyMhaInput, MhaInput, "Multihead attention forward pass input argument.");
+        implement_ndarray_interface!(PyMultiHeadAttention, MultiHeadAttention, "The multihead attention module as describe in the paper Attention Is All You Need.");
+        implement_ndarray_interface!(PyMhaOutput, MhaOutput, "Multihead attention outputs.");
+        implement_ndarray_interface!(PyMultiHeadAttentionRecord, MultiHeadAttentionRecord, "Record type for the MultiHeadAttention");
+
+        for_normal_struct_enums!(PyMultiHeadAttentionConfig, MultiHeadAttentionConfig, "Configuration for the MultiheadAttention module");
+
+        implement_send_and_sync!(PyMultiHeadAttentionRecord);
+        implement_send_and_sync!(PyMultiHeadAttention);
+        implement_send_and_sync!(PyMhaOutput);
+}

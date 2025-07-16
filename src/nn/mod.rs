@@ -189,24 +189,22 @@ pub mod wgpu_nn {
     #[pymodule]
     pub mod attention {
         use super::*;
-        use burn::nn::attention::*;
-        use burn::prelude::*;
-        use pyo3::prelude::*;
 
-        // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyGeneratePaddingMask;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMhaCache;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMhaInput;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMhaOutput;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMultiHeadAttention;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMultiHeadAttentionConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMultiHeadAttentionRecord;
 
-        implement_wgpu_interface!(PyGeneratePaddingMask, GeneratePaddingMask);
-        implement_wgpu_interface!(PyMhaCache, MhaCache);
-        implement_wgpu_interface!(PyMhaInput, MhaInput);
-        implement_wgpu_interface!(PyMultiHeadAttention, MultiHeadAttention);
-        implement_wgpu_interface!(PyMhaOutput, MhaOutput);
-        implement_wgpu_interface!(PyMultiHeadAttentionRecord, MultiHeadAttentionRecord);
-
-        for_normal_struct_enums!(PyMultiHeadAttentionConfig, MultiHeadAttentionConfig);
-
-        implement_send_and_sync!(PyMultiHeadAttentionRecord);
-        implement_send_and_sync!(PyMultiHeadAttention);
-        implement_send_and_sync!(PyMhaOutput);
     }
 
     #[pymodule]
@@ -545,24 +543,22 @@ pub mod ndarray {
     #[pymodule]
     pub mod attention {
         use super::*;
-        use burn::nn::attention::*;
-        use burn::prelude::*;
-        use pyo3::prelude::*;
 
-        // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyGeneratePaddingMask;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMhaCache;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMhaInput;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMhaOutput;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMultiHeadAttention;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMultiHeadAttentionConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::PyMultiHeadAttentionRecord;
 
-        implement_ndarray_interface!(PyGeneratePaddingMask, GeneratePaddingMask);
-        implement_ndarray_interface!(PyMhaCache, MhaCache);
-        implement_ndarray_interface!(PyMhaInput, MhaInput);
-        implement_ndarray_interface!(PyMultiHeadAttention, MultiHeadAttention);
-        implement_ndarray_interface!(PyMhaOutput, MhaOutput);
-        implement_ndarray_interface!(PyMultiHeadAttentionRecord, MultiHeadAttentionRecord);
-
-        for_normal_struct_enums!(PyMultiHeadAttentionConfig, MultiHeadAttentionConfig);
-
-        implement_send_and_sync!(PyMultiHeadAttentionRecord);
-        implement_send_and_sync!(PyMultiHeadAttention);
-        implement_send_and_sync!(PyMhaOutput);
     }
 
     #[pymodule]
