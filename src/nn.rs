@@ -4,43 +4,15 @@
 //! [`wrap-burn`] attempts to expose burn's modules and methods in a manner that permits it to work
 //! as a python interface. This module exposes the [`burn::nn`] module.
 
+use crate::{
+    for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync,
+    implement_wgpu_interface,
+};
 use burn::nn::Linear;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
-
 // I thought send and Sync were implemented automatically??
-macro_rules! implement_send_and_sync {
-    ($name:ty) => {
-        unsafe impl Send for $name {}
-        unsafe impl Sync for $name {}
-    };
-}
-
-macro_rules! implement_wgpu_interface {
-    ($name:ident, $actual_type:ident) => {
-        #[pyclass]
-        pub struct $name {
-            pub inner: $actual_type<Wgpu>,
-        }
-    };
-}
-
-macro_rules! for_normal_struct_enums {
-    ($name:ident, $actual_type:ident) => {
-        #[pyclass]
-        pub struct $name(pub $actual_type);
-    };
-}
-
-macro_rules! implement_ndarray_interface {
-    ($name:ident, $actual_type:ident) => {
-        #[pyclass]
-        pub struct $name {
-            pub inner: $actual_type<NdArray>,
-        }
-    };
-}
 
 #[cfg(feature = "wgpu")]
 #[pymodule]
@@ -184,14 +156,14 @@ pub mod wgpu {
 
     #[pymodule]
     pub mod attention {
-        use burn::nn::attention::*;
-        use pyo3::prelude::*;
-        use burn::prelude::*;
         use super::*;
+        use burn::nn::attention::*;
+        use burn::prelude::*;
+        use pyo3::prelude::*;
 
         // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
 
-        implement_wgpu_interface!(PyGeneratePaddingMask,GeneratePaddingMask);
+        implement_wgpu_interface!(PyGeneratePaddingMask, GeneratePaddingMask);
         implement_wgpu_interface!(PyMhaCache, MhaCache);
         implement_wgpu_interface!(PyMhaInput, MhaInput);
         implement_wgpu_interface!(PyMultiHeadAttention, MultiHeadAttention);
@@ -203,14 +175,13 @@ pub mod wgpu {
         implement_send_and_sync!(PyMultiHeadAttentionRecord);
         implement_send_and_sync!(PyMultiHeadAttention);
         implement_send_and_sync!(PyMhaOutput);
-        
     }
 
     #[pymodule]
     pub mod conv {
         use super::*;
-        use burn::prelude::*;
         use burn::nn::conv::*;
+        use burn::prelude::*;
 
         implement_wgpu_interface!(PyDeformConv2d, DeformConv2d);
         implement_wgpu_interface!(PyDeformConv2dRecord, DeformConv2dRecord);
@@ -253,25 +224,25 @@ pub mod wgpu {
 
         implement_wgpu_interface!(PyGru, Gru);
         implement_wgpu_interface!(PyGruRecord, GruRecord);
-        
+
         for_normal_struct_enums!(PyGruConfig, GruConfig);
-        
+
         implement_send_and_sync!(PyGruRecord);
         implement_send_and_sync!(PyGru);
     }
 
     #[pymodule]
     pub mod interpolate {
-        use burn::nn::interpolate::*;
-        use pyo3::prelude::*;
-        use burn::prelude::*;
         use super::*;
+        use burn::nn::interpolate::*;
+        use burn::prelude::*;
+        use pyo3::prelude::*;
 
         for_normal_struct_enums!(PyInterpolate1d, Interpolate1d);
         for_normal_struct_enums!(PyInterpolate1dConfig, Interpolate1dConfig);
         for_normal_struct_enums!(PyInterpolate2d, Interpolate2d);
         for_normal_struct_enums!(PyInterpolate2dConfig, Interpolate2dConfig);
-       for_normal_struct_enums!(PyInterpolateMode, InterpolateMode);
+        for_normal_struct_enums!(PyInterpolateMode, InterpolateMode);
     }
 
     #[pymodule]
@@ -293,47 +264,63 @@ pub mod wgpu {
         for_normal_struct_enums!(PyMaxPool2dConfig, MaxPool2dConfig);
     }
 
-
     #[pymodule]
     pub mod transformer {
         use super::*;
         use burn::nn::transformer::*;
 
-        implement_wgpu_interface!(PyPositionWiseFeedForward,  PositionWiseFeedForward);
-        implement_wgpu_interface!(PyPositionWiseFeedForwardRecord, PositionWiseFeedForwardRecord);
+        implement_wgpu_interface!(PyPositionWiseFeedForward, PositionWiseFeedForward);
+        implement_wgpu_interface!(
+            PyPositionWiseFeedForwardRecord,
+            PositionWiseFeedForwardRecord
+        );
         implement_wgpu_interface!(PyTransformerDecoder, TransformerDecoder);
-        implement_wgpu_interface!(PyTransformerDecoderAutoregressiveCache, TransformerDecoderAutoregressiveCache);
+        implement_wgpu_interface!(
+            PyTransformerDecoderAutoregressiveCache,
+            TransformerDecoderAutoregressiveCache
+        );
         implement_wgpu_interface!(PyTransformerDecoderInput, TransformerDecoderInput);
         implement_wgpu_interface!(PyTransformerDecoderLayer, TransformerDecoderLayer);
-        implement_wgpu_interface!(PyTransformerDecoderLayerRecord, TransformerDecoderLayerRecord);
-        implement_wgpu_interface!(PyTransformerDecoderRecord,TransformerDecoderRecord);
+        implement_wgpu_interface!(
+            PyTransformerDecoderLayerRecord,
+            TransformerDecoderLayerRecord
+        );
+        implement_wgpu_interface!(PyTransformerDecoderRecord, TransformerDecoderRecord);
         implement_wgpu_interface!(PyTransformerEncoder, TransformerEncoder);
-        implement_wgpu_interface!(PyTransformerEncoderAutoregressiveCache, TransformerEncoderAutoregressiveCache);
+        implement_wgpu_interface!(
+            PyTransformerEncoderAutoregressiveCache,
+            TransformerEncoderAutoregressiveCache
+        );
         implement_wgpu_interface!(PyTransformerEncoderLayer, TransformerEncoderLayer);
-        implement_wgpu_interface!(PyTransformerEncoderLayerRecord, TransformerEncoderLayerRecord);
-        implement_wgpu_interface!(PyTransformerEncoderRecord,TransformerEncoderRecord);
+        implement_wgpu_interface!(
+            PyTransformerEncoderLayerRecord,
+            TransformerEncoderLayerRecord
+        );
+        implement_wgpu_interface!(PyTransformerEncoderRecord, TransformerEncoderRecord);
         implement_wgpu_interface!(PyTransformerEncoderInput, TransformerEncoderInput);
 
-        for_normal_struct_enums!(PyPositionWiseFeedForwardConfig, PositionWiseFeedForwardConfig);
+        for_normal_struct_enums!(
+            PyPositionWiseFeedForwardConfig,
+            PositionWiseFeedForwardConfig
+        );
         for_normal_struct_enums!(PyTransformerDecoderConfig, TransformerDecoderConfig);
 
         implement_send_and_sync!(PyTransformerEncoderRecord);
         implement_send_and_sync!(PyTransformerEncoderLayerRecord);
         implement_send_and_sync!(PyTransformerEncoderLayer);
         implement_send_and_sync!(PyTransformerEncoderInput);
-       implement_send_and_sync!(PyTransformerEncoderAutoregressiveCache);
+        implement_send_and_sync!(PyTransformerEncoderAutoregressiveCache);
         implement_send_and_sync!(PyTransformerEncoder);
         implement_send_and_sync!(PyTransformerDecoderRecord);
         implement_send_and_sync!(PyTransformerDecoderLayerRecord);
         implement_send_and_sync!(PyTransformerDecoderLayer);
         implement_send_and_sync!(PyTransformerDecoderInput);
-       implement_send_and_sync!(PyTransformerDecoderAutoregressiveCache);
+        implement_send_and_sync!(PyTransformerDecoderAutoregressiveCache);
         implement_send_and_sync!(PyTransformerDecoder);
         implement_send_and_sync!(PyPositionWiseFeedForward);
         implement_send_and_sync!(PyPositionWiseFeedForwardRecord);
     }
 }
-
 
 #[cfg(feature = "ndarray")]
 #[pymodule]
@@ -477,14 +464,14 @@ pub mod ndarray {
 
     #[pymodule]
     pub mod attention {
-        use burn::nn::attention::*;
-        use pyo3::prelude::*;
-        use burn::prelude::*;
         use super::*;
+        use burn::nn::attention::*;
+        use burn::prelude::*;
+        use pyo3::prelude::*;
 
         // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
 
-        implement_ndarray_interface!(PyGeneratePaddingMask,GeneratePaddingMask);
+        implement_ndarray_interface!(PyGeneratePaddingMask, GeneratePaddingMask);
         implement_ndarray_interface!(PyMhaCache, MhaCache);
         implement_ndarray_interface!(PyMhaInput, MhaInput);
         implement_ndarray_interface!(PyMultiHeadAttention, MultiHeadAttention);
@@ -496,14 +483,13 @@ pub mod ndarray {
         implement_send_and_sync!(PyMultiHeadAttentionRecord);
         implement_send_and_sync!(PyMultiHeadAttention);
         implement_send_and_sync!(PyMhaOutput);
-        
     }
 
     #[pymodule]
     pub mod conv {
         use super::*;
-        use burn::prelude::*;
         use burn::nn::conv::*;
+        use burn::prelude::*;
 
         implement_ndarray_interface!(PyDeformConv2d, DeformConv2d);
         implement_ndarray_interface!(PyDeformConv2dRecord, DeformConv2dRecord);
@@ -546,25 +532,25 @@ pub mod ndarray {
 
         implement_ndarray_interface!(PyGru, Gru);
         implement_ndarray_interface!(PyGruRecord, GruRecord);
-        
+
         for_normal_struct_enums!(PyGruConfig, GruConfig);
-        
+
         implement_send_and_sync!(PyGruRecord);
         implement_send_and_sync!(PyGru);
     }
 
     #[pymodule]
     pub mod interpolate {
-        use burn::nn::interpolate::*;
-        use pyo3::prelude::*;
-        use burn::prelude::*;
         use super::*;
+        use burn::nn::interpolate::*;
+        use burn::prelude::*;
+        use pyo3::prelude::*;
 
         for_normal_struct_enums!(PyInterpolate1d, Interpolate1d);
         for_normal_struct_enums!(PyInterpolate1dConfig, Interpolate1dConfig);
         for_normal_struct_enums!(PyInterpolate2d, Interpolate2d);
         for_normal_struct_enums!(PyInterpolate2dConfig, Interpolate2dConfig);
-       for_normal_struct_enums!(PyInterpolateMode, InterpolateMode);
+        for_normal_struct_enums!(PyInterpolateMode, InterpolateMode);
     }
 
     #[pymodule]
@@ -586,41 +572,58 @@ pub mod ndarray {
         for_normal_struct_enums!(PyMaxPool2dConfig, MaxPool2dConfig);
     }
 
-
     #[pymodule]
     pub mod transformer {
         use super::*;
         use burn::nn::transformer::*;
 
-        implement_ndarray_interface!(PyPositionWiseFeedForward,  PositionWiseFeedForward);
-        implement_ndarray_interface!(PyPositionWiseFeedForwardRecord, PositionWiseFeedForwardRecord);
+        implement_ndarray_interface!(PyPositionWiseFeedForward, PositionWiseFeedForward);
+        implement_ndarray_interface!(
+            PyPositionWiseFeedForwardRecord,
+            PositionWiseFeedForwardRecord
+        );
         implement_ndarray_interface!(PyTransformerDecoder, TransformerDecoder);
-        implement_ndarray_interface!(PyTransformerDecoderAutoregressiveCache, TransformerDecoderAutoregressiveCache);
+        implement_ndarray_interface!(
+            PyTransformerDecoderAutoregressiveCache,
+            TransformerDecoderAutoregressiveCache
+        );
         implement_ndarray_interface!(PyTransformerDecoderInput, TransformerDecoderInput);
         implement_ndarray_interface!(PyTransformerDecoderLayer, TransformerDecoderLayer);
-        implement_ndarray_interface!(PyTransformerDecoderLayerRecord, TransformerDecoderLayerRecord);
-        implement_ndarray_interface!(PyTransformerDecoderRecord,TransformerDecoderRecord);
+        implement_ndarray_interface!(
+            PyTransformerDecoderLayerRecord,
+            TransformerDecoderLayerRecord
+        );
+        implement_ndarray_interface!(PyTransformerDecoderRecord, TransformerDecoderRecord);
         implement_ndarray_interface!(PyTransformerEncoder, TransformerEncoder);
-        implement_ndarray_interface!(PyTransformerEncoderAutoregressiveCache, TransformerEncoderAutoregressiveCache);
+        implement_ndarray_interface!(
+            PyTransformerEncoderAutoregressiveCache,
+            TransformerEncoderAutoregressiveCache
+        );
         implement_ndarray_interface!(PyTransformerEncoderLayer, TransformerEncoderLayer);
-        implement_ndarray_interface!(PyTransformerEncoderLayerRecord, TransformerEncoderLayerRecord);
-        implement_ndarray_interface!(PyTransformerEncoderRecord,TransformerEncoderRecord);
+        implement_ndarray_interface!(
+            PyTransformerEncoderLayerRecord,
+            TransformerEncoderLayerRecord
+        );
+        implement_ndarray_interface!(PyTransformerEncoderRecord, TransformerEncoderRecord);
         implement_ndarray_interface!(PyTransformerEncoderInput, TransformerEncoderInput);
 
-        for_normal_struct_enums!(PyPositionWiseFeedForwardConfig, PositionWiseFeedForwardConfig);
+        for_normal_struct_enums!(
+            PyPositionWiseFeedForwardConfig,
+            PositionWiseFeedForwardConfig
+        );
         for_normal_struct_enums!(PyTransformerDecoderConfig, TransformerDecoderConfig);
 
         implement_send_and_sync!(PyTransformerEncoderRecord);
         implement_send_and_sync!(PyTransformerEncoderLayerRecord);
         implement_send_and_sync!(PyTransformerEncoderLayer);
         implement_send_and_sync!(PyTransformerEncoderInput);
-       implement_send_and_sync!(PyTransformerEncoderAutoregressiveCache);
+        implement_send_and_sync!(PyTransformerEncoderAutoregressiveCache);
         implement_send_and_sync!(PyTransformerEncoder);
         implement_send_and_sync!(PyTransformerDecoderRecord);
         implement_send_and_sync!(PyTransformerDecoderLayerRecord);
         implement_send_and_sync!(PyTransformerDecoderLayer);
         implement_send_and_sync!(PyTransformerDecoderInput);
-       implement_send_and_sync!(PyTransformerDecoderAutoregressiveCache);
+        implement_send_and_sync!(PyTransformerDecoderAutoregressiveCache);
         implement_send_and_sync!(PyTransformerDecoder);
         implement_send_and_sync!(PyPositionWiseFeedForward);
         implement_send_and_sync!(PyPositionWiseFeedForwardRecord);

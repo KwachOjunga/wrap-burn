@@ -8,6 +8,7 @@ burn = { version = "0.17.1", features = ["train", "wgpu", "ndarray"] }
 pyo3 = { version = "0.25.1", features = ["multiple-pymethods"] }
 
 [features]
+# activate during development for analyzer to track effects
 default = ["wgpu", "ndarray"]
 ndarray = ["burn/ndarray"]
 wgpu = ["burn/wgpu"]
