@@ -1,6 +1,4 @@
-use crate::{
-    for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync
-};
+use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
 use burn::nn::Linear;
 use burn::nn::*;
 use burn::prelude::*;
@@ -201,21 +199,264 @@ implement_send_and_sync!(PyGateController);
 
 pub mod attention_exports {
     use super::*;
-        use burn::nn::attention::*;
-        
+    use burn::nn::attention::*;
 
-        // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
+    // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
 
-        implement_ndarray_interface!(PyGeneratePaddingMask, GeneratePaddingMask,"Generate a padding attention mask.");
-        implement_ndarray_interface!(PyMhaCache, MhaCache, "Cache for the Multi Head Attention layer.");
-        implement_ndarray_interface!(PyMhaInput, MhaInput, "Multihead attention forward pass input argument.");
-        implement_ndarray_interface!(PyMultiHeadAttention, MultiHeadAttention, "The multihead attention module as describe in the paper Attention Is All You Need.");
-        implement_ndarray_interface!(PyMhaOutput, MhaOutput, "Multihead attention outputs.");
-        implement_ndarray_interface!(PyMultiHeadAttentionRecord, MultiHeadAttentionRecord, "Record type for the MultiHeadAttention");
+    implement_ndarray_interface!(
+        PyGeneratePaddingMask,
+        GeneratePaddingMask,
+        "Generate a padding attention mask."
+    );
+    implement_ndarray_interface!(
+        PyMhaCache,
+        MhaCache,
+        "Cache for the Multi Head Attention layer."
+    );
+    implement_ndarray_interface!(
+        PyMhaInput,
+        MhaInput,
+        "Multihead attention forward pass input argument."
+    );
+    implement_ndarray_interface!(
+        PyMultiHeadAttention,
+        MultiHeadAttention,
+        "The multihead attention module as describe in the paper Attention Is All You Need."
+    );
+    implement_ndarray_interface!(PyMhaOutput, MhaOutput, "Multihead attention outputs.");
+    implement_ndarray_interface!(
+        PyMultiHeadAttentionRecord,
+        MultiHeadAttentionRecord,
+        "Record type for the MultiHeadAttention"
+    );
 
-        for_normal_struct_enums!(PyMultiHeadAttentionConfig, MultiHeadAttentionConfig, "Configuration for the MultiheadAttention module");
+    for_normal_struct_enums!(
+        PyMultiHeadAttentionConfig,
+        MultiHeadAttentionConfig,
+        "Configuration for the MultiheadAttention module"
+    );
 
-        implement_send_and_sync!(PyMultiHeadAttentionRecord);
-        implement_send_and_sync!(PyMultiHeadAttention);
-        implement_send_and_sync!(PyMhaOutput);
+    implement_send_and_sync!(PyMultiHeadAttentionRecord);
+    implement_send_and_sync!(PyMultiHeadAttention);
+    implement_send_and_sync!(PyMhaOutput);
+}
+
+pub mod transformer_exports {
+    use super::*;
+    use burn::nn::transformer::*;
+
+    implement_ndarray_interface!(
+        PyPositionWiseFeedForwardRecord,
+        PositionWiseFeedForwardRecord,
+        "Record type for position wise feed forward record"
+    );
+
+    implement_ndarray_interface!(PyTransformerDecoder, TransformerDecoder);
+    implement_ndarray_interface!(
+        PyTransformerDecoderAutoregressiveCache,
+        TransformerDecoderAutoregressiveCache,
+        "Autoregressive cache for the Transformer Decoder layer"
+    );
+    implement_ndarray_interface!(
+        PyTransformerDecoderInput,
+        TransformerDecoderInput,
+        "Transformer Decoder forward pass input argument"
+    );
+    implement_ndarray_interface!(
+        PyTransformerDecoderLayer,
+        TransformerDecoderLayer,
+        "Transformer Decoder layer module."
+    );
+    implement_ndarray_interface!(
+        PyTransformerDecoderLayerRecord,
+        TransformerDecoderLayerRecord,
+        "Record type for the transformer decoder layer"
+    );
+    implement_ndarray_interface!(
+        PyTransformerDecoderRecord,
+        TransformerDecoderRecord,
+        "Record type for the transformer decoder"
+    );
+    implement_ndarray_interface!(
+        PyTransformerEncoder,
+        TransformerEncoder,
+        "The transformer encoder module as describe in the paper Attention Is All You Need."
+    );
+    implement_ndarray_interface!(
+        PyTransformerEncoderAutoregressiveCache,
+        TransformerEncoderAutoregressiveCache,
+        "Autoregressive cache for the Transformer Encoder layer.\nTo be used during inference when decoding tokens."
+    );
+    implement_ndarray_interface!(
+        PyTransformerEncoderLayer,
+        TransformerEncoderLayer,
+        "Transformer encoder layer module."
+    );
+    implement_ndarray_interface!(
+        PyTransformerEncoderLayerRecord,
+        TransformerEncoderLayerRecord,
+        "Record type of the transformer encoder layer module"
+    );
+    implement_ndarray_interface!(
+        PyTransformerEncoderRecord,
+        TransformerEncoderRecord,
+        "Record type of the transformer encoder module"
+    );
+    implement_ndarray_interface!(
+        PyTransformerEncoderInput,
+        TransformerEncoderInput,
+        "Transformer Encoder forward pass input argument"
+    );
+
+    for_normal_struct_enums!(
+        PyPositionWiseFeedForwardConfig,
+        PositionWiseFeedForwardConfig,
+        "Configuration to create a position-wise feed-forward layer"
+    );
+    for_normal_struct_enums!(
+        PyTransformerDecoderConfig,
+        TransformerDecoderConfig,
+        "Configuration to create a Transformer Decoder layer"
+    );
+
+    implement_send_and_sync!(PyTransformerEncoderRecord);
+    implement_send_and_sync!(PyTransformerEncoderLayerRecord);
+    implement_send_and_sync!(PyTransformerEncoderLayer);
+    implement_send_and_sync!(PyTransformerEncoderInput);
+    implement_send_and_sync!(PyTransformerEncoderAutoregressiveCache);
+    implement_send_and_sync!(PyTransformerEncoder);
+    implement_send_and_sync!(PyTransformerDecoderRecord);
+    implement_send_and_sync!(PyTransformerDecoderLayerRecord);
+    implement_send_and_sync!(PyTransformerDecoderLayer);
+    implement_send_and_sync!(PyTransformerDecoderInput);
+    implement_send_and_sync!(PyTransformerDecoderAutoregressiveCache);
+    implement_send_and_sync!(PyTransformerDecoder);
+    implement_send_and_sync!(PyPositionWiseFeedForwardRecord);
+}
+
+pub mod conv_exports {
+    use super::*;
+    use burn::nn::conv::*;
+    use burn::prelude::*;
+
+    implement_ndarray_interface!(
+        PyDeformConv2d,
+        DeformConv2d,
+        "
+Applies a deformable 2D convolution over input tensors."
+    );
+    implement_ndarray_interface!(
+        PyDeformConv2dRecord,
+        DeformConv2dRecord,
+        "record type for the 2d deformable conolution module"
+    );
+    implement_ndarray_interface!(
+        PyConv1d,
+        Conv1d,
+        "Applies a 1D convolution over input tensors."
+    );
+    implement_ndarray_interface!(
+        PyConv1dRecord,
+        Conv1dRecord,
+        "record type for the 1D convolutional module."
+    );
+    implement_ndarray_interface!(
+        PyConv2d,
+        Conv2d,
+        "
+Applies a 2D convolution over input tensors."
+    );
+    implement_ndarray_interface!(
+        PyConv2dRecord,
+        Conv2dRecord,
+        "record type for the 2D convolutional module."
+    );
+    implement_ndarray_interface!(
+        PyConv3D,
+        Conv3d,
+        "
+Applies a 3D convolution over input tensors."
+    );
+    implement_ndarray_interface!(
+        PyConvTranspose1d,
+        ConvTranspose1d,
+        "Applies a 1D transposed convolution over input tensors"
+    );
+    implement_ndarray_interface!(
+        PyConvTranspose1dRecord,
+        ConvTranspose1dRecord,
+        " record type for the 1D convolutional transpose module."
+    );
+    implement_ndarray_interface!(
+        PyConvTranspose2d,
+        ConvTranspose2d,
+        "Applies a 2D transposed convolution over input tensors."
+    );
+    implement_ndarray_interface!(
+        PyConvTranspose2dRecord,
+        ConvTranspose2dRecord,
+        "record type for the 3D convolutional transpose module"
+    );
+    implement_ndarray_interface!(
+        PyConvTranspose3d,
+        ConvTranspose3d,
+        "Applies a 3D transposed convolution over input tensors."
+    );
+    implement_ndarray_interface!(
+        PyConvTranspose3dRecord,
+        ConvTranspose3dRecord,
+        " record type for the 3D convolutional transpose module."
+    );
+
+    for_normal_struct_enums!(
+        PyDeformConv2dConfig,
+        DeformConv2dConfig,
+        "Configuration for the 2d Deform convolution layer."
+    );
+    for_normal_struct_enums!(
+        PyConvTranspose1dConfig,
+        ConvTranspose1dConfig,
+        "Configuration to create a 1D convolution transpose layer."
+    );
+    for_normal_struct_enums!(
+        PyConvTranspose2dConfig,
+        ConvTranspose2dConfig,
+        "Configuration to create a 2D convolution transpose layer"
+    );
+    for_normal_struct_enums!(
+        PyConvTranspose3dConfig,
+        ConvTranspose3dConfig,
+        "Configuration to create a 3D convolution transpose layer"
+    );
+    for_normal_struct_enums!(
+        PyConv1DConfig,
+        Conv1dConfig,
+        "Configuration to create a 1D convolution layer"
+    );
+    for_normal_struct_enums!(
+        PyConv2DConfig,
+        Conv2dConfig,
+        "
+Configuration to create a 2D convolution layer,"
+    );
+    for_normal_struct_enums!(
+        PyConv3DConfig,
+        Conv3dConfig,
+        "
+Configuration to create a 3D convolution layer,"
+    );
+
+    implement_send_and_sync!(PyConv1d);
+    implement_send_and_sync!(PyConv3D);
+    implement_send_and_sync!(PyConv1dRecord);
+    implement_send_and_sync!(PyConv2d);
+    implement_send_and_sync!(PyConv2dRecord);
+    implement_send_and_sync!(PyConvTranspose1d);
+    implement_send_and_sync!(PyConvTranspose1dRecord);
+    implement_send_and_sync!(PyConvTranspose2d);
+    implement_send_and_sync!(PyConvTranspose2dRecord);
+    implement_send_and_sync!(PyConvTranspose3d);
+    implement_send_and_sync!(PyConvTranspose3dRecord);
+    implement_send_and_sync!(PyDeformConv2d);
+    implement_send_and_sync!(PyDeformConv2dRecord);
 }

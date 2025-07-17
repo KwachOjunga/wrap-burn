@@ -12,8 +12,10 @@ use burn::nn::Linear;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
-mod wgpu_nn_exports;
+
+mod common_nn_exports;
 mod ndarray_nn_exports;
+mod wgpu_nn_exports;
 // I thought send and Sync were implemented automatically??
 
 /// Neural network Module as implemented using a WGPU backend
@@ -60,11 +62,11 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::PyLstm;
     #[pymodule_export]
+    use wgpu_nn_exports::PyLstmConfig;
+    #[pymodule_export]
     use wgpu_nn_exports::PyLstmRecord;
     #[pymodule_export]
     use wgpu_nn_exports::PyPRelu;
-    #[pymodule_export]
-    use wgpu_nn_exports::PyLstmConfig;
     #[pymodule_export]
     use wgpu_nn_exports::PyPReluRecord;
     #[pymodule_export]
@@ -97,7 +99,7 @@ pub mod wgpu_nn {
     use wgpu_nn_exports::PyUnfold4d;
     #[pymodule_export]
     use wgpu_nn_exports::PyUnfold4dConfig;
-    
+
     /// Applies Linear transformation over a tensor
     #[pyclass]
     #[derive(Debug)]
@@ -140,7 +142,7 @@ pub mod wgpu_nn {
     implement_send_and_sync!(PyLinear);
     implement_send_and_sync!(PyBatchNormRecord);
     implement_send_and_sync!(PyBiLSTM);
-    
+
     /// Loss module that exposes various loss functions
     #[pymodule]
     pub mod loss {
@@ -204,47 +206,52 @@ pub mod wgpu_nn {
         use wgpu_nn_exports::attention_exports::PyMultiHeadAttentionConfig;
         #[pymodule_export]
         use wgpu_nn_exports::attention_exports::PyMultiHeadAttentionRecord;
-
     }
 
     #[pymodule]
     pub mod conv {
         use super::*;
-        use burn::nn::conv::*;
-        use burn::prelude::*;
 
-        implement_wgpu_interface!(PyDeformConv2d, DeformConv2d);
-        implement_wgpu_interface!(PyDeformConv2dRecord, DeformConv2dRecord);
-        implement_wgpu_interface!(PyConv1d, Conv1d);
-        implement_wgpu_interface!(PyConv1dRecord, Conv1dRecord);
-        implement_wgpu_interface!(PyConv2d, Conv2d);
-        implement_wgpu_interface!(PyConv2dRecord, Conv2dRecord);
-        implement_wgpu_interface!(PyConvTranspose1d, ConvTranspose1d);
-        implement_wgpu_interface!(PyConvTranspose1dRecord, ConvTranspose1dRecord);
-        implement_wgpu_interface!(PyConvTranspose2d, ConvTranspose2d);
-        implement_wgpu_interface!(PyConvTranspose2dRecord, ConvTranspose2dRecord);
-        implement_wgpu_interface!(PyConvTranspose3d, ConvTranspose3d);
-        implement_wgpu_interface!(PyConvTranspose3dRecord, ConvTranspose3dRecord);
-
-        for_normal_struct_enums!(PyConvTranspose1dConfig, ConvTranspose1dConfig);
-        for_normal_struct_enums!(PyConvTranspose2dConfig, ConvTranspose2dConfig);
-        for_normal_struct_enums!(PyConvTranspose3dConfig, ConvTranspose3dConfig);
-        for_normal_struct_enums!(PyConv1DConfig, Conv1dConfig);
-        for_normal_struct_enums!(PyConv2DConfig, Conv2dConfig);
-        for_normal_struct_enums!(PyConv3DConfig, Conv3dConfig);
-
-        implement_send_and_sync!(PyConv1d);
-        implement_send_and_sync!(PyConv1dRecord);
-        implement_send_and_sync!(PyConv2d);
-        implement_send_and_sync!(PyConv2dRecord);
-        implement_send_and_sync!(PyConvTranspose1d);
-        implement_send_and_sync!(PyConvTranspose1dRecord);
-        implement_send_and_sync!(PyConvTranspose2d);
-        implement_send_and_sync!(PyConvTranspose2dRecord);
-        implement_send_and_sync!(PyConvTranspose3d);
-        implement_send_and_sync!(PyConvTranspose3dRecord);
-        implement_send_and_sync!(PyDeformConv2d);
-        implement_send_and_sync!(PyDeformConv2dRecord);
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConv1DConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConv1d;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConv1dRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConv2DConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConv2d;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConv2dRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConv3D;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConv3DConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose1d;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose1dConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose1dRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose2d;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose2dConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose2dRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose3d;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose3dConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyConvTranspose3dRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyDeformConv2d;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyDeformConv2dConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::PyDeformConv2dRecord;
     }
 
     #[pymodule]
@@ -275,43 +282,26 @@ pub mod wgpu_nn {
         for_normal_struct_enums!(PyInterpolateMode, InterpolateMode);
     }
 
-    mod pool_exports {
-        pub(crate) use super::*;
-        use burn::nn::pool::*;
-
-        /// This is  the typical AdaptivePool1d layer
-        for_normal_struct_enums!(PyAdaptiveAvgPool1d, AdaptiveAvgPool1d);
-        for_normal_struct_enums!(PyAdaptiveAvgPool1dConfig, AdaptiveAvgPool1dConfig);
-        for_normal_struct_enums!(PyAdaptiveAvgPool2d, AdaptiveAvgPool2d);
-        for_normal_struct_enums!(PyAdaptiveAvgPool2dConfig, AdaptiveAvgPool2dConfig);
-        for_normal_struct_enums!(PyAvgPool1d, AvgPool1d);
-        for_normal_struct_enums!(PyAvgPool1dConfig, AvgPool1dConfig);
-        for_normal_struct_enums!(PyAvgPool2d, AvgPool2d);
-        for_normal_struct_enums!(PyAvgPool2dConfig, AvgPool2dConfig);
-        for_normal_struct_enums!(PyMaxPool1d, MaxPool1d);
-        for_normal_struct_enums!(PyMaxPool1dConfig, MaxPool1dConfig);
-        for_normal_struct_enums!(PyMaxPool2d, MaxPool2d);
-        for_normal_struct_enums!(PyMaxPool2dConfig, MaxPool2dConfig);
-    }
+    
 
     #[pymodule]
     pub mod pool {
         use super::*;
 
         #[pymodule_export]
-        use super::pool_exports::PyAdaptiveAvgPool1d;
+        use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1d;
 
         #[pymodule_export]
-        use super::pool_exports::PyAdaptiveAvgPool1dConfig;
+        use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1dConfig;
 
         #[pymodule_export]
-        use super::pool_exports::PyAdaptiveAvgPool2d;
+        use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool2d;
 
         #[pymodule_export]
-        use super::pool_exports::PyAdaptiveAvgPool2dConfig;
+        use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool2dConfig;
 
         #[pymodule_export]
-        use super::pool_exports::PyAvgPool1d;
+        use super::common_nn_exports::pool_exports::PyAvgPool1d;
     }
 
     #[pymodule]
@@ -319,66 +309,46 @@ pub mod wgpu_nn {
         use super::*;
         use burn::nn::transformer::*;
 
+        /// Applies the position-wise feed-forward network to the input tensor from the paper [`Attention Is All You Need`](https://arxiv.org/pdf/1706.03762v7).
         #[pyclass]
         pub struct PyPositionWiseFeedForward {
-            inner: PositionWiseFeedForward<Wgpu>,
+            pub inner: PositionWiseFeedForward<Wgpu>,
         }
-        // implement_wgpu_interface!(PyPositionWiseFeedForward, PositionWiseFeedForward);
 
-        implement_wgpu_interface!(
-            PyPositionWiseFeedForwardRecord,
-            PositionWiseFeedForwardRecord
-        );
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyPositionWiseFeedForwardConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyPositionWiseFeedForwardRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerDecoder;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerDecoderAutoregressiveCache;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerDecoderConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerDecoderInput;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerDecoderLayer;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerDecoderLayerRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerDecoderRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerEncoder;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerEncoderAutoregressiveCache;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerEncoderInput;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerEncoderLayer;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerEncoderLayerRecord;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::PyTransformerEncoderRecord;
 
-        implement_wgpu_interface!(PyTransformerDecoder, TransformerDecoder);
-        implement_wgpu_interface!(
-            PyTransformerDecoderAutoregressiveCache,
-            TransformerDecoderAutoregressiveCache
-        );
-        implement_wgpu_interface!(PyTransformerDecoderInput, TransformerDecoderInput);
-        implement_wgpu_interface!(PyTransformerDecoderLayer, TransformerDecoderLayer);
-        implement_wgpu_interface!(
-            PyTransformerDecoderLayerRecord,
-            TransformerDecoderLayerRecord
-        );
-        implement_wgpu_interface!(PyTransformerDecoderRecord, TransformerDecoderRecord);
-        implement_wgpu_interface!(PyTransformerEncoder, TransformerEncoder);
-        implement_wgpu_interface!(
-            PyTransformerEncoderAutoregressiveCache,
-            TransformerEncoderAutoregressiveCache
-        );
-        implement_wgpu_interface!(PyTransformerEncoderLayer, TransformerEncoderLayer);
-        implement_wgpu_interface!(
-            PyTransformerEncoderLayerRecord,
-            TransformerEncoderLayerRecord
-        );
-        implement_wgpu_interface!(PyTransformerEncoderRecord, TransformerEncoderRecord);
-        implement_wgpu_interface!(PyTransformerEncoderInput, TransformerEncoderInput);
-
-        for_normal_struct_enums!(
-            PyPositionWiseFeedForwardConfig,
-            PositionWiseFeedForwardConfig
-        );
-        for_normal_struct_enums!(PyTransformerDecoderConfig, TransformerDecoderConfig);
-
-        implement_send_and_sync!(PyTransformerEncoderRecord);
-        implement_send_and_sync!(PyTransformerEncoderLayerRecord);
-        implement_send_and_sync!(PyTransformerEncoderLayer);
-        implement_send_and_sync!(PyTransformerEncoderInput);
-        implement_send_and_sync!(PyTransformerEncoderAutoregressiveCache);
-        implement_send_and_sync!(PyTransformerEncoder);
-        implement_send_and_sync!(PyTransformerDecoderRecord);
-        implement_send_and_sync!(PyTransformerDecoderLayerRecord);
-        implement_send_and_sync!(PyTransformerDecoderLayer);
-        implement_send_and_sync!(PyTransformerDecoderInput);
-        implement_send_and_sync!(PyTransformerDecoderAutoregressiveCache);
-        implement_send_and_sync!(PyTransformerDecoder);
         implement_send_and_sync!(PyPositionWiseFeedForward);
-        implement_send_and_sync!(PyPositionWiseFeedForwardRecord);
     }
 }
-
-
 
 /// Neural network Module as implemented using a NdArray backend
 /// Basically, this means whatever training or inference will be perfomed
@@ -400,7 +370,6 @@ pub mod ndarray {
 
     use super::*;
     use burn::backend::ndarray::*;
-
 
     #[pymodule_export]
     use ndarray_nn_exports::PyEmbedding;
@@ -427,11 +396,11 @@ pub mod ndarray {
     #[pymodule_export]
     use ndarray_nn_exports::PyLstm;
     #[pymodule_export]
+    use ndarray_nn_exports::PyLstmConfig;
+    #[pymodule_export]
     use ndarray_nn_exports::PyLstmRecord;
     #[pymodule_export]
     use ndarray_nn_exports::PyPRelu;
-    #[pymodule_export]
-    use ndarray_nn_exports::PyLstmConfig;
     #[pymodule_export]
     use ndarray_nn_exports::PyPReluRecord;
     #[pymodule_export]
@@ -464,141 +433,163 @@ pub mod ndarray {
     use ndarray_nn_exports::PyUnfold4d;
     #[pymodule_export]
     use ndarray_nn_exports::PyUnfold4dConfig;
-    
-    
-   
-    #[pyclass]
-    #[derive(Debug)]
-    #[repr(transparent)]
-    pub struct PyLinear {
-        pub inner: Linear<NdArray>,
-    }
 
-    #[pyclass]
-    #[derive(Debug)]
-    #[repr(transparent)]
-    pub struct PyBatchNormConfig(BatchNormConfig);
+  /// Applies Linear transformation over a tensor
+  #[pyclass]
+  #[derive(Debug)]
+  #[repr(transparent)]
+  pub struct PyLinear {
+      pub inner: Linear<NdArray>,
+  }
 
-    #[pyclass]
-    #[repr(transparent)]
-    pub struct PyBatchNormRecord {
-        pub inner: BatchNormRecord<NdArray, 1>,
-    }
+  /// Offers an avenue to configure the BatchNorm layer
+  #[pyclass]
+  #[derive(Debug)]
+  #[repr(transparent)]
+  pub struct PyBatchNormConfig(BatchNormConfig);
 
-    #[pyclass]
-    #[repr(transparent)]
-    pub struct PyBiLSTM {
-        pub inner: BiLstm<NdArray>,
-    }
+  //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
+  /// The record type for the BatchNorm module
+  #[pyclass]
+  #[repr(transparent)]
+  pub struct PyBatchNormRecord {
+      pub inner: BatchNormRecord<NdArray, 1>,
+  }
 
-    #[pyclass]
-    pub struct PyBiLSTMConfig(pub BiLstmConfig);
+  /// The implementation of the Bidirectional LSTM module.
+  #[pyclass]
+  #[repr(transparent)]
+  pub struct PyBiLSTM {
+      pub inner: BiLstm<NdArray>,
+  }
 
-    #[pyclass]
-    #[derive(Debug)]
-    #[repr(transparent)]
-    pub struct PyDropout(pub Dropout);
+  /// Configuraation to build the BiLSTM module
+  #[pyclass]
+  pub struct PyBiLSTMConfig(pub BiLstmConfig);
 
-    pub mod loss {
-        use super::*;
+  /// The Dropout layer; set at random elements of the input tensor to zero during training.
+  #[pyclass]
+  #[derive(Debug)]
+  #[repr(transparent)]
+  pub struct PyDropout(pub Dropout);
 
-        #[pyclass]
-        pub struct PyBinaryCrossEntropy {
-            pub inner: nn::loss::BinaryCrossEntropyLoss<NdArray>,
-        }
+  implement_send_and_sync!(PyLinear);
+  implement_send_and_sync!(PyBatchNormRecord);
+  implement_send_and_sync!(PyBiLSTM);
 
-        #[pyclass]
-        pub struct PyBinaryCrossEntropyConfig(pub nn::loss::BinaryCrossEntropyLossConfig);
+  /// Loss module that exposes various loss functions
+  #[pymodule]
+  pub mod loss {
+      use super::*;
 
-        #[pyclass]
-        pub struct PyCrossEntropyLoss {
-            pub inner: nn::loss::CrossEntropyLoss<NdArray>,
-        }
+      /// The BinaryCrossEntropyLoss; calculate oss from input logits and targets
+      #[pyclass]
+      pub struct PyBinaryCrossEntropy {
+          pub inner: nn::loss::BinaryCrossEntropyLoss<NdArray>,
+      }
 
-        #[pyclass]
-        pub struct PyHuberLoss(pub nn::loss::HuberLoss);
+      /// Configuration to build the BinaryCrossEntropyLoss
+      #[pyclass]
+      pub struct PyBinaryCrossEntropyConfig(pub nn::loss::BinaryCrossEntropyLossConfig);
 
-        #[pyclass]
-        pub struct PyHuberLossConfig(pub nn::loss::HuberLossConfig);
+      /// calculate cross entropy loss from input logits to target
+      #[pyclass]
+      pub struct PyCrossEntropyLoss {
+          pub inner: nn::loss::CrossEntropyLoss<NdArray>,
+      }
 
-        #[pyclass]
-        pub struct MseLoss(pub nn::loss::MseLoss);
+      /// Calculate the HuberLoss between inputs and target
+      #[pyclass]
+      pub struct PyHuberLoss(pub nn::loss::HuberLoss);
 
-        #[pyclass]
-        pub struct PoissonLoss(pub nn::loss::PoissonNllLoss);
+      /// Configuration to build the HuberLoss
+      #[pyclass]
+      pub struct PyHuberLossConfig(pub nn::loss::HuberLossConfig);
 
-        #[pyclass]
-        pub struct PoissonLossConfig(pub nn::loss::PoissonNllLossConfig);
+      /// Calculate the mean squared error loss from the input logits and the targets.
+      #[pyclass]
+      pub struct MseLoss(pub nn::loss::MseLoss);
 
-        implement_send_and_sync!(PyBinaryCrossEntropy);
-        implement_send_and_sync!(PyCrossEntropyLoss);
-    }
+      /// Negative Log Likelihood (NLL) loss with a Poisson distribution assumption for the target.
+      #[pyclass]
+      pub struct PoissonLoss(pub nn::loss::PoissonNllLoss);
 
-   
+      /// Configuration to calculate the PoissonLoss
+      #[pyclass]
+      pub struct PoissonLossConfig(pub nn::loss::PoissonNllLossConfig);
+
+      implement_send_and_sync!(PyBinaryCrossEntropy);
+      implement_send_and_sync!(PyCrossEntropyLoss);
+  }
+
     implement_send_and_sync!(PyLinear);
     implement_send_and_sync!(PyBatchNormRecord);
     implement_send_and_sync!(PyBiLSTM);
-   
 
     #[pymodule]
     pub mod attention {
         use super::*;
 
         #[pymodule_export]
-        use wgpu_nn_exports::attention_exports::PyGeneratePaddingMask;
+        use ndarray_nn_exports::attention_exports::PyGeneratePaddingMask;
         #[pymodule_export]
-        use wgpu_nn_exports::attention_exports::PyMhaCache;
+        use ndarray_nn_exports::attention_exports::PyMhaCache;
         #[pymodule_export]
-        use wgpu_nn_exports::attention_exports::PyMhaInput;
+        use ndarray_nn_exports::attention_exports::PyMhaInput;
         #[pymodule_export]
-        use wgpu_nn_exports::attention_exports::PyMhaOutput;
+        use ndarray_nn_exports::attention_exports::PyMhaOutput;
         #[pymodule_export]
-        use wgpu_nn_exports::attention_exports::PyMultiHeadAttention;
+        use ndarray_nn_exports::attention_exports::PyMultiHeadAttention;
         #[pymodule_export]
-        use wgpu_nn_exports::attention_exports::PyMultiHeadAttentionConfig;
+        use ndarray_nn_exports::attention_exports::PyMultiHeadAttentionConfig;
         #[pymodule_export]
-        use wgpu_nn_exports::attention_exports::PyMultiHeadAttentionRecord;
-
+        use ndarray_nn_exports::attention_exports::PyMultiHeadAttentionRecord;
     }
 
     #[pymodule]
     pub mod conv {
         use super::*;
-        use burn::nn::conv::*;
-        use burn::prelude::*;
 
-        implement_ndarray_interface!(PyDeformConv2d, DeformConv2d);
-        implement_ndarray_interface!(PyDeformConv2dRecord, DeformConv2dRecord);
-        implement_ndarray_interface!(PyConv1d, Conv1d);
-        implement_ndarray_interface!(PyConv1dRecord, Conv1dRecord);
-        implement_ndarray_interface!(PyConv2d, Conv2d);
-        implement_ndarray_interface!(PyConv2dRecord, Conv2dRecord);
-        implement_ndarray_interface!(PyConvTranspose1d, ConvTranspose1d);
-        implement_ndarray_interface!(PyConvTranspose1dRecord, ConvTranspose1dRecord);
-        implement_ndarray_interface!(PyConvTranspose2d, ConvTranspose2d);
-        implement_ndarray_interface!(PyConvTranspose2dRecord, ConvTranspose2dRecord);
-        implement_ndarray_interface!(PyConvTranspose3d, ConvTranspose3d);
-        implement_ndarray_interface!(PyConvTranspose3dRecord, ConvTranspose3dRecord);
-
-        for_normal_struct_enums!(PyConvTranspose1dConfig, ConvTranspose1dConfig);
-        for_normal_struct_enums!(PyConvTranspose2dConfig, ConvTranspose2dConfig);
-        for_normal_struct_enums!(PyConvTranspose3dConfig, ConvTranspose3dConfig);
-        for_normal_struct_enums!(PyConv1DConfig, Conv1dConfig);
-        for_normal_struct_enums!(PyConv2DConfig, Conv2dConfig);
-        for_normal_struct_enums!(PyConv3DConfig, Conv3dConfig);
-
-        implement_send_and_sync!(PyConv1d);
-        implement_send_and_sync!(PyConv1dRecord);
-        implement_send_and_sync!(PyConv2d);
-        implement_send_and_sync!(PyConv2dRecord);
-        implement_send_and_sync!(PyConvTranspose1d);
-        implement_send_and_sync!(PyConvTranspose1dRecord);
-        implement_send_and_sync!(PyConvTranspose2d);
-        implement_send_and_sync!(PyConvTranspose2dRecord);
-        implement_send_and_sync!(PyConvTranspose3d);
-        implement_send_and_sync!(PyConvTranspose3dRecord);
-        implement_send_and_sync!(PyDeformConv2d);
-        implement_send_and_sync!(PyDeformConv2dRecord);
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConv1DConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConv1d;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConv1dRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConv2DConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConv2d;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConv2dRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConv3D;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConv3DConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose1d;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose1dConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose1dRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose2d;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose2dConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose2dRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose3d;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose3dConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyConvTranspose3dRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyDeformConv2d;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyDeformConv2dConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::PyDeformConv2dRecord;
     }
 
     #[pymodule]
@@ -653,56 +644,44 @@ pub mod ndarray {
         use super::*;
         use burn::nn::transformer::*;
 
-        implement_ndarray_interface!(PyPositionWiseFeedForward, PositionWiseFeedForward);
-        implement_ndarray_interface!(
-            PyPositionWiseFeedForwardRecord,
-            PositionWiseFeedForwardRecord
-        );
-        implement_ndarray_interface!(PyTransformerDecoder, TransformerDecoder);
-        implement_ndarray_interface!(
-            PyTransformerDecoderAutoregressiveCache,
-            TransformerDecoderAutoregressiveCache
-        );
-        implement_ndarray_interface!(PyTransformerDecoderInput, TransformerDecoderInput);
-        implement_ndarray_interface!(PyTransformerDecoderLayer, TransformerDecoderLayer);
-        implement_ndarray_interface!(
-            PyTransformerDecoderLayerRecord,
-            TransformerDecoderLayerRecord
-        );
-        implement_ndarray_interface!(PyTransformerDecoderRecord, TransformerDecoderRecord);
-        implement_ndarray_interface!(PyTransformerEncoder, TransformerEncoder);
-        implement_ndarray_interface!(
-            PyTransformerEncoderAutoregressiveCache,
-            TransformerEncoderAutoregressiveCache
-        );
-        implement_ndarray_interface!(PyTransformerEncoderLayer, TransformerEncoderLayer);
-        implement_ndarray_interface!(
-            PyTransformerEncoderLayerRecord,
-            TransformerEncoderLayerRecord
-        );
-        implement_ndarray_interface!(PyTransformerEncoderRecord, TransformerEncoderRecord);
-        implement_ndarray_interface!(PyTransformerEncoderInput, TransformerEncoderInput);
+        /// Applies the position-wise feed-forward network to the input tensor from the paper [`Attention Is All You Need`](https://arxiv.org/pdf/1706.03762v7).
+        #[pyclass]
+        pub struct PyPositionWiseFeedForward {
+            pub inner: PositionWiseFeedForward<NdArray>,
+        }
 
-        for_normal_struct_enums!(
-            PyPositionWiseFeedForwardConfig,
-            PositionWiseFeedForwardConfig
-        );
-        for_normal_struct_enums!(PyTransformerDecoderConfig, TransformerDecoderConfig);
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyPositionWiseFeedForwardConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyPositionWiseFeedForwardRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerDecoder;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerDecoderAutoregressiveCache;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerDecoderConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerDecoderInput;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerDecoderLayer;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerDecoderLayerRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerDecoderRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerEncoder;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerEncoderAutoregressiveCache;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerEncoderInput;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerEncoderLayer;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerEncoderLayerRecord;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::PyTransformerEncoderRecord;
 
-        implement_send_and_sync!(PyTransformerEncoderRecord);
-        implement_send_and_sync!(PyTransformerEncoderLayerRecord);
-        implement_send_and_sync!(PyTransformerEncoderLayer);
-        implement_send_and_sync!(PyTransformerEncoderInput);
-        implement_send_and_sync!(PyTransformerEncoderAutoregressiveCache);
-        implement_send_and_sync!(PyTransformerEncoder);
-        implement_send_and_sync!(PyTransformerDecoderRecord);
-        implement_send_and_sync!(PyTransformerDecoderLayerRecord);
-        implement_send_and_sync!(PyTransformerDecoderLayer);
-        implement_send_and_sync!(PyTransformerDecoderInput);
-        implement_send_and_sync!(PyTransformerDecoderAutoregressiveCache);
-        implement_send_and_sync!(PyTransformerDecoder);
         implement_send_and_sync!(PyPositionWiseFeedForward);
-        implement_send_and_sync!(PyPositionWiseFeedForwardRecord);
     }
 }
 
