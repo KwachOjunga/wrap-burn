@@ -21,7 +21,7 @@ mod wgpu_nn_exports;
 /// Neural network Module as implemented using a WGPU backend
 /// The module offers the typical building blocks relevant for
 /// building elaborate `nn` architectures.
-/// Includes; a conv module
+/// Includes; - conv module
 ///           - attention module -- for building transformer architectures
 ///           - cache module -- exposes the TensorCache
 ///           - gru module for the `Gated Recurrent Unit`
@@ -257,29 +257,30 @@ pub mod wgpu_nn {
     #[pymodule]
     pub mod gru {
         use super::*;
-        use burn::nn::gru::*;
-
-        implement_wgpu_interface!(PyGru, Gru);
-        implement_wgpu_interface!(PyGruRecord, GruRecord);
-
-        for_normal_struct_enums!(PyGruConfig, GruConfig);
-
-        implement_send_and_sync!(PyGruRecord);
-        implement_send_and_sync!(PyGru);
+        
+        #[pymodule_export]
+        use wgpu_nn_exports::gru_exports::PyGru;
+        #[pymodule_export]
+        use wgpu_nn_exports::gru_exports::PyGruConfig;
+        #[pymodule_export]
+        use wgpu_nn_exports::gru_exports::PyGruRecord;
+        
     }
 
     #[pymodule]
     pub mod interpolate {
         use super::*;
-        use burn::nn::interpolate::*;
-        use burn::prelude::*;
-        use pyo3::prelude::*;
-
-        for_normal_struct_enums!(PyInterpolate1d, Interpolate1d);
-        for_normal_struct_enums!(PyInterpolate1dConfig, Interpolate1dConfig);
-        for_normal_struct_enums!(PyInterpolate2d, Interpolate2d);
-        for_normal_struct_enums!(PyInterpolate2dConfig, Interpolate2dConfig);
-        for_normal_struct_enums!(PyInterpolateMode, InterpolateMode);
+        
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolate1d;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolate1dConfig;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolate2d;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolate2dConfig;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolateMode;
     }
 
     
@@ -522,9 +523,6 @@ pub mod ndarray {
       implement_send_and_sync!(PyCrossEntropyLoss);
   }
 
-    implement_send_and_sync!(PyLinear);
-    implement_send_and_sync!(PyBatchNormRecord);
-    implement_send_and_sync!(PyBiLSTM);
 
     #[pymodule]
     pub mod attention {
@@ -595,48 +593,50 @@ pub mod ndarray {
     #[pymodule]
     pub mod gru {
         use super::*;
-        use burn::nn::gru::*;
-
-        implement_ndarray_interface!(PyGru, Gru);
-        implement_ndarray_interface!(PyGruRecord, GruRecord);
-
-        for_normal_struct_enums!(PyGruConfig, GruConfig);
-
-        implement_send_and_sync!(PyGruRecord);
-        implement_send_and_sync!(PyGru);
+        
+        #[pymodule_export]
+        use ndarray_nn_exports::gru_exports::PyGru;
+        #[pymodule_export]
+        use ndarray_nn_exports::gru_exports::PyGruConfig;
+        #[pymodule_export]
+        use ndarray_nn_exports::gru_exports::PyGruRecord;
+        
     }
 
     #[pymodule]
     pub mod interpolate {
         use super::*;
-        use burn::nn::interpolate::*;
-        use burn::prelude::*;
-        use pyo3::prelude::*;
-
-        for_normal_struct_enums!(PyInterpolate1d, Interpolate1d);
-        for_normal_struct_enums!(PyInterpolate1dConfig, Interpolate1dConfig);
-        for_normal_struct_enums!(PyInterpolate2d, Interpolate2d);
-        for_normal_struct_enums!(PyInterpolate2dConfig, Interpolate2dConfig);
-        for_normal_struct_enums!(PyInterpolateMode, InterpolateMode);
+        
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolate1d;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolate1dConfig;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolate2d;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolate2dConfig;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::PyInterpolateMode;
     }
 
     #[pymodule]
     pub mod pool {
         use super::*;
-        use burn::nn::pool::*;
 
-        for_normal_struct_enums!(PyAdaptiveAvgPool1d, AdaptiveAvgPool1d);
-        for_normal_struct_enums!(PyAdaptiveAvgPool1dConfig, AdaptiveAvgPool1dConfig);
-        for_normal_struct_enums!(PyAdaptiveAvgPool2d, AdaptiveAvgPool2d);
-        for_normal_struct_enums!(PyAdaptiveAvgPool2dConfig, AdaptiveAvgPool2dConfig);
-        for_normal_struct_enums!(PyAvgPool1d, AvgPool1d);
-        for_normal_struct_enums!(PyAvgPool1dConfig, AvgPool1dConfig);
-        for_normal_struct_enums!(PyAvgPool2d, AvgPool2d);
-        for_normal_struct_enums!(PyAvgPool2dConfig, AvgPool2dConfig);
-        for_normal_struct_enums!(PyMaxPool1d, MaxPool1d);
-        for_normal_struct_enums!(PyMaxPool1dConfig, MaxPool1dConfig);
-        for_normal_struct_enums!(PyMaxPool2d, MaxPool2d);
-        for_normal_struct_enums!(PyMaxPool2dConfig, MaxPool2dConfig);
+        #[pymodule_export]
+        use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1d;
+
+        #[pymodule_export]
+        use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1dConfig;
+
+        #[pymodule_export]
+        use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool2d;
+
+        #[pymodule_export]
+        use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool2dConfig;
+
+        #[pymodule_export]
+        use super::common_nn_exports::pool_exports::PyAvgPool1d;
     }
 
     #[pymodule]

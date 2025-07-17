@@ -1,5 +1,5 @@
 [package]
-name = "wrapburn"
+name = "pyburn"
 version = "0.1.0"
 edition = "2024"
 
@@ -9,6 +9,6 @@ pyo3 = { version = "0.25.1", features = ["multiple-pymethods", "extension-module
 
 [features]
 # activate during development for analyzer to track effects
-default = ["wgpu", "ndarray"]
+default = ["ndarray", "wgpu"]
 ndarray = ["burn/ndarray"]
 wgpu = ["burn/wgpu"]

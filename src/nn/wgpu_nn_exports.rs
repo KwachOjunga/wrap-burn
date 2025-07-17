@@ -459,3 +459,18 @@ Configuration to create a 3D convolution layer,"
     implement_send_and_sync!(PyDeformConv2d);
     implement_send_and_sync!(PyDeformConv2dRecord);
 }
+
+pub mod gru_exports {
+    use super::*;
+    use burn::nn::gru::*;
+
+        implement_wgpu_interface!(PyGruRecord, GruRecord, "record type for the Gru module");
+        implement_wgpu_interface!(PyGru, Gru, "
+The Gru (Gated recurrent unit) module. This implementation is for a unidirectional, stateless, Gru.");
+
+        for_normal_struct_enums!(PyGruConfig, GruConfig, "
+Configuration to create a gru module");
+
+        implement_send_and_sync!(PyGruRecord);
+        implement_send_and_sync!(PyGru);
+}
