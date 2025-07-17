@@ -38,6 +38,8 @@ pub mod wgpu_nn {
     use burn::backend::wgpu::{Wgpu, WgpuDevice};
 
     #[pymodule_export]
+    use wgpu_nn_exports::PyTensor;
+    #[pymodule_export]
     use wgpu_nn_exports::PyEmbedding;
     #[pymodule_export]
     use wgpu_nn_exports::PyGateController;
@@ -257,20 +259,19 @@ pub mod wgpu_nn {
     #[pymodule]
     pub mod gru {
         use super::*;
-        
+
         #[pymodule_export]
         use wgpu_nn_exports::gru_exports::PyGru;
         #[pymodule_export]
         use wgpu_nn_exports::gru_exports::PyGruConfig;
         #[pymodule_export]
         use wgpu_nn_exports::gru_exports::PyGruRecord;
-        
     }
 
     #[pymodule]
     pub mod interpolate {
         use super::*;
-        
+
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::PyInterpolate1d;
         #[pymodule_export]
@@ -282,8 +283,6 @@ pub mod wgpu_nn {
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::PyInterpolateMode;
     }
-
-    
 
     #[pymodule]
     pub mod pool {
@@ -435,94 +434,93 @@ pub mod ndarray {
     #[pymodule_export]
     use ndarray_nn_exports::PyUnfold4dConfig;
 
-  /// Applies Linear transformation over a tensor
-  #[pyclass]
-  #[derive(Debug)]
-  #[repr(transparent)]
-  pub struct PyLinear {
-      pub inner: Linear<NdArray>,
-  }
+    /// Applies Linear transformation over a tensor
+    #[pyclass]
+    #[derive(Debug)]
+    #[repr(transparent)]
+    pub struct PyLinear {
+        pub inner: Linear<NdArray>,
+    }
 
-  /// Offers an avenue to configure the BatchNorm layer
-  #[pyclass]
-  #[derive(Debug)]
-  #[repr(transparent)]
-  pub struct PyBatchNormConfig(BatchNormConfig);
+    /// Offers an avenue to configure the BatchNorm layer
+    #[pyclass]
+    #[derive(Debug)]
+    #[repr(transparent)]
+    pub struct PyBatchNormConfig(BatchNormConfig);
 
-  //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
-  /// The record type for the BatchNorm module
-  #[pyclass]
-  #[repr(transparent)]
-  pub struct PyBatchNormRecord {
-      pub inner: BatchNormRecord<NdArray, 1>,
-  }
+    //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
+    /// The record type for the BatchNorm module
+    #[pyclass]
+    #[repr(transparent)]
+    pub struct PyBatchNormRecord {
+        pub inner: BatchNormRecord<NdArray, 1>,
+    }
 
-  /// The implementation of the Bidirectional LSTM module.
-  #[pyclass]
-  #[repr(transparent)]
-  pub struct PyBiLSTM {
-      pub inner: BiLstm<NdArray>,
-  }
+    /// The implementation of the Bidirectional LSTM module.
+    #[pyclass]
+    #[repr(transparent)]
+    pub struct PyBiLSTM {
+        pub inner: BiLstm<NdArray>,
+    }
 
-  /// Configuraation to build the BiLSTM module
-  #[pyclass]
-  pub struct PyBiLSTMConfig(pub BiLstmConfig);
+    /// Configuraation to build the BiLSTM module
+    #[pyclass]
+    pub struct PyBiLSTMConfig(pub BiLstmConfig);
 
-  /// The Dropout layer; set at random elements of the input tensor to zero during training.
-  #[pyclass]
-  #[derive(Debug)]
-  #[repr(transparent)]
-  pub struct PyDropout(pub Dropout);
+    /// The Dropout layer; set at random elements of the input tensor to zero during training.
+    #[pyclass]
+    #[derive(Debug)]
+    #[repr(transparent)]
+    pub struct PyDropout(pub Dropout);
 
-  implement_send_and_sync!(PyLinear);
-  implement_send_and_sync!(PyBatchNormRecord);
-  implement_send_and_sync!(PyBiLSTM);
+    implement_send_and_sync!(PyLinear);
+    implement_send_and_sync!(PyBatchNormRecord);
+    implement_send_and_sync!(PyBiLSTM);
 
-  /// Loss module that exposes various loss functions
-  #[pymodule]
-  pub mod loss {
-      use super::*;
+    /// Loss module that exposes various loss functions
+    #[pymodule]
+    pub mod loss {
+        use super::*;
 
-      /// The BinaryCrossEntropyLoss; calculate oss from input logits and targets
-      #[pyclass]
-      pub struct PyBinaryCrossEntropy {
-          pub inner: nn::loss::BinaryCrossEntropyLoss<NdArray>,
-      }
+        /// The BinaryCrossEntropyLoss; calculate oss from input logits and targets
+        #[pyclass]
+        pub struct PyBinaryCrossEntropy {
+            pub inner: nn::loss::BinaryCrossEntropyLoss<NdArray>,
+        }
 
-      /// Configuration to build the BinaryCrossEntropyLoss
-      #[pyclass]
-      pub struct PyBinaryCrossEntropyConfig(pub nn::loss::BinaryCrossEntropyLossConfig);
+        /// Configuration to build the BinaryCrossEntropyLoss
+        #[pyclass]
+        pub struct PyBinaryCrossEntropyConfig(pub nn::loss::BinaryCrossEntropyLossConfig);
 
-      /// calculate cross entropy loss from input logits to target
-      #[pyclass]
-      pub struct PyCrossEntropyLoss {
-          pub inner: nn::loss::CrossEntropyLoss<NdArray>,
-      }
+        /// calculate cross entropy loss from input logits to target
+        #[pyclass]
+        pub struct PyCrossEntropyLoss {
+            pub inner: nn::loss::CrossEntropyLoss<NdArray>,
+        }
 
-      /// Calculate the HuberLoss between inputs and target
-      #[pyclass]
-      pub struct PyHuberLoss(pub nn::loss::HuberLoss);
+        /// Calculate the HuberLoss between inputs and target
+        #[pyclass]
+        pub struct PyHuberLoss(pub nn::loss::HuberLoss);
 
-      /// Configuration to build the HuberLoss
-      #[pyclass]
-      pub struct PyHuberLossConfig(pub nn::loss::HuberLossConfig);
+        /// Configuration to build the HuberLoss
+        #[pyclass]
+        pub struct PyHuberLossConfig(pub nn::loss::HuberLossConfig);
 
-      /// Calculate the mean squared error loss from the input logits and the targets.
-      #[pyclass]
-      pub struct MseLoss(pub nn::loss::MseLoss);
+        /// Calculate the mean squared error loss from the input logits and the targets.
+        #[pyclass]
+        pub struct MseLoss(pub nn::loss::MseLoss);
 
-      /// Negative Log Likelihood (NLL) loss with a Poisson distribution assumption for the target.
-      #[pyclass]
-      pub struct PoissonLoss(pub nn::loss::PoissonNllLoss);
+        /// Negative Log Likelihood (NLL) loss with a Poisson distribution assumption for the target.
+        #[pyclass]
+        pub struct PoissonLoss(pub nn::loss::PoissonNllLoss);
 
-      /// Configuration to calculate the PoissonLoss
-      #[pyclass]
-      pub struct PoissonLossConfig(pub nn::loss::PoissonNllLossConfig);
+        /// Configuration to calculate the PoissonLoss
+        #[pyclass]
+        pub struct PoissonLossConfig(pub nn::loss::PoissonNllLossConfig);
 
-      implement_send_and_sync!(PyBinaryCrossEntropy);
-      implement_send_and_sync!(PyCrossEntropyLoss);
-  }
-
+        implement_send_and_sync!(PyBinaryCrossEntropy);
+        implement_send_and_sync!(PyCrossEntropyLoss);
+    }
 
     #[pymodule]
     pub mod attention {
@@ -593,20 +591,19 @@ pub mod ndarray {
     #[pymodule]
     pub mod gru {
         use super::*;
-        
+
         #[pymodule_export]
         use ndarray_nn_exports::gru_exports::PyGru;
         #[pymodule_export]
         use ndarray_nn_exports::gru_exports::PyGruConfig;
         #[pymodule_export]
         use ndarray_nn_exports::gru_exports::PyGruRecord;
-        
     }
 
     #[pymodule]
     pub mod interpolate {
         use super::*;
-        
+
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::PyInterpolate1d;
         #[pymodule_export]

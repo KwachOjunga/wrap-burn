@@ -64,11 +64,23 @@ macro_rules! for_normal_struct_enums {
         #[doc = $doc]
         #[pyclass]
         pub struct $name(pub $actual_type);
+
+        impl From<$name> for $actual_type {
+            fn from(other: $name) -> Self {
+                other.0
+            }
+        }
     };
 
     ($(#[$meta:meta])* $name:ident, $actual_type:ident) => {
         #[pyclass]
         pub struct $name(pub $actual_type);
+
+        impl From<$name> for $actual_type {
+            fn from(other: $name) -> Self {
+                other.0
+            }
+        }
     };
 }
 

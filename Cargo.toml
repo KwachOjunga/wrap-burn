@@ -9,6 +9,6 @@ pyo3 = { version = "0.25.1", features = ["multiple-pymethods", "extension-module
 
 [features]
 # activate during development for analyzer to track effects
-default = ["ndarray", "wgpu"]
+default = ["wgpu"]
 ndarray = ["burn/ndarray"]
 wgpu = ["burn/wgpu"]

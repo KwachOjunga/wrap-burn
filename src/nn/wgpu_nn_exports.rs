@@ -2,6 +2,19 @@ use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_int
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
+use burn::backend::Wgpu;
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyTensor {
+    pub inner: Tensor<Wgpu, 3>
+}
+
+impl From<Tensor<Wgpu,3>> for PyTensor {
+    fn from(other: Tensor<Wgpu,3>)-> Self {
+        Self {inner: other}
+    }
+}
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_wgpu_interface!(
@@ -9,42 +22,57 @@ implement_wgpu_interface!(
     GateController,
     "A GateController represents a gate in an LSTM cell.\n An LSTM cell generally contains three gates: an input gate, forget gate,\n and output gate. Additionally, cell gate is just used to compute the cell state"
 );
+
+    
 implement_wgpu_interface!(
     PyEmbedding,
     Embedding,
     "Lookup table to store a fix number of vectors."
 );
+
 implement_wgpu_interface!(
     PyGroupNorm,
     GroupNorm,
     "Applies Group Normalization over a mini-batch of inputs"
 );
+
+
+
 implement_wgpu_interface!(
     PyInstanceNorm,
     InstanceNorm,
     "Applies Instance Normalization over a tensor"
 );
+
 implement_wgpu_interface!(
     PyInstanceNormRecord,
     InstanceNormRecord,
     "Record type of the InstanceNorm module"
 );
+
+
 implement_wgpu_interface!(
     PyLayerNorm,
     LayerNorm,
     "Applies Layer Normalization over a tensor"
 );
+
+
 implement_wgpu_interface!(
     PyLayerNormRecord,
     LayerNormRecord,
     "Record type of the LayerNorm record"
 );
+
+
 // implement_wgpu_interface!(PyLinearRecord, LinearRecord);
 implement_wgpu_interface!(
     PyLstm,
     Lstm,
     "The Lstm module. This implementation is for a unidirectional, stateless, Lstm"
 );
+
+
 implement_wgpu_interface!(PyLstmRecord, LstmRecord, "Record type of the Lstm module");
 implement_wgpu_interface!(PyPRelu, PRelu, "Parametric Relu Layer");
 implement_wgpu_interface!(
@@ -52,56 +80,75 @@ implement_wgpu_interface!(
     PReluRecord,
     "record type of the PRelu module"
 );
+
 implement_wgpu_interface!(PyPositionalEncoding, PositionalEncoding, "
 Positional encoding layer for transformer models \n This layer adds positional information to the input embeddings,\nallowing the transformer model to take into account the order of the sequence.\n The positional encoding is added to the input embeddings by computing\n a set of sinusoidal functions with different frequencies and phases.");
+
 implement_wgpu_interface!(
     PyPositionalEncodingRecord,
     PositionalEncodingRecord,
     "Record type of the PositionalEncoding module"
 );
+
+
 implement_wgpu_interface!(
     PyRmsNorm,
     RmsNorm,
     "Applies RMS Normalization over an input tensor along the last dimension"
 );
+
 implement_wgpu_interface!(
     PyRmsNormRecord,
     RmsNormRecord,
     "Record type of the RmsNormRecord"
 );
+
 implement_wgpu_interface!(
     PyRotaryEncoding,
     RotaryEncoding,
     "A module that applies rotary positional encoding to a tensor.\n Rotary Position Encoding or Embedding (RoPE), is a type of \nposition embedding which encodes absolute positional\n information with rotation matrix and naturally incorporates explicit relative \nposition dependency in self-attention formulation."
 );
+
+
+
+
 implement_wgpu_interface!(
     PyRotaryEncodingRecord,
     RotaryEncodingRecord,
     "Record type of the RotaryEncoding layer."
 );
+
+
+
 implement_wgpu_interface!(
     PySwiGlu,
     SwiGlu,
     "Applies the SwiGLU or Swish Gated Linear Unit to the input tensor."
 );
+
 // implement_wgpu_interface!(PySwiGluRecord, SwiGluRecord);
 
 for_normal_struct_enums!(PyUnfold4d, Unfold4d, "Four-dimensional unfolding.");
+
 for_normal_struct_enums!(
     PyUnfold4dConfig,
     Unfold4dConfig,
     "Configuration to create unfold4d layer"
 );
+
 for_normal_struct_enums!(
     PyTanh,
     Tanh,
     "Applies the tanh activation function element-wise"
 );
+
 for_normal_struct_enums!(
     PySwiGluConfig,
     SwiGluConfig,
     "Configuration to create a SwiGlu activation layer"
 );
+
+
 for_normal_struct_enums!(
     PyPositionalEncodingConfig,
     PositionalEncodingConfig,
@@ -464,13 +511,17 @@ pub mod gru_exports {
     use super::*;
     use burn::nn::gru::*;
 
-        implement_wgpu_interface!(PyGruRecord, GruRecord, "record type for the Gru module");
-        implement_wgpu_interface!(PyGru, Gru, "
+    implement_wgpu_interface!(PyGruRecord, GruRecord, "record type for the Gru module");
+    implement_wgpu_interface!(PyGru, Gru, "
 The Gru (Gated recurrent unit) module. This implementation is for a unidirectional, stateless, Gru.");
 
-        for_normal_struct_enums!(PyGruConfig, GruConfig, "
-Configuration to create a gru module");
+    for_normal_struct_enums!(
+        PyGruConfig,
+        GruConfig,
+        "
+Configuration to create a gru module"
+    );
 
-        implement_send_and_sync!(PyGruRecord);
-        implement_send_and_sync!(PyGru);
+    implement_send_and_sync!(PyGruRecord);
+    implement_send_and_sync!(PyGru);
 }
