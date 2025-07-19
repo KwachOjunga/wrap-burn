@@ -1,20 +1,111 @@
+use std::usize;
+
 use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_interface};
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
+use pyo3::types::*;
 use burn::backend::Wgpu;
 
+#[derive(PartialEq,PartialOrd)]
 #[pyclass]
-#[derive(Clone)]
-pub struct PyTensor {
+pub enum TenNum {
+    One = 1,
+    Two = 2,
+    Three = 3,
+    Four = 4
+}
+
+// impl From<usize> for TenNum {
+//     fn from(value: usize) -> Self {
+//         for i in 1..5usize {
+//             if i == 1 && value == 1 {
+//                 return TenNum::One;
+//             }else if  i == 2 && value == 2 {
+//                 return TenNum::Two;
+//             } else if  i == 3 && value == 3 {
+//                 return TenNum::Three;
+//             } else {
+//                 return TenNum::Four;
+//             }
+//         }
+//     }
+// }
+
+// #[pymethods]
+// impl TenNum {
+//     fn new(inner: usize) -> TenNum {
+//         TenNum {val: inner}
+//     }
+// }
+
+#[pyclass]
+pub struct Tensor1 {
+    pub inner: Tensor<Wgpu, 1>
+}
+
+#[pyclass]
+pub struct Tensor2 {
+    pub inner: Tensor<Wgpu, 2>
+}
+
+#[pyclass]
+pub struct Tensor3 {
     pub inner: Tensor<Wgpu, 3>
 }
 
-impl From<Tensor<Wgpu,3>> for PyTensor {
-    fn from(other: Tensor<Wgpu,3>)-> Self {
-        Self {inner: other}
-    }
+#[pyclass]
+pub struct Tensor4 {
+    pub inner: Tensor<Wgpu, 4>
 }
+
+#[pyclass]
+pub struct Tensor5 {
+    pub inner: Tensor<Wgpu, 5>
+}
+
+
+// #[pymethods]
+// impl Tensor1 {
+//     #[new]
+//     fn new() -> Self {
+//         Self {
+//             inner: Tensor::<Wgpu,1>::new()        }
+//     }
+// }
+
+
+#[pyclass]
+#[derive(Clone)]
+pub struct PyTensor;
+
+
+
+// #[pymethods]
+// impl PyTensor {
+//     #[pyo3(signature = (shape))]
+//     fn new(shape: usize) -> PyResult<Tensor<Wgpu, dim>> {
+//         static dim: usize = match shape {
+//             TenNum::One  => 1,
+//              TenNum::Two  => 2,
+//             TenNum::Three  => 3,
+//         };
+
+//         Ok(Tensor::<Wgpu, dim>::new(dim))
+//     }
+// }
+
+// impl From<Tensor<Wgpu,3>> for PyTensor {
+//     fn from(other: Tensor<Wgpu,3>)-> Self {
+//         Self {inner: other}
+//     }
+// }
+
+// impl From<PyTensor> for Tensor<Wgpu,3> {
+//     fn from(other: PyTensor) -> Self {
+//         other.inner
+//     }
+// }
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_wgpu_interface!(

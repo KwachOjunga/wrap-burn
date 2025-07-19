@@ -15,12 +15,12 @@ pub mod pool_exports {
         "Applies a 1D adaptive avg pooling over input tensors"
     );
 
-    #[pymethods]
-    impl PyAdaptiveAvgPool1d {
-        fn forward(&self, tensor: PyTensor) -> PyTensor {
-        self.0.forward(tensor.inner).into()
-        }
-    }
+    // #[pymethods]
+    // impl PyAdaptiveAvgPool1d {
+    //     fn forward(&self, tensor: PyTensor) -> PyTensor {
+    //     self.0.forward(tensor.inner).into()
+    //     }
+    // }
 
 
     for_normal_struct_enums!(
