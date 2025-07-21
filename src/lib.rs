@@ -61,6 +61,7 @@ macro_rules! implement_wgpu_interface {
 #[macro_export]
 macro_rules! for_normal_struct_enums {
     ($(#[$meta:meta])* $name:ident, $actual_type:ident, $doc:literal) => {
+        #[derive(Clone)]
         #[doc = $doc]
         #[pyclass]
         pub struct $name(pub $actual_type);

@@ -1,10 +1,14 @@
 use crate::{for_normal_struct_enums};
-use super::wgpu_nn_exports::PyTensor;
+use super::wgpu_nn_exports::*;
 use super::tensor_error::TensorError;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::PyInt;
+
+// pub fn into_inner<T,U>(wrapper: T) -> U {
+//     wrapper.0
+// }
 
 pub mod pool_exports {
     pub(crate) use super::*;
@@ -120,7 +124,7 @@ Applies a 2D max pooling over input tensors."
     }
 
 
-    //[NOTE**] PyAdaptivePool2d
+    //[NOTE**] PyAdaptiveAvgPool2d
 
     impl From<AdaptiveAvgPool2d> for PyAdaptiveAvgPool2d {
         fn from(other: AdaptiveAvgPool2d) -> Self {
@@ -156,6 +160,55 @@ Applies a 2D max pooling over input tensors."
         fn new(output: [usize; 2]) -> PyAdaptiveAvgPool2d {
             let mut pool_layer = AdaptiveAvgPool2dConfig::new(output);
             pool_layer.init().into()
+        }
+    }
+
+    // [NOTE**] PyAvgPool1d
+    #[pymethods]
+    impl PyAvgPool1d {
+        // #[classmethod]
+        #[staticmethod]
+        // #[args(stride = "None", padding = "None", count_include_pad = "None")]
+        fn new(py: Python<'_>, kernel_size: usize, stride: Option<usize>, padding: Option<PyPaddingConfig1d>, count_bool_pad: Option<bool> ) -> PyAvgPool1d {
+            let stride = stride.unwrap_or(1);
+            let padding = padding.unwrap_or(PyPaddingConfig1d::valid());
+            let count_bool_pad = count_bool_pad.unwrap_or(true);
+
+            PyAvgPool1dConfig::new(kernel_size).with_stride(py, stride).with_padding(py, padding).with_count_include_pad(count_bool_pad).init()
+        }
+    }
+
+    impl From<&AvgPool1dConfig> for PyAvgPool1dConfig {
+        fn from(other: &AvgPool1dConfig) -> Self {
+            PyAvgPool1dConfig(other.clone())
+        }
+    }
+
+    #[pymethods]
+    impl PyAvgPool1dConfig {
+        #[staticmethod]
+        pub fn new(kernel_size: usize) -> PyAvgPool1dConfig {
+            PyAvgPool1dConfig(AvgPool1dConfig::new(kernel_size))
+        }
+
+        pub fn with_stride(&self, py: Python<'_>, stride: usize) -> PyAvgPool1dConfig {
+            PyAvgPool1dConfig(self.0.clone().with_stride(stride))
+        }
+
+        pub fn with_padding(&mut self, py: Python<'_>, padding: PyPaddingConfig1d) -> PyAvgPool1dConfig {
+            match padding.0 {
+                PaddingConfig1d::Same => PyAvgPool1dConfig(self.0.clone().with_padding(PaddingConfig1d::Same)),
+                PaddingConfig1d::Valid => PyAvgPool1dConfig(self.0.clone().with_padding(PaddingConfig1d::Valid)),
+                PaddingConfig1d::Explicit(val) => PyAvgPool1dConfig(self.0.clone().with_padding(PaddingConfig1d::Explicit(val)))
+            }
+        }
+
+        pub fn with_count_include_pad(&self, pad: bool) -> PyAvgPool1dConfig {
+            PyAvgPool1dConfig(self.0.clone().with_count_include_pad(pad))
+        }
+
+        fn init(&self) -> PyAvgPool1d {
+            PyAvgPool1d(self.0.init())
         }
     }
 

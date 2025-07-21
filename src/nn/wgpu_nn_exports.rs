@@ -7,38 +7,6 @@ use pyo3::prelude::*;
 use pyo3::types::*;
 use burn::backend::Wgpu;
 
-#[derive(PartialEq,PartialOrd)]
-#[pyclass]
-pub enum TenNum {
-    One = 1,
-    Two = 2,
-    Three = 3,
-    Four = 4
-}
-
-// impl From<usize> for TenNum {
-//     fn from(value: usize) -> Self {
-//         for i in 1..5usize {
-//             if i == 1 && value == 1 {
-//                 return TenNum::One;
-//             }else if  i == 2 && value == 2 {
-//                 return TenNum::Two;
-//             } else if  i == 3 && value == 3 {
-//                 return TenNum::Three;
-//             } else {
-//                 return TenNum::Four;
-//             }
-//         }
-//     }
-// }
-
-// #[pymethods]
-// impl TenNum {
-//     fn new(inner: usize) -> TenNum {
-//         TenNum {val: inner}
-//     }
-// }
-
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor1 {
@@ -69,17 +37,6 @@ pub struct Tensor5 {
     pub inner: Tensor<Wgpu, 5>
 }
 
-
-// #[pymethods]
-// impl Tensor1 {
-//     #[new]
-//     fn new() -> Self {
-//         Self {
-//             inner: Tensor::<Wgpu,1>::new()        }
-//     }
-// }
-
-
 #[pyclass]
 #[derive(Clone)]
 pub enum PyTensor {
@@ -89,22 +46,6 @@ pub enum PyTensor {
     TensorFour(Tensor4),
     TensorFive(Tensor5)
 }
-
-
-
-// #[pymethods]
-// impl PyTensor {
-//     #[pyo3(signature = (shape))]
-//     fn new(shape: usize) -> PyResult<Tensor<Wgpu, dim>> {
-//         static dim: usize = match shape {
-//             TenNum::One  => 1,
-//              TenNum::Two  => 2,
-//             TenNum::Three  => 3,
-//         };
-
-//         Ok(Tensor::<Wgpu, dim>::new(dim))
-//     }
-// }
 
 impl From<Tensor<Wgpu,1>> for Tensor1 {
     fn from(other: Tensor<Wgpu,1>)-> Self {
@@ -399,11 +340,38 @@ for_normal_struct_enums!(
     Initializer,
     "Enum specifying with what values a tensor should be initialized"
 );
+
+// [TODO*] There are methods exposed by this type that are relevant for uploading config files for 
+// reproduction of train/test results
 for_normal_struct_enums!(
     PyPaddingConfig1d,
     PaddingConfig1d,
-    "Padding configuration for 1D operators."
+    "Padding configuration for 1D operators.
+    With three options: Same, Valid and Explicit
+    * Same - Dynamically calculate the amount of padding necessary to ensure that the output size will be the same as the input.
+    * Valid - Same as no padding
+    * Explicit - Takes an input and applies the specified amount of padding to all inputs."
 );
+
+
+#[pymethods]
+impl PyPaddingConfig1d {
+    #[classattr]
+    pub fn same() -> Self {
+        PyPaddingConfig1d(PaddingConfig1d::Same)
+    }
+
+    #[classattr]
+    pub fn valid() -> Self {
+        PyPaddingConfig1d(PaddingConfig1d::Valid)
+    }
+
+    #[staticmethod]
+    pub fn explicit(val: usize) -> Self {
+        PyPaddingConfig1d(PaddingConfig1d::Explicit(val))
+    }
+}
+
 for_normal_struct_enums!(
     PyPaddingConfig2d,
     PaddingConfig2d,
