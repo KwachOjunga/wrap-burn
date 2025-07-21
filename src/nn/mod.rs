@@ -13,6 +13,8 @@ use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
 
+
+mod tensor_error;
 mod common_nn_exports;
 mod ndarray_nn_exports;
 mod wgpu_nn_exports;

@@ -1,5 +1,6 @@
 use crate::{for_normal_struct_enums};
 use super::wgpu_nn_exports::PyTensor;
+use super::tensor_error::TensorError;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
@@ -7,6 +8,7 @@ use pyo3::prelude::*;
 pub mod pool_exports {
     pub(crate) use super::*;
     use burn::{backend::Wgpu, nn::pool::*};
+    use pyo3::exceptions::PyResourceWarning;
 
     /// This is  the typical AdaptivePool1d layer
     for_normal_struct_enums!(
@@ -15,12 +17,16 @@ pub mod pool_exports {
         "Applies a 1D adaptive avg pooling over input tensors"
     );
 
-    // #[pymethods]
-    // impl PyAdaptiveAvgPool1d {
-    //     fn forward(&self, tensor: PyTensor) -> PyTensor {
-    //     self.0.forward(tensor.inner).into()
-    //     }
-    // }
+    #[pymethods]
+    impl PyAdaptiveAvgPool1d {
+        /// Perform a feedforward tensor operation on a 3 dimensional tensor
+        fn forward(&self, tensor: PyTensor) -> PyResult<PyTensor> {
+            match tensor {
+                PyTensor::TensorThree(val) => {Ok(self.0.forward(val.inner).into())},
+                _ => Err(TensorError::WrongDimensions.into())
+            }
+        }
+    }
 
 
     for_normal_struct_enums!(
