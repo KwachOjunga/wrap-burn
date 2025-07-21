@@ -286,10 +286,20 @@ pub mod wgpu_nn {
         use super::common_nn_exports::interpolate_exports::PyInterpolateMode;
     }
 
+    // pub(crate) mod pool_internal {
+    //     use super::*;
+    //     pub use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1d as AdaptiveAvgPool1d_Py;       
+    //     pub use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1dConfig as AdaptiveAvgPool1dConfig_Py;
+    //     pub use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool2d as AdaptiveAvgPool2d_Py;
+    //     pub use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool2dConfig as AdaptiveAvgPool2dConfig_Py;  
+    //     pub use super::common_nn_exports::pool_exports::PyAvgPool1d as AvgPool1d_Py;
+    // }
+
     #[pymodule]
     pub mod pool {
         use super::*;
-
+       // use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1d as AdaptiveAvgPool1d_Py;
+       
         #[pymodule_export]
         use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1d;
 
