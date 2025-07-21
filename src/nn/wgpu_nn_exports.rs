@@ -377,6 +377,26 @@ for_normal_struct_enums!(
     PaddingConfig2d,
     "Padding configuration for 2D operators."
 );
+
+#[pymethods]
+impl PyPaddingConfig2d {
+    #[classattr]
+    pub fn same() -> Self {
+        PyPaddingConfig2d(PaddingConfig2d::Same)
+    }
+
+    #[classattr]
+    pub fn valid() -> Self {
+        PyPaddingConfig2d(PaddingConfig2d::Valid)
+    }
+
+    #[staticmethod]
+    pub fn explicit(val1: usize, val2: usize) -> Self {
+        PyPaddingConfig2d(PaddingConfig2d::Explicit(val1, val2))
+    }
+}
+
+
 for_normal_struct_enums!(
     PyPaddingConfig3d,
     PaddingConfig3d,
