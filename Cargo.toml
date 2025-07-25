@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1.0.98"
 burn = { version = "0.18.0", features = ["train", "wgpu", "ndarray"] }
 pyo3 = { version = "0.25.1", features = ["multiple-pymethods", "extension-module"] }
 

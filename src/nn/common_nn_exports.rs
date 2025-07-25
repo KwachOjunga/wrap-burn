@@ -1,9 +1,11 @@
-use super::tensor_error::TensorError;
+use crate::tensor::tensor_error::TensorError;
 use super::wgpu_nn_exports::*;
+use crate::tensor::base::*;
 use crate::for_normal_struct_enums;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
+use pyo3::pyclass_init::PyClassInitializer;
 use pyo3::types::PyInt;
 
 // pub fn into_inner<T,U>(wrapper: T) -> U {
@@ -82,6 +84,7 @@ Applies a 2D max pooling over input tensors."
         "Configuration to create a 2D max pooling layer "
     );
 
+
     // Methods section
     // PyAdaptivePool1d
 
@@ -98,7 +101,7 @@ Applies a 2D max pooling over input tensors."
             Ok(self.0.output_size)
         }
 
-        #[staticmethod]
+        #[new]
         fn new(output: usize) -> Self {
             AdaptiveAvgPool1dConfigPy::new(output)
         }
@@ -137,7 +140,7 @@ Applies a 2D max pooling over input tensors."
             Ok(self.0.output_size)
         }
 
-        #[staticmethod]
+        #[new]
         fn new(output: [usize; 2]) -> Self {
             AdaptiveAvgPool2dConfigPy::new(output)
         }
@@ -165,7 +168,7 @@ Applies a 2D max pooling over input tensors."
     #[pymethods]
     impl AvgPool1dPy {
         // #[classmethod]
-        #[staticmethod]
+        #[new]
         #[pyo3(signature = (kernel_size , stride = None, padding = None, count_bool_pad = None))]
         fn new(
             py: Python<'_>,

@@ -15,7 +15,6 @@ use pyo3::prelude::*;
 
 mod common_nn_exports;
 mod ndarray_nn_exports;
-mod tensor_error;
 mod wgpu_nn_exports;
 // I thought send and Sync were implemented automatically??
 
@@ -96,8 +95,10 @@ pub mod wgpu_nn {
     use wgpu_nn_exports::SwiGluConfigPy;
     #[pymodule_export]
     use wgpu_nn_exports::TanhPy;
+
+    // [TODO:] Note the current implementation of this
     #[pymodule_export]
-    use wgpu_nn_exports::TensorPy;
+    use crate::tensor::base::TensorPy;
     #[pymodule_export]
     use wgpu_nn_exports::Unfold4dPy;
     #[pymodule_export]
