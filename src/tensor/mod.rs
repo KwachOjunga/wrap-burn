@@ -1,2 +1,2 @@
-pub mod tensor_error;
 pub mod base;
+pub mod tensor_error;

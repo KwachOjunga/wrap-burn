@@ -1,7 +1,9 @@
-use pyo3::{exceptions::PyValueError, prelude::*};
 use core::error::Error;
 use core::fmt;
+use pyo3::{exceptions::PyValueError, prelude::*};
 
+/// Container that serves to hold errors of tensor operations
+/// It's the primary wrapper that allows exceptions to be raised from tensor errors
 #[pyclass]
 #[derive(Debug)]
 #[doc = "Tensor Error: to be used when raisig exceptions that involve tensors"]
@@ -16,16 +18,16 @@ impl fmt::Display for TensorError {
     }
 }
 
-impl Error for TensorError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        match self {
-            TensorError::WrongDimensions => Some(&<WrongDimensions as Error>::source())
-        }
-    }
-}
+// impl Error for TensorError {
+//     fn source(&self) -> Option<&(dyn Error + 'static)> {
+//         match self {
+//             TensorError::WrongDimensions => Some(&<WrongDimensions as Error>::source())
+//         }
+//     }
+// }
 
 #[derive(Debug)]
-struct WrongDimensions;
+pub struct WrongDimensions;
 
 impl fmt::Display for WrongDimensions {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -33,7 +35,7 @@ impl fmt::Display for WrongDimensions {
     }
 }
 
-impl Error for WrongDimensions{}
+impl Error for WrongDimensions {}
 
 impl From<TensorError> for PyErr {
     fn from(other: TensorError) -> Self {

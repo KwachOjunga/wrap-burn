@@ -5,8 +5,8 @@ use pyo3::prelude::*;
 mod nn;
 mod optim;
 mod record;
-mod train;
 mod tensor;
+mod train;
 
 #[macro_export]
 macro_rules! implement_ndarray_interface {

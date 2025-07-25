@@ -4,8 +4,6 @@ use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
 
-
-
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor1 {
@@ -136,7 +134,6 @@ impl From<Tensor5> for Tensor<NdArray, 5> {
         other.inner
     }
 }
-
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_ndarray_interface!(

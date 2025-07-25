@@ -1,20 +1,18 @@
 #![allow(unused)]
 
-mod ndarray_optim_exports;
-mod wgpu_optim_exports; 
 mod common_exports;
+mod ndarray_optim_exports;
+mod wgpu_optim_exports;
 
 use burn::optim::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
 
-
-
 #[cfg(feature = "wgpu")]
 #[pymodule]
 pub mod wgpu_optim {
     use super::*;
-    
+
     #[pymodule_export]
     use super::common_exports::AdaGradConfigPy;
     #[pymodule_export]
@@ -29,7 +27,6 @@ pub mod wgpu_optim {
     use super::common_exports::AdamWPy;
     #[pymodule_export]
     use super::common_exports::GradientsParamsPy;
-
 }
 
 #[cfg(feature = "ndarray")]

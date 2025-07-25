@@ -1,7 +1,7 @@
-use crate::tensor::tensor_error::TensorError;
 use super::wgpu_nn_exports::*;
-use crate::tensor::base::*;
 use crate::for_normal_struct_enums;
+use crate::tensor::base::*;
+use crate::tensor::tensor_error::TensorError;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
@@ -83,7 +83,6 @@ Applies a 2D max pooling over input tensors."
         MaxPool2dConfig,
         "Configuration to create a 2D max pooling layer "
     );
-
 
     // Methods section
     // PyAdaptivePool1d
@@ -203,7 +202,7 @@ Applies a 2D max pooling over input tensors."
         pub fn with_padding(
             &mut self,
             py: Python<'_>,
-            padding:PaddingConfig1dPy,
+            padding: PaddingConfig1dPy,
         ) -> AvgPool1dConfigPy {
             match padding.0 {
                 PaddingConfig1d::Same => {

@@ -1,8 +1,9 @@
+//! Warning. The current implementation of TensorPy is grossly inefficient. 
+
+use super::tensor_error::*;
+use burn::backend::Wgpu;
 use burn::prelude::*;
 use pyo3::prelude::*;
-use pyo3::types::*;
-use burn::backend::Wgpu;
-use super::tensor_error::*;
 
 
 #[derive(Clone)]
@@ -59,7 +60,7 @@ pub enum TensorPy {
 // }
 
 #[pymethods]
-impl TensorPy{
+impl TensorPy {
     fn abs(&self) -> Self {
         match self {
             TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
@@ -72,11 +73,36 @@ impl TensorPy{
 
     fn add(&self, other: TensorPy) -> Self {
         match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().add(other)),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
-            TensorPy::TensorThree(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
-            TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
-            TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
+            TensorPy::TensorOne(val) => Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 1>>>::into(other)
+                        .expect("expected 1 dim tensor"),
+                ),
+            ),
+            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 2>>>::into(other)
+                        .expect("expected 2 dim tensor"),
+                ),
+            ),
+            TensorPy::TensorThree(val) => Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 3>>>::into(other)
+                        .expect("expected 3 dim tensor"),
+                ),
+            ),
+            TensorPy::TensorFour(val) => Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 4>>>::into(other)
+                        .expect("expected 4 dim tensor"),
+                ),
+            ),
+            TensorPy::TensorFive(val) => Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 5>>>::into(other)
+                        .expect("expected 5 dim tensor"),
+                ),
+            ),
         }
     }
 }
@@ -97,11 +123,10 @@ impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 1>> {
     fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 1>> {
         match other {
             TensorPy::TensorOne(val) => Ok(val.inner),
-            _ => Err(TensorError::WrongDimensions)
+            _ => Err(WrongDimensions.into()),
         }
     }
 }
-
 
 impl From<Tensor<Wgpu, 2>> for Tensor2 {
     fn from(other: Tensor<Wgpu, 2>) -> Self {
@@ -112,6 +137,15 @@ impl From<Tensor<Wgpu, 2>> for Tensor2 {
 impl From<Tensor<Wgpu, 2>> for TensorPy {
     fn from(other: Tensor<Wgpu, 2>) -> Self {
         Self::TensorTwo(other.into())
+    }
+}
+
+impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 2>> {
+    fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 2>> {
+        match other {
+            TensorPy::TensorTwo(val) => Ok(val.inner),
+            _ => Err(WrongDimensions.into()),
+        }
     }
 }
 
@@ -127,6 +161,15 @@ impl From<Tensor<Wgpu, 3>> for TensorPy {
     }
 }
 
+impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 3>> {
+    fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 3>> {
+        match other {
+            TensorPy::TensorThree(val) => Ok(val.inner),
+            _ => Err(WrongDimensions.into()),
+        }
+    }
+}
+
 impl From<Tensor<Wgpu, 4>> for Tensor4 {
     fn from(other: Tensor<Wgpu, 4>) -> Self {
         Self { inner: other }
@@ -136,6 +179,15 @@ impl From<Tensor<Wgpu, 4>> for Tensor4 {
 impl From<Tensor<Wgpu, 4>> for TensorPy {
     fn from(other: Tensor<Wgpu, 4>) -> Self {
         Self::TensorFour(other.into())
+    }
+}
+
+impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 4>> {
+    fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 4>> {
+        match other {
+            TensorPy::TensorFour(val) => Ok(val.inner),
+            _ => Err(WrongDimensions.into()),
+        }
     }
 }
 
@@ -151,7 +203,17 @@ impl From<Tensor<Wgpu, 5>> for TensorPy {
     }
 }
 
+impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 5>> {
+    fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 5>> {
+        match other {
+            TensorPy::TensorFive(val) => Ok(val.inner),
+            _ => Err(WrongDimensions.into()),
+        }
+    }
+}
+
 // These methods appear to be totally redundant but anyway
+
 impl From<Tensor1> for Tensor<Wgpu, 1> {
     fn from(other: Tensor1) -> Self {
         other.inner

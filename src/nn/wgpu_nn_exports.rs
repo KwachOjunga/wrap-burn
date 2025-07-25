@@ -1,14 +1,13 @@
 use std::ops::DerefMut;
 use std::usize;
 
-use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_interface};
 use crate::tensor::tensor_error::TensorError;
+use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_interface};
 use burn::backend::Wgpu;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::*;
-
 
 // Conversions from PyTensor into its internal types
 // impl From<PyTensor> for Tensor<Wgpu,3> {
@@ -560,4 +559,3 @@ Configuration to create a gru module"
     implement_send_and_sync!(GruRecordPy);
     implement_send_and_sync!(GruPy);
 }
-

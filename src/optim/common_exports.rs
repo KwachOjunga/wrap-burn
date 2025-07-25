@@ -1,8 +1,8 @@
 //! Common Exports of the optim module regardless of backend
 
-use burn::{prelude::*, optim::*};
-use pyo3::prelude::*;
 use crate::{for_normal_struct_enums, implement_send_and_sync};
+use burn::{optim::*, prelude::*};
+use pyo3::prelude::*;
 
 for_normal_struct_enums!(AdaGradPy, AdaGrad);
 for_normal_struct_enums!(AdaGradConfigPy, AdaGradConfig);
@@ -19,9 +19,8 @@ for_normal_struct_enums!(SgdConfigPy, SgdConfig);
 implement_send_and_sync!(GradientsParamsPy);
 
 pub mod decay_exports {
-    use super::*;
     use super::decay::*;
+    use super::*;
     for_normal_struct_enums!(WeightDecayPy, WeightDecay);
     for_normal_struct_enums!(WeightDecayConfigPy, WeightDecayConfig);
-   
 }

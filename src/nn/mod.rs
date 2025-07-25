@@ -50,19 +50,19 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::InitializerPy;
     #[pymodule_export]
-    use wgpu_nn_exports::InstanceNormPy;
-    #[pymodule_export]
     use wgpu_nn_exports::InstanceNormConfigPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::InstanceNormPy;
     #[pymodule_export]
     use wgpu_nn_exports::InstanceNormRecordPy;
     #[pymodule_export]
-    use wgpu_nn_exports::LeakyReluPy;
-    #[pymodule_export]
     use wgpu_nn_exports::LeakyReluConfigPy;
     #[pymodule_export]
-    use wgpu_nn_exports::LstmPy;
+    use wgpu_nn_exports::LeakyReluPy;
     #[pymodule_export]
     use wgpu_nn_exports::LstmConfigPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::LstmPy;
     #[pymodule_export]
     use wgpu_nn_exports::LstmRecordPy;
     #[pymodule_export]
@@ -78,9 +78,9 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::PositionalEncodingPy;
     #[pymodule_export]
-    use wgpu_nn_exports::RmsNormPy;
-    #[pymodule_export]
     use wgpu_nn_exports::RmsNormConfigPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::RmsNormPy;
     #[pymodule_export]
     use wgpu_nn_exports::RmsNormRecordPy;
     #[pymodule_export]
@@ -90,9 +90,9 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::SigmoidPy;
     #[pymodule_export]
-    use wgpu_nn_exports::SwiGluPy;
-    #[pymodule_export]
     use wgpu_nn_exports::SwiGluConfigPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::SwiGluPy;
     #[pymodule_export]
     use wgpu_nn_exports::TanhPy;
 
@@ -100,9 +100,9 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use crate::tensor::base::TensorPy;
     #[pymodule_export]
-    use wgpu_nn_exports::Unfold4dPy;
-    #[pymodule_export]
     use wgpu_nn_exports::Unfold4dConfigPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::Unfold4dPy;
 
     /// Applies Linear transformation over a tensor
     #[pyclass]
@@ -205,9 +205,9 @@ pub mod wgpu_nn {
         #[pymodule_export]
         use wgpu_nn_exports::attention_exports::MhaOutputPy;
         #[pymodule_export]
-        use wgpu_nn_exports::attention_exports::MultiHeadAttentionPy;
-        #[pymodule_export]
         use wgpu_nn_exports::attention_exports::MultiHeadAttentionConfigPy;
+        #[pymodule_export]
+        use wgpu_nn_exports::attention_exports::MultiHeadAttentionPy;
         #[pymodule_export]
         use wgpu_nn_exports::attention_exports::MultiHeadAttentionRecordPy;
     }
@@ -229,31 +229,31 @@ pub mod wgpu_nn {
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv2dRecordPy;
         #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::Conv3DPy;
-        #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv3DConfigPy;
         #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::ConvTranspose1dPy;
+        use wgpu_nn_exports::conv_exports::Conv3DPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose1dConfigPy;
         #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::ConvTranspose1dRecordPy;
+        use wgpu_nn_exports::conv_exports::ConvTranspose1dPy;
         #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::ConvTranspose2dPy;
+        use wgpu_nn_exports::conv_exports::ConvTranspose1dRecordPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose2dConfigPy;
         #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::ConvTranspose2dRecordPy;
+        use wgpu_nn_exports::conv_exports::ConvTranspose2dPy;
         #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::ConvTranspose3dPy;
+        use wgpu_nn_exports::conv_exports::ConvTranspose2dRecordPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose3dConfigPy;
         #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::ConvTranspose3dPy;
+        #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose3dRecordPy;
         #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::DeformConv2dPy;
-        #[pymodule_export]
         use wgpu_nn_exports::conv_exports::DeformConv2dConfigPy;
+        #[pymodule_export]
+        use wgpu_nn_exports::conv_exports::DeformConv2dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::DeformConv2dRecordPy;
     }
@@ -263,9 +263,9 @@ pub mod wgpu_nn {
         use super::*;
 
         #[pymodule_export]
-        use wgpu_nn_exports::gru_exports::GruPy;
-        #[pymodule_export]
         use wgpu_nn_exports::gru_exports::GruConfigPy;
+        #[pymodule_export]
+        use wgpu_nn_exports::gru_exports::GruPy;
         #[pymodule_export]
         use wgpu_nn_exports::gru_exports::GruRecordPy;
     }
@@ -275,13 +275,13 @@ pub mod wgpu_nn {
         use super::*;
 
         #[pymodule_export]
-        use super::common_nn_exports::interpolate_exports::Interpolate1dPy;
-        #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate1dConfigPy;
         #[pymodule_export]
-        use super::common_nn_exports::interpolate_exports::Interpolate2dPy;
+        use super::common_nn_exports::interpolate_exports::Interpolate1dPy;
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate2dConfigPy;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::Interpolate2dPy;
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::InterpolateModePy;
     }
@@ -323,8 +323,6 @@ pub mod wgpu_nn {
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::PositionWiseFeedForwardRecordPy;
         #[pymodule_export]
-        use wgpu_nn_exports::transformer_exports::TransformerDecoderPy;
-        #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::TransformerDecoderAutoregressiveCachePy;
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::TransformerDecoderConfigPy;
@@ -335,9 +333,9 @@ pub mod wgpu_nn {
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::TransformerDecoderLayerRecordPy;
         #[pymodule_export]
-        use wgpu_nn_exports::transformer_exports::TransformerDecoderRecordPy;
+        use wgpu_nn_exports::transformer_exports::TransformerDecoderPy;
         #[pymodule_export]
-        use wgpu_nn_exports::transformer_exports::TransformerEncoderPy;
+        use wgpu_nn_exports::transformer_exports::TransformerDecoderRecordPy;
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::TransformerEncoderAutoregressiveCachePy;
         #[pymodule_export]
@@ -346,6 +344,8 @@ pub mod wgpu_nn {
         use wgpu_nn_exports::transformer_exports::TransformerEncoderLayerPy;
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::TransformerEncoderLayerRecordPy;
+        #[pymodule_export]
+        use wgpu_nn_exports::transformer_exports::TransformerEncoderPy;
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::TransformerEncoderRecordPy;
 
@@ -387,19 +387,19 @@ pub mod ndarray {
     #[pymodule_export]
     use ndarray_nn_exports::InitializerPy;
     #[pymodule_export]
-    use ndarray_nn_exports::InstanceNormPy;
-    #[pymodule_export]
     use ndarray_nn_exports::InstanceNormConfigPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::InstanceNormPy;
     #[pymodule_export]
     use ndarray_nn_exports::InstanceNormRecordPy;
     #[pymodule_export]
-    use ndarray_nn_exports::LeakyReluPy;
-    #[pymodule_export]
     use ndarray_nn_exports::LeakyReluConfigPy;
     #[pymodule_export]
-    use ndarray_nn_exports::LstmPy;
+    use ndarray_nn_exports::LeakyReluPy;
     #[pymodule_export]
     use ndarray_nn_exports::LstmConfigPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::LstmPy;
     #[pymodule_export]
     use ndarray_nn_exports::LstmRecordPy;
     #[pymodule_export]
@@ -415,9 +415,9 @@ pub mod ndarray {
     #[pymodule_export]
     use ndarray_nn_exports::PositionalEncodingPy;
     #[pymodule_export]
-    use ndarray_nn_exports::RmsNormPy;
-    #[pymodule_export]
     use ndarray_nn_exports::RmsNormConfigPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::RmsNormPy;
     #[pymodule_export]
     use ndarray_nn_exports::RmsNormRecordPy;
     #[pymodule_export]
@@ -427,15 +427,15 @@ pub mod ndarray {
     #[pymodule_export]
     use ndarray_nn_exports::SigmoidPy;
     #[pymodule_export]
-    use ndarray_nn_exports::SwiGluPy;
-    #[pymodule_export]
     use ndarray_nn_exports::SwiGluConfigPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::SwiGluPy;
     #[pymodule_export]
     use ndarray_nn_exports::TanhPy;
     #[pymodule_export]
-    use ndarray_nn_exports::Unfold4dPy;
-    #[pymodule_export]
     use ndarray_nn_exports::Unfold4dConfigPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::Unfold4dPy;
 
     /// Applies Linear transformation over a tensor
     #[pyclass]
@@ -449,7 +449,7 @@ pub mod ndarray {
     #[pyclass]
     #[derive(Debug)]
     #[repr(transparent)]
-    pub struct BatchNormConfigPy( pub BatchNormConfig);
+    pub struct BatchNormConfigPy(pub BatchNormConfig);
 
     //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
     /// The record type for the BatchNorm module
@@ -538,9 +538,9 @@ pub mod ndarray {
         #[pymodule_export]
         use ndarray_nn_exports::attention_exports::MhaOutputPy;
         #[pymodule_export]
-        use ndarray_nn_exports::attention_exports::MultiHeadAttentionPy;
-        #[pymodule_export]
         use ndarray_nn_exports::attention_exports::MultiHeadAttentionConfigPy;
+        #[pymodule_export]
+        use ndarray_nn_exports::attention_exports::MultiHeadAttentionPy;
         #[pymodule_export]
         use ndarray_nn_exports::attention_exports::MultiHeadAttentionRecordPy;
     }
@@ -562,31 +562,31 @@ pub mod ndarray {
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::Conv2dRecordPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::Conv3DPy;
-        #[pymodule_export]
         use ndarray_nn_exports::conv_exports::Conv3DConfigPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::ConvTranspose1dPy;
+        use ndarray_nn_exports::conv_exports::Conv3DPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose1dConfigPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::ConvTranspose1dRecordPy;
+        use ndarray_nn_exports::conv_exports::ConvTranspose1dPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::ConvTranspose2dPy;
+        use ndarray_nn_exports::conv_exports::ConvTranspose1dRecordPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose2dConfigPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::ConvTranspose2dRecordPy;
+        use ndarray_nn_exports::conv_exports::ConvTranspose2dPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::ConvTranspose3dPy;
+        use ndarray_nn_exports::conv_exports::ConvTranspose2dRecordPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose3dConfigPy;
         #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::ConvTranspose3dPy;
+        #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose3dRecordPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::DeformConv2dPy;
-        #[pymodule_export]
         use ndarray_nn_exports::conv_exports::DeformConv2dConfigPy;
+        #[pymodule_export]
+        use ndarray_nn_exports::conv_exports::DeformConv2dPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::DeformConv2dRecordPy;
     }
@@ -596,9 +596,9 @@ pub mod ndarray {
         use super::*;
 
         #[pymodule_export]
-        use ndarray_nn_exports::gru_exports::GruPy;
-        #[pymodule_export]
         use ndarray_nn_exports::gru_exports::GruConfigPy;
+        #[pymodule_export]
+        use ndarray_nn_exports::gru_exports::GruPy;
         #[pymodule_export]
         use ndarray_nn_exports::gru_exports::GruRecordPy;
     }
@@ -608,13 +608,13 @@ pub mod ndarray {
         use super::*;
 
         #[pymodule_export]
-        use super::common_nn_exports::interpolate_exports::Interpolate1dPy;
-        #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate1dConfigPy;
         #[pymodule_export]
-        use super::common_nn_exports::interpolate_exports::Interpolate2dPy;
+        use super::common_nn_exports::interpolate_exports::Interpolate1dPy;
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate2dConfigPy;
+        #[pymodule_export]
+        use super::common_nn_exports::interpolate_exports::Interpolate2dPy;
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::InterpolateModePy;
     }
@@ -655,8 +655,6 @@ pub mod ndarray {
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::PositionWiseFeedForwardRecordPy;
         #[pymodule_export]
-        use ndarray_nn_exports::transformer_exports::TransformerDecoderPy;
-        #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::TransformerDecoderAutoregressiveCachePy;
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::TransformerDecoderConfigPy;
@@ -667,9 +665,9 @@ pub mod ndarray {
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::TransformerDecoderLayerRecordPy;
         #[pymodule_export]
-        use ndarray_nn_exports::transformer_exports::TransformerDecoderRecordPy;
+        use ndarray_nn_exports::transformer_exports::TransformerDecoderPy;
         #[pymodule_export]
-        use ndarray_nn_exports::transformer_exports::TransformerEncoderPy;
+        use ndarray_nn_exports::transformer_exports::TransformerDecoderRecordPy;
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::TransformerEncoderAutoregressiveCachePy;
         #[pymodule_export]
@@ -678,6 +676,8 @@ pub mod ndarray {
         use ndarray_nn_exports::transformer_exports::TransformerEncoderLayerPy;
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::TransformerEncoderLayerRecordPy;
+        #[pymodule_export]
+        use ndarray_nn_exports::transformer_exports::TransformerEncoderPy;
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::TransformerEncoderRecordPy;
 
