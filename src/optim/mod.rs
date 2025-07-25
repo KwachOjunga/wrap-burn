@@ -11,7 +11,26 @@ use pyo3::prelude::*;
 
 
 #[cfg(feature = "wgpu")]
-pub mod wgpu {}
+#[pymodule]
+pub mod wgpu_optim {
+    use super::*;
+    
+    #[pymodule_export]
+    use super::common_exports::AdaGradConfigPy;
+    #[pymodule_export]
+    use super::common_exports::AdaGradPy;
+    #[pymodule_export]
+    use super::common_exports::AdamConfigPy;
+    #[pymodule_export]
+    use super::common_exports::AdamPy;
+    #[pymodule_export]
+    use super::common_exports::AdamWConfigPy;
+    #[pymodule_export]
+    use super::common_exports::AdamWPy;
+    #[pymodule_export]
+    use super::common_exports::GradientsParamsPy;
+
+}
 
 #[cfg(feature = "ndarray")]
 pub mod ndarray {}

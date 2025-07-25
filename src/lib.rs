@@ -6,6 +6,7 @@ mod nn;
 mod optim;
 mod record;
 mod train;
+mod tensor;
 
 #[macro_export]
 macro_rules! implement_ndarray_interface {
