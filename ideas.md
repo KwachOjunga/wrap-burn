@@ -66,3 +66,21 @@ fn create_tensor(val: usize) -> Tensor<Wgpu> {
 ```
 
 OK, so whatever i had in mind basically doesn't work
+
+----
+Challenges
+1. In order to access methods implemented by structs within the wrappers and expose them 
+    as default methods of their wrappers, alot of conversion has to occur; but this is Rust,
+    Zero-cost abstractions right??
+
+2. Some of the methods implemented for the field structs of the wrappers require ownership 
+    i.e Self has to be a paramenter in order to perform in-place mutation; this clashes with 
+    the need for Pyo3 types to be shared references for exposure to the Python interface; 
+    In order to use said methods there has to be a lot of cloning. -- 
+    Perhaps there is a type; implements Copy trait, offers interior mutability and can be used 
+    safely in a concurrent setting.
+
+3. Almost all types in Burn are generic; and this is to allow it to offer a single abstraction across
+    multiple backends; The issue that arises is that in order to expose types in dynamic language, 
+    the implementations ought to be concrete. This raises a connundrum whereby methods have to be defined
+    for every concrete implementation of a type that is realised from the generic type.
