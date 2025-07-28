@@ -18,14 +18,6 @@ impl fmt::Display for TensorError {
     }
 }
 
-// impl Error for TensorError {
-//     fn source(&self) -> Option<&(dyn Error + 'static)> {
-//         match self {
-//             TensorError::WrongDimensions => Some(&<WrongDimensions as Error>::source())
-//         }
-//     }
-// }
-
 #[derive(Debug)]
 pub struct WrongDimensions;
 

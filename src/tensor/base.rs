@@ -32,7 +32,6 @@ pub struct Tensor2Bool {
     pub inner: Tensor<Wgpu, 2, Bool>,
 }
 
-
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor3 {
@@ -51,7 +50,6 @@ pub struct Tensor4 {
     pub inner: Tensor<Wgpu, 4>,
 }
 
-
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor4Bool {
@@ -64,15 +62,13 @@ pub struct Tensor5 {
     pub inner: Tensor<Wgpu, 5>,
 }
 
-
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor5Bool {
     pub inner: Tensor<Wgpu, 5, Bool>,
 }
 
-
-
+/// A non-idiomatic struct
 
 #[pyclass]
 #[non_exhaustive]
@@ -87,7 +83,7 @@ pub enum TensorPy {
     TensorFour(Tensor4),
     TensorFourBool(Tensor4Bool),
     TensorFive(Tensor5),
-    TensorFiveBool(Tensor5Bool)
+    TensorFiveBool(Tensor5Bool),
 }
 
 // impl TensorPy {
@@ -106,143 +102,156 @@ pub enum TensorPy {
 
 #[pymethods]
 impl TensorPy {
-    fn abs(&self) -> Self {
+    fn abs(&self) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
-            TensorPy::TensorThree(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
-            TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
-            TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().abs()),
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            _ => None,
         }
     }
 
-    fn add(&self, other: TensorPy) -> Self {
+    fn add(&self, other: TensorPy) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().add(
                     Into::<anyhow::Result<Tensor<Wgpu, 1>>>::into(other)
                         .expect("expected 1 dim tensor"),
                 ),
-            ),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(
+            )),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().add(
                     Into::<anyhow::Result<Tensor<Wgpu, 2>>>::into(other)
                         .expect("expected 2 dim tensor"),
                 ),
-            ),
-            TensorPy::TensorThree(val) => Into::<TensorPy>::into(
+            )),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().add(
                     Into::<anyhow::Result<Tensor<Wgpu, 3>>>::into(other)
                         .expect("expected 3 dim tensor"),
                 ),
-            ),
-            TensorPy::TensorFour(val) => Into::<TensorPy>::into(
+            )),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().add(
                     Into::<anyhow::Result<Tensor<Wgpu, 4>>>::into(other)
                         .expect("expected 4 dim tensor"),
                 ),
-            ),
-            TensorPy::TensorFive(val) => Into::<TensorPy>::into(
+            )),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().add(
                     Into::<anyhow::Result<Tensor<Wgpu, 5>>>::into(other)
                         .expect("expected 5 dim tensor"),
                 ),
-            ),
+            )),
+            _ => None,
         }
     }
 
-    fn add_scalar(&self, input: f32) -> Self {
+    fn add_scalar(&self, input: f32) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().add_scalar(input)),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(val.inner.clone().add_scalar(input)),
+            TensorPy::TensorOne(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorTwo(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
             TensorPy::TensorThree(val) => {
-                Into::<TensorPy>::into(val.inner.clone().add_scalar(input))
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
             }
             TensorPy::TensorFour(val) => {
-                Into::<TensorPy>::into(val.inner.clone().add_scalar(input))
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
             }
             TensorPy::TensorFive(val) => {
-                Into::<TensorPy>::into(val.inner.clone().add_scalar(input))
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
             }
+            _ => None,
         }
     }
 
-    fn sub(&self, other: TensorPy) -> Self {
+    fn sub(&self, other: TensorPy) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().sub(
                     Into::<anyhow::Result<Tensor<Wgpu, 1>>>::into(other)
                         .expect("expected 1 dim tensor"),
                 ),
-            ),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(
+            )),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().sub(
                     Into::<anyhow::Result<Tensor<Wgpu, 2>>>::into(other)
                         .expect("expected 2 dim tensor"),
                 ),
-            ),
-            TensorPy::TensorThree(val) => Into::<TensorPy>::into(
+            )),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().sub(
                     Into::<anyhow::Result<Tensor<Wgpu, 3>>>::into(other)
                         .expect("expected 3 dim tensor"),
                 ),
-            ),
-            TensorPy::TensorFour(val) => Into::<TensorPy>::into(
+            )),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().sub(
                     Into::<anyhow::Result<Tensor<Wgpu, 4>>>::into(other)
                         .expect("expected 4 dim tensor"),
                 ),
-            ),
-            TensorPy::TensorFive(val) => Into::<TensorPy>::into(
+            )),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().sub(
                     Into::<anyhow::Result<Tensor<Wgpu, 5>>>::into(other)
                         .expect("expected 5 dim tensor"),
                 ),
-            ),
+            )),
+            _ => None,
         }
     }
 
-    fn sub_scalar(&self, input: f32) -> Self {
+    fn sub_scalar(&self, input: f32) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().sub_scalar(input)),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(val.inner.clone().sub_scalar(input)),
+            TensorPy::TensorOne(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sub_scalar(input)))
+            }
+            TensorPy::TensorTwo(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sub_scalar(input)))
+            }
             TensorPy::TensorThree(val) => {
-                Into::<TensorPy>::into(val.inner.clone().sub_scalar(input))
+                Some(Into::<TensorPy>::into(val.inner.clone().sub_scalar(input)))
             }
             TensorPy::TensorFour(val) => {
-                Into::<TensorPy>::into(val.inner.clone().sub_scalar(input))
+                Some(Into::<TensorPy>::into(val.inner.clone().sub_scalar(input)))
             }
             TensorPy::TensorFive(val) => {
-                Into::<TensorPy>::into(val.inner.clone().sub_scalar(input))
+                Some(Into::<TensorPy>::into(val.inner.clone().sub_scalar(input)))
             }
+            _ => None,
         }
     }
 
     /// Test if any element in the Tensor evaluates to True
-    fn any(&self) -> Self {
+    fn any(&self) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().any()),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(val.inner.clone().any()),
-            TensorPy::TensorThree(val) => Into::<TensorPy>::into(val.inner.clone().any()),
-            TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().any()),
-            TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().any()),
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            _ => None,
         }
     }
 
-    fn all(&self) -> Self {
+    fn all(&self) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().all()),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(val.inner.clone().all()),
-            TensorPy::TensorThree(val) => Into::<TensorPy>::into(val.inner.clone().all()),
-            TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().all()),
-            TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().all()),
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            _ => None,
         }
     }
 }
 
-
 // Conversion between TensorPy and various types.
-
 
 impl From<Tensor<Wgpu, 1>> for Tensor1 {
     fn from(other: Tensor<Wgpu, 1>) -> Self {
@@ -262,6 +271,21 @@ impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 1>> {
             TensorPy::TensorOne(val) => Ok(val.inner),
             _ => Err(WrongDimensions.into()),
         }
+    }
+}
+
+impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 1, Bool>> {
+    fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 1, Bool>> {
+        match other {
+            TensorPy::TensorOneBool(val) => Ok(val.inner),
+            _ => Err(WrongDimensions.into()),
+        }
+    }
+}
+
+impl From<Tensor<Wgpu, 1, Bool>> for TensorPy {
+    fn from(other: Tensor<Wgpu, 1, Bool>) -> Self {
+        Self::TensorOneBool(Tensor1Bool { inner: other })
     }
 }
 
@@ -379,4 +403,19 @@ impl From<Tensor5> for Tensor<Wgpu, 5> {
     fn from(other: Tensor5) -> Self {
         other.inner
     }
+}
+
+#[test]
+fn size_of_tensor() {
+    println!("TensorPy size is {}",std::mem::size_of::<TensorPy>());
+    println!("Tensor1 size is {}",std::mem::size_of::<Tensor1>());
+    println!("Tensor1Bool size is {}",std::mem::size_of::<Tensor1Bool>());
+    println!("Tensor2 size is {}",std::mem::size_of::<Tensor2>());
+    println!("Tensor2Bool size is {}",std::mem::size_of::<Tensor2Bool>());
+    println!("Tensor3 size is {}",std::mem::size_of::<Tensor3>());
+    println!("Tensor3Bool size is {}",std::mem::size_of::<Tensor3Bool>());
+    println!("Tensor4 size is {}",std::mem::size_of::<Tensor4>());
+    println!("Tensor4Bool size is {}",std::mem::size_of::<Tensor4Bool>());
+    println!("Tensor5 size is {}",std::mem::size_of::<Tensor5>());
+    println!("Tensor5Bool size is {}",std::mem::size_of::<Tensor5Bool>());
 }
