@@ -227,6 +227,42 @@ impl TensorPy {
         }
     }
 
+    fn all_dim(&self, dim: usize) -> Self {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorTwoBool(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorThreeBool(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorFourBool(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorFiveBool(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorOneBool(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorTwo(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorThree(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorFour(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorFive(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+        }
+    }
+    
+
     /// Test if any element in the Tensor evaluates to True
     fn any(&self) -> Option<Self> {
         match self {
@@ -247,6 +283,90 @@ impl TensorPy {
             TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
             TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
             _ => None,
+        }
+    }
+
+    fn contains_nan(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            TensorPy::TensorTwo(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            TensorPy::TensorThree(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            TensorPy::TensorFour(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            TensorPy::TensorFive(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            _ => Err(TensorError::NonApplicableMethod.into())
+        }
+    }
+
+    fn is_nan(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_nan()))
+            }
+            TensorPy::TensorTwo(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_nan()))
+            }
+            TensorPy::TensorThree(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_nan()))
+            }
+            TensorPy::TensorFour(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_nan()))
+            }
+            TensorPy::TensorFive(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_nan()))
+            }
+            _ => Err(TensorError::NonApplicableMethod.into())
+        }
+    }
+
+    fn is_inf(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_inf()))
+            }
+            TensorPy::TensorTwo(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_inf()))
+            }
+            TensorPy::TensorThree(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_inf()))
+            }
+            TensorPy::TensorFour(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_inf()))
+            }
+            TensorPy::TensorFive(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_inf()))
+            }
+            _ => Err(TensorError::NonApplicableMethod.into())
+        }
+    }
+
+    fn is_finite(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_finite()))
+            }
+            TensorPy::TensorTwo(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_finite()))
+            }
+            TensorPy::TensorThree(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_finite()))
+            }
+            TensorPy::TensorFour(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_finite()))
+            }
+            TensorPy::TensorFive(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().is_finite()))
+            }
+            _ => Err(TensorError::NonApplicableMethod.into())
         }
     }
 }
@@ -310,6 +430,14 @@ impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 2>> {
     }
 }
 
+impl From<Tensor<Wgpu, 2, Bool>> for TensorPy {
+    fn from(other: Tensor<Wgpu, 2, Bool>) -> Self {
+        Self::TensorTwoBool(Tensor2Bool { inner: other })
+    }
+}
+
+
+// 3 dim Tensor
 impl From<Tensor<Wgpu, 3>> for Tensor3 {
     fn from(other: Tensor<Wgpu, 3>) -> Self {
         Self { inner: other }
@@ -331,6 +459,14 @@ impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 3>> {
     }
 }
 
+impl From<Tensor<Wgpu, 3, Bool>> for TensorPy {
+    fn from(other: Tensor<Wgpu, 3, Bool>) -> Self {
+        Self::TensorThreeBool(Tensor3Bool { inner: other })
+    }
+}
+
+
+// 4 dim Tensor
 impl From<Tensor<Wgpu, 4>> for Tensor4 {
     fn from(other: Tensor<Wgpu, 4>) -> Self {
         Self { inner: other }
@@ -352,6 +488,14 @@ impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 4>> {
     }
 }
 
+impl From<Tensor<Wgpu, 4, Bool>> for TensorPy {
+    fn from(other: Tensor<Wgpu, 4, Bool>) -> Self {
+        Self::TensorFourBool(Tensor4Bool { inner: other })
+    }
+}
+
+
+// 5 dim Tensor
 impl From<Tensor<Wgpu, 5>> for Tensor5 {
     fn from(other: Tensor<Wgpu, 5>) -> Self {
         Self { inner: other }
@@ -370,6 +514,12 @@ impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 5>> {
             TensorPy::TensorFive(val) => Ok(val.inner),
             _ => Err(WrongDimensions.into()),
         }
+    }
+}
+
+impl From<Tensor<Wgpu, 5, Bool>> for TensorPy {
+    fn from(other: Tensor<Wgpu, 5, Bool>) -> Self {
+        Self::TensorFiveBool(Tensor5Bool { inner: other })
     }
 }
 
@@ -405,17 +555,26 @@ impl From<Tensor5> for Tensor<Wgpu, 5> {
     }
 }
 
-#[test]
-fn size_of_tensor() {
-    println!("TensorPy size is {}",std::mem::size_of::<TensorPy>());
-    println!("Tensor1 size is {}",std::mem::size_of::<Tensor1>());
-    println!("Tensor1Bool size is {}",std::mem::size_of::<Tensor1Bool>());
-    println!("Tensor2 size is {}",std::mem::size_of::<Tensor2>());
-    println!("Tensor2Bool size is {}",std::mem::size_of::<Tensor2Bool>());
-    println!("Tensor3 size is {}",std::mem::size_of::<Tensor3>());
-    println!("Tensor3Bool size is {}",std::mem::size_of::<Tensor3Bool>());
-    println!("Tensor4 size is {}",std::mem::size_of::<Tensor4>());
-    println!("Tensor4Bool size is {}",std::mem::size_of::<Tensor4Bool>());
-    println!("Tensor5 size is {}",std::mem::size_of::<Tensor5>());
-    println!("Tensor5Bool size is {}",std::mem::size_of::<Tensor5Bool>());
+
+#[cfg(test)]
+mod tensor_base_tests {
+    use super::*;
+
+    #[test]
+    fn size_of_tensor() {
+        println!("TensorPy size is {}",std::mem::size_of::<TensorPy>());
+        println!("Tensor1 size is {}",std::mem::size_of::<Tensor1>());
+        println!("Tensor1Bool size is {}",std::mem::size_of::<Tensor1Bool>());
+        println!("Tensor2 size is {}",std::mem::size_of::<Tensor2>());
+        println!("Tensor2Bool size is {}",std::mem::size_of::<Tensor2Bool>());
+        println!("Tensor3 size is {}",std::mem::size_of::<Tensor3>());
+        println!("Tensor3Bool size is {}",std::mem::size_of::<Tensor3Bool>());
+        println!("Tensor4 size is {}",std::mem::size_of::<Tensor4>());
+        println!("Tensor4Bool size is {}",std::mem::size_of::<Tensor4Bool>());
+        println!("Tensor5 size is {}",std::mem::size_of::<Tensor5>());
+        println!("Tensor5Bool size is {}",std::mem::size_of::<Tensor5Bool>());
+    }
+
 }
+
+
