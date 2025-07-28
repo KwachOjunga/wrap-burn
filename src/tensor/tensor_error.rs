@@ -6,10 +6,11 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 /// It's the primary wrapper that allows exceptions to be raised from tensor errors
 #[pyclass]
 #[derive(Debug)]
-#[doc = "Tensor Error: to be used when raisig exceptions that involve tensors"]
+#[doc = "Tensor Error: to be used when raising exceptions that involve tensors"]
 #[non_exhaustive]
 pub enum TensorError {
     WrongDimensions,
+    NonApplicableMethod
 }
 
 impl fmt::Display for TensorError {
@@ -17,6 +18,18 @@ impl fmt::Display for TensorError {
         write!(f, "TensorError!")
     }
 }
+
+#[derive(Debug)]
+pub struct NonApplicableMethod;
+
+impl fmt::Display for NonApplicableMethod {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "The method does not apply to a tensor of this nature!")
+    }
+}
+
+impl Error for NonApplicableMethod {}
+
 
 #[derive(Debug)]
 pub struct WrongDimensions;
@@ -33,6 +46,7 @@ impl From<TensorError> for PyErr {
     fn from(other: TensorError) -> Self {
         match other {
             TensorError::WrongDimensions => PyValueError::new_err("Check input tensor dimensions"),
+            TensorError::NonApplicableMethod => PyValueError::new_err("Method does not apply to this Tensor"),
         }
     }
 }
