@@ -10,7 +10,7 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 #[non_exhaustive]
 pub enum TensorError {
     WrongDimensions,
-    NonApplicableMethod
+    NonApplicableMethod,
 }
 
 impl fmt::Display for TensorError {
@@ -30,7 +30,6 @@ impl fmt::Display for NonApplicableMethod {
 
 impl Error for NonApplicableMethod {}
 
-
 #[derive(Debug)]
 pub struct WrongDimensions;
 
@@ -46,7 +45,9 @@ impl From<TensorError> for PyErr {
     fn from(other: TensorError) -> Self {
         match other {
             TensorError::WrongDimensions => PyValueError::new_err("Check input tensor dimensions"),
-            TensorError::NonApplicableMethod => PyValueError::new_err("Method does not apply to this Tensor"),
+            TensorError::NonApplicableMethod => {
+                PyValueError::new_err("Method does not apply to this Tensor")
+            }
         }
     }
 }
