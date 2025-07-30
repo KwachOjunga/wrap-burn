@@ -67,6 +67,23 @@ fn create_tensor(val: usize) -> Tensor<Wgpu> {
 
 OK, so whatever i had in mind basically doesn't work
 
+Considerations;
+- Combining traits into single traits to lower size of pointer to whatever reference; i.e
+    ```rust
+    trait Hei {
+        fn name(&self);
+        fn jump(&self;
+    }
+
+    trait HeiAsRef: Hei + AsRef<T> {}
+
+    // application 
+    fn foo(s: impl HeiAsRef) -> &'static str {...}
+    
+    ```
+
+    
+
 ----
 Challenges
 1. In order to access methods implemented by structs within the wrappers and expose them 
