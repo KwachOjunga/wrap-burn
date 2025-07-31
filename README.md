@@ -5,7 +5,8 @@
 implementation of a known [deep learning](https://github.com/tracelai/burn) library;
 so that it may be used expressly as a direct replacement of pytorch.
 
-This effort has seized.
+I am now trying to learn how burn would be used as a foundation for a deep learning
+library in a dynamic language.
 
 
 First let me say that burn and its family of crates is a well crafted effort with 
