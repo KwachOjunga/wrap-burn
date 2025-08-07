@@ -2,6 +2,11 @@
 name = "pyburn"
 version = "0.1.0"
 edition = "2024"
+author = ["Ojunga Reginald <ojungakwach@gmail.com>"]
+
+[badges]
+maintenance = { status = "deprecated" }
+
 
 [dependencies]
 anyhow = "1.0.98"
