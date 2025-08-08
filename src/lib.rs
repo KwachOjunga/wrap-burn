@@ -2,15 +2,15 @@
 
 use pyo3::prelude::*;
 
-mod nn;
-mod optim;
+pub mod nn;
+pub mod optim;
 mod record;
-mod tensor;
+pub mod tensor;
 mod train;
 
-pub use tensor;
-pub use nn;
-pub use optim;
+// pub use tensor;
+// pub use nn;
+// pub use optim;
 
 
 #[macro_export]
@@ -91,20 +91,45 @@ macro_rules! for_normal_struct_enums {
     };
 }
 
-#[cfg(feature = "wgpu")]
-#[pymodule]
-pub mod pyburn {
-    // use super::*;
+// #[cfg(feature = "wgpu")]
+// #[pymodule]
+// pub mod pyburn {
+//     // use super::*;
 
-    #[pymodule_export]
-    use super::nn::wgpu_nn;
-}
+//     #[pymodule_export]
+//     use super::nn::wgpu_nn;
+// }
 
-#[cfg(feature = "ndarray")]
-#[pymodule]
-pub mod pyburn {
+// #[cfg(feature = "ndarray")]
+// #[pymodule]
+// pub mod pyburn {
 
-    #[pymodule_export]
-    use super::nn::ndarray as nn;
-}
+//     #[pymodule_export]
+//     use super::nn::ndarray as nn;
+// }
 // pub use optim::ndarray as optim;
+
+#[pymodule]
+pub mod pyburn {
+
+    use super::*;
+
+        #[cfg(feature = "ndarray")]
+        #[pymodule_export]
+        use super::nn::ndarray as nn;
+
+
+        #[cfg(feature = "wgpu")]
+        #[pymodule_export]
+        use super::nn::wgpu_nn;
+
+    // cfg_if::cfg_if! {
+    //     if #[cfg(feature = "ndarray")] {
+    //         #[pymodule]
+    //         use super::nn::ndarray as nn;   
+    //     } else if #[cfg(feature = "wgpu")] {
+    //         #[pymodule]
+    //         use super::nn::wgpu_nn;
+    //     } 
+    // }
+}
