@@ -88,7 +88,7 @@ macro_rules! for_normal_struct_enums {
 
 #[cfg(feature = "wgpu")]
 #[pymodule]
-mod pyburn {
+pub mod pyburn {
     // use super::*;
 
     #[pymodule_export]
@@ -97,7 +97,7 @@ mod pyburn {
 
 #[cfg(feature = "ndarray")]
 #[pymodule]
-mod pyburn {
+pub mod pyburn {
 
     #[pymodule_export]
     use super::nn::ndarray as nn;
