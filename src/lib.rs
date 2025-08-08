@@ -2,11 +2,16 @@
 
 use pyo3::prelude::*;
 
-pub mod nn;
-pub mod optim;
+mod nn;
+mod optim;
 mod record;
-pub mod tensor;
+mod tensor;
 mod train;
+
+pub use tensor;
+pub use nn;
+pub use optim;
+
 
 #[macro_export]
 macro_rules! implement_ndarray_interface {
