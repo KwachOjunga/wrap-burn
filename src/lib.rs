@@ -2,10 +2,10 @@
 
 use pyo3::prelude::*;
 
-mod nn;
-mod optim;
+pub mod nn;
+pub mod optim;
 mod record;
-mod tensor;
+pub mod tensor;
 mod train;
 
 #[macro_export]
