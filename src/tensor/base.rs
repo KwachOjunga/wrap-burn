@@ -102,6 +102,9 @@ pub enum TensorPy {
 
 #[pymethods]
 impl TensorPy {
+    /// Yields an absolute value on a Tensor.
+    /// 
+    /// [note] Non-existent on boolean tensors
     fn abs(&self) -> Option<Self> {
         match self {
             TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
@@ -113,6 +116,8 @@ impl TensorPy {
         }
     }
 
+    /// Non-existent on Boolean tensors
+    /// Performs addition on tensors of similar dimensions
     fn add(&self, other: TensorPy) -> Option<Self> {
         match self {
             TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(
@@ -149,6 +154,8 @@ impl TensorPy {
         }
     }
 
+    /// Non-existent in tensors whose type is Boolean.
+    /// It performs element-wise addition on a tensor.
     fn add_scalar(&self, input: f32) -> Option<Self> {
         match self {
             TensorPy::TensorOne(val) => {
@@ -170,6 +177,7 @@ impl TensorPy {
         }
     }
 
+    /// Performs subtraction between a tensors of similar dimensions
     fn sub(&self, other: TensorPy) -> Option<Self> {
         match self {
             TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(

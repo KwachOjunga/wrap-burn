@@ -2,16 +2,15 @@
 name = "pyburn"
 version = "0.1.0"
 edition = "2024"
-author = ["Ojunga Reginald <ojungakwach@gmail.com>"]
+authors = ["Ojunga Reginald <ojungakwach@gmail.com>"]
 
 [badges]
 maintenance = { status = "deprecated" }
 
 
 [dependencies]
-anyhow = "1.0.98"
+anyhow = "*"
 burn = { version = "0.18.0", features = ["train", "wgpu", "ndarray"] }
-crossbeam = "0.8.4"
 pyo3 = { version = "0.25.1", features = ["multiple-pymethods", "extension-module"] }
 
 [features]
