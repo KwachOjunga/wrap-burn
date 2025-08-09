@@ -107,6 +107,10 @@ pub mod pyburn {
         /// Basic Tensor module with wgpu as its backend
         #[pymodule_export]
         use super::tensor::wgpu_tensor;
+
+        /// Optimization module for wgpu backend
+        #[pymodule_export]
+        use super::optim::wgpu_optim;
     }
 
     /// Modules built for the ndarray backend
@@ -125,5 +129,9 @@ pub mod pyburn {
         /// Basic tensor module with the cpu as its backend
         #[pymodule_export]
         use super::tensor::ndarray_tensor;
+
+        /// Optimization module for ndarray backend
+        #[pymodule_export]
+        use super::optim::ndarray_optim;
     }
 }

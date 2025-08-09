@@ -274,5 +274,4 @@ pub mod ndarray_train {
         #[pymodule_export]
         use super::base::ndarray::renderer::TuiMetricsRendererPy;
     }
-
 }
