@@ -86,41 +86,35 @@ macro_rules! for_normal_struct_enums {
     };
 }
 
-
 #[pymodule]
 pub mod pyburn {
 
     use super::*;
-    
+
     /// Modules built for the wgpu backend
     #[cfg(feature = "wgpu")]
     #[pymodule]
     mod wgpu {
 
-        
-        /// Neural network module 
+        /// Neural network module
         #[pymodule_export]
         use super::nn::wgpu_nn;
 
         #[pymodule_export]
-        use super::tensor::tensor::wgpu_tensor;
+        use super::tensor::wgpu_tensor;
     }
-
 
     /// Modules built for the ndarray backend
     #[cfg(feature = "ndarray")]
     #[pymodule]
     mod ndarray {
-        
+
         /// Neural network module
         #[pymodule_export(name = "ndarray_nn")]
         use super::nn::ndarray_nn;
 
         /// Basic Tensor module
         #[pymodule_export]
-        use super::tensor::tensor::ndarray_tensor;
-
+        use super::tensor::ndarray_tensor;
     }
-    
-    
 }

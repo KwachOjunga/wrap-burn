@@ -1,6 +1,6 @@
 # Pyburn
 
-[![CI](https://github.com/KwachOjunga/wrap-burn/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/KwachOjunga/wrap-burn/actions/workflows/CI.yml)
+[![CI](https://github.com/KwachOjunga/wrap-burn/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/KwachOjunga/wrap-burn/actions/workflows/CI.yml)
 
 A modern deep learning framework built to utilize your hardware.
 Pyburn leverages the Burn framework to use a diverse range of backends.

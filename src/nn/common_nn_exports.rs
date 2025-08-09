@@ -1,7 +1,7 @@
 use super::wgpu_nn_exports::*;
 use crate::for_normal_struct_enums;
-use crate::tensor::wgpu_base::*;
 use crate::tensor::tensor_error::TensorError;
+use crate::tensor::wgpu_base::*;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;

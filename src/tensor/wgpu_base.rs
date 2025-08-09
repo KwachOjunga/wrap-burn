@@ -86,7 +86,6 @@ pub enum TensorPy {
     TensorFiveBool(Tensor5Bool),
 }
 
-
 #[pymethods]
 impl TensorPy {
     /// Yields an absolute value on a Tensor.
