@@ -44,6 +44,8 @@ pub enum TensorPy {
     TensorFive(Tensor5),
 }
 
+
+// [NOTE]: It is virtually impossible to replace these trait implementations with a macro
 impl From<Tensor<NdArray, 1>> for Tensor1 {
     fn from(other: Tensor<NdArray, 1>) -> Self {
         Self { inner: other }
