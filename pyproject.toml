@@ -18,7 +18,7 @@ ndarray = ["ndarray"]
 
 [tool.maturin]
 profile = "release"
-features = ["pyo3/extension-module", "wgpu"]
+features = ["pyo3/extension-module", "wgpu", "ndarray"]
 
 [project.urls]
 Homepage = "https://github.com/kwachojunga/wrapburn.git"

@@ -91,28 +91,9 @@ macro_rules! for_normal_struct_enums {
     };
 }
 
-// #[cfg(feature = "wgpu")]
-// #[pymodule]
-// pub mod pyburn {
-//     // use super::*;
-
-//     #[pymodule_export]
-//     use super::nn::wgpu_nn;
-// }
-
-// #[cfg(feature = "ndarray")]
-// #[pymodule]
-// pub mod pyburn {
-
-//     #[pymodule_export]
-//     use super::nn::ndarray as nn;
-// }
-// pub use optim::ndarray as optim;
-
 #[pymodule]
 pub mod pyburn {
 
-    use super::*;
 
         #[cfg(feature = "ndarray")]
         #[pymodule_export]
@@ -122,14 +103,4 @@ pub mod pyburn {
         #[cfg(feature = "wgpu")]
         #[pymodule_export]
         use super::nn::wgpu_nn;
-
-    // cfg_if::cfg_if! {
-    //     if #[cfg(feature = "ndarray")] {
-    //         #[pymodule]
-    //         use super::nn::ndarray as nn;   
-    //     } else if #[cfg(feature = "wgpu")] {
-    //         #[pymodule]
-    //         use super::nn::wgpu_nn;
-    //     } 
-    // }
 }

@@ -249,7 +249,7 @@ for_normal_struct_enums!(
     LstmConfig,
     "Configuration to create a Lstm module"
 );
-for_normal_struct_enums!(PyLeakyRelu, LeakyRelu, "LeakyRelu Layer");
+for_normal_struct_enums!(LeakyReluPy, LeakyRelu, "LeakyRelu Layer");
 for_normal_struct_enums!(
     LeakyReluConfigPy,
     LeakyReluConfig,
