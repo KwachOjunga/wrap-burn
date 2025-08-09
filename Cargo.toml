@@ -5,7 +5,7 @@ edition = "2024"
 authors = ["Ojunga Reginald <ojungakwach@gmail.com>"]
 
 [badges]
-maintenance = { status = "deprecated" }
+maintenance = { status = "actively-developed" }
 
 
 [dependencies]
