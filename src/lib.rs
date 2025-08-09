@@ -12,7 +12,6 @@ mod train;
 // pub use nn;
 // pub use optim;
 
-
 #[macro_export]
 macro_rules! implement_ndarray_interface {
     ($(#[$meta:meta])* $name:ident, $actual_type:ident ,$doc:literal) => {
@@ -94,13 +93,11 @@ macro_rules! for_normal_struct_enums {
 #[pymodule]
 pub mod pyburn {
 
+    #[cfg(feature = "ndarray")]
+    #[pymodule_export]
+    use super::nn::ndarray as nn;
 
-        #[cfg(feature = "ndarray")]
-        #[pymodule_export]
-        use super::nn::ndarray as nn;
-
-
-        #[cfg(feature = "wgpu")]
-        #[pymodule_export]
-        use super::nn::wgpu_nn;
+    #[cfg(feature = "wgpu")]
+    #[pymodule_export]
+    use super::nn::wgpu_nn;
 }

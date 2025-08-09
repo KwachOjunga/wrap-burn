@@ -103,7 +103,7 @@ pub enum TensorPy {
 #[pymethods]
 impl TensorPy {
     /// Yields an absolute value on a Tensor.
-    /// 
+    ///
     /// [note] Non-existent on boolean tensors
     fn abs(&self) -> Option<Self> {
         match self {
