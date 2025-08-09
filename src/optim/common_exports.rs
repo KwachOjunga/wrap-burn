@@ -1,7 +1,7 @@
 //! Common Exports of the optim module regardless of backend
 
 use crate::{for_normal_struct_enums, implement_send_and_sync};
-use burn::{optim::*, prelude::*};
+use burn::optim::*;
 use pyo3::prelude::*;
 
 for_normal_struct_enums!(AdaGradPy, AdaGrad);
