@@ -98,7 +98,7 @@ pub mod wgpu_nn {
 
     // [TODO:] Note the current implementation of this
     #[pymodule_export]
-    use crate::tensor::base::TensorPy;
+    use crate::tensor::wgpu_base::TensorPy;
     #[pymodule_export]
     use wgpu_nn_exports::Unfold4dConfigPy;
     #[pymodule_export]
@@ -369,7 +369,7 @@ pub mod wgpu_nn {
 /// Some of these modules classes are re-exported at the base of the module
 #[cfg(feature = "ndarray")]
 #[pymodule]
-pub mod ndarray {
+pub mod ndarray_nn {
 
     use super::*;
     use burn::backend::ndarray::*;
