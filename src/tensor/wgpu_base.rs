@@ -86,19 +86,6 @@ pub enum TensorPy {
     TensorFiveBool(Tensor5Bool),
 }
 
-// impl TensorPy {
-//     fn inner<T: Backend>(&self) -> T {
-//         match self {
-//             TensorPy::TensorOne(val) => val.inner,
-//             TensorPy::TensorTwo(val) => val.inner,
-//             TensorPy::TensorThree(val) => val.inner,
-//             TensorPy::TensorFour(val) => val.inner,
-//             TensorPy::TensorFive(val) => val.inner,
-//         }
-//     }
-// }
-
-// -> Initial method val.inner.clone().abs()
 
 #[pymethods]
 impl TensorPy {
