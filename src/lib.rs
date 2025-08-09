@@ -8,10 +8,6 @@ mod record;
 pub mod tensor;
 mod train;
 
-// pub use tensor;
-// pub use nn;
-// pub use optim;
-
 #[macro_export]
 macro_rules! implement_ndarray_interface {
     ($(#[$meta:meta])* $name:ident, $actual_type:ident ,$doc:literal) => {
@@ -90,14 +86,41 @@ macro_rules! for_normal_struct_enums {
     };
 }
 
+
 #[pymodule]
 pub mod pyburn {
 
-    #[cfg(feature = "ndarray")]
-    #[pymodule_export]
-    use super::nn::ndarray as nn;
-
+    use super::*;
+    
+    /// Modules built for the wgpu backend
     #[cfg(feature = "wgpu")]
-    #[pymodule_export]
-    use super::nn::wgpu_nn;
+    #[pymodule]
+    mod wgpu {
+
+        
+        /// Neural network module 
+        #[pymodule_export]
+        use super::nn::wgpu_nn;
+
+        #[pymodule_export]
+        use super::tensor::tensor::wgpu_tensor;
+    }
+
+
+    /// Modules built for the ndarray backend
+    #[cfg(feature = "ndarray")]
+    #[pymodule]
+    mod ndarray {
+        
+        /// Neural network module
+        #[pymodule_export(name = "ndarray_nn")]
+        use super::nn::ndarray_nn;
+
+        /// Basic Tensor module
+        #[pymodule_export]
+        use super::tensor::tensor::ndarray_tensor;
+
+    }
+    
+    
 }
