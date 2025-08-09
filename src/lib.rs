@@ -96,10 +96,15 @@ pub mod pyburn {
     #[pymodule]
     mod wgpu {
 
+        /// Train module
+        #[pymodule_export]
+        use super::train::wgpu_train;
+
         /// Neural network module
         #[pymodule_export]
         use super::nn::wgpu_nn;
 
+        /// Basic Tensor module with wgpu as its backend
         #[pymodule_export]
         use super::tensor::wgpu_tensor;
     }
@@ -109,11 +114,15 @@ pub mod pyburn {
     #[pymodule]
     mod ndarray {
 
+        /// Train module
+        #[pymodule_export]
+        use super::train::ndarray_train;
+
         /// Neural network module
         #[pymodule_export(name = "ndarray_nn")]
         use super::nn::ndarray_nn;
 
-        /// Basic Tensor module
+        /// Basic tensor module with the cpu as its backend
         #[pymodule_export]
         use super::tensor::ndarray_tensor;
     }
