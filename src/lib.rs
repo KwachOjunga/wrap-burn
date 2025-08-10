@@ -7,6 +7,7 @@ pub mod optim;
 mod record;
 pub mod tensor;
 mod train;
+mod tests;
 
 #[macro_export]
 macro_rules! implement_ndarray_interface {
