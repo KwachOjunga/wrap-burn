@@ -1,7 +1,7 @@
 #![allow(unused)]
 #![recursion_limit = "512"]
 
-//! [`wrap-burn`] attempts to expose burn's modules and methods in a manner that permits it to work
+//! [`pyburn`] attempts to expose burn's modules and methods in a manner that permits it to work
 //! as a python interface. This module exposes the [`burn::nn`] module.
 
 use crate::{
@@ -432,6 +432,8 @@ pub mod ndarray_nn {
     use ndarray_nn_exports::SwiGluPy;
     #[pymodule_export]
     use ndarray_nn_exports::TanhPy;
+    #[pymodule_export]
+    use crate::tensor::ndarray_base::TensorPy;
     #[pymodule_export]
     use ndarray_nn_exports::Unfold4dConfigPy;
     #[pymodule_export]
