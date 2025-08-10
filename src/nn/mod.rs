@@ -12,11 +12,16 @@ use burn::nn::Linear;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
+use burn::backend::ndarray::NdArrayDevice;
+use burn::backend::wgpu::WgpuDevice;
 
 mod common_nn_exports;
 mod ndarray_nn_exports;
 mod wgpu_nn_exports;
 // I thought send and Sync were implemented automatically??
+
+pub static WGPUDEVICE: WgpuDevice = WgpuDevice::DefaultDevice;
+pub static NDARRAYDEVICE: NdArrayDevice = NdArrayDevice::Cpu;
 
 /// Neural network Module as implemented using a WGPU backend
 /// The module offers the typical building blocks relevant for
@@ -96,6 +101,7 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::TanhPy;
 
+    
     // [TODO:] Note the current implementation of this
     #[pymodule_export]
     use crate::tensor::wgpu_base::TensorPy;

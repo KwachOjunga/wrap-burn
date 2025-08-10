@@ -1,15 +1,59 @@
 use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
+use crate::tensor::{ndarray_base::TensorPy, tensor_error::TensorError};
 use burn::nn::Linear;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
+use crate::nn::NDARRAYDEVICE;
+
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_ndarray_interface!(
     GateControllerPy,
     GateController,
-    "A GateController represents a gate in an LSTM cell.\n An LSTM cell generally contains three gates: an input gate, forget gate,\n and output gate. Additionally, cell gate is just used to compute the cell state"
+    "A GateController represents a gate in an LSTM cell.\n An LSTM cell generally contains three gates: an input gate, forget gate,\n and output gate. Additionally, cell gate is just used to compute the cell state
+    \n An Lstm gate is modeled as two linear transformations. The results of these transformations are used to calculate the gate's output.
+     To delve deeper into the whole system of gates and the problems it attempts to solve; i highly recommend [Learning to forget:Continual prediction with LSTM](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=e10f98b86797ebf6c8caea6f54cacbc5a50e8b34)"
 );
+
+#[pymethods]
+impl GateControllerPy {
+
+    #[staticmethod]
+    pub fn new(input: usize, output: usize, bias: bool, initializer: InitializerPy) -> Self {
+        GateController::new(input, output, bias, initializer.0, &NDARRAYDEVICE).into()
+    }
+
+    /// yield the gate product given two Tensors of 2 dimensions
+    /// 
+    /// def gate_product(input: TensorPy, output: TensorPy) -> TensorPy :
+    /// 
+    #[pyo3(text_signature = "(input: TensorPy, output: TensorPy -> PyResult<TensorPy>)")]
+    pub fn gate_product(&self, input: TensorPy, hidden: TensorPy) -> PyResult<TensorPy> {
+        
+            let i = match input {
+                TensorPy::TensorTwo(val) => Ok(val),
+                _ => Err(TensorError::WrongDimensions)
+            }?;
+            let o = match hidden {
+                TensorPy::TensorTwo(val) => Ok(val),
+                _ => Err(TensorError::WrongDimensions)
+            }?;
+            Ok(self.inner.gate_product(i.inner, o.inner).into())
+        
+    }
+
+}
+
+
+impl From<GateController<NdArray>> for GateControllerPy {
+    fn from(other: GateController<NdArray>) -> Self {
+        Self {
+            inner: other
+        }
+    }
+}
+
 implement_ndarray_interface!(
     EmbeddingPy,
     Embedding,

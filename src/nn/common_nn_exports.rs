@@ -8,9 +8,6 @@ use pyo3::prelude::*;
 use pyo3::pyclass_init::PyClassInitializer;
 use pyo3::types::PyInt;
 
-// pub fn into_inner<T,U>(wrapper: T) -> U {
-//     wrapper.0
-// }
 
 pub mod pool_exports {
     pub(crate) use super::*;

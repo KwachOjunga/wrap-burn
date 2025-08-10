@@ -1,30 +1,57 @@
 use std::ops::DerefMut;
 use std::usize;
 
-use crate::tensor::tensor_error::TensorError;
+use crate::tensor::{wgpu_base::TensorPy, tensor_error::TensorError};
 use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_interface};
 use burn::backend::Wgpu;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::*;
+use crate::nn::WGPUDEVICE;
 
-// Conversions from PyTensor into its internal types
-// impl From<PyTensor> for Tensor<Wgpu,3> {
-//     fn from(other: PyTensor) -> Self {
-//         match other {
-//             PyTensor::TensorThree(val) => val.into(),
-//             _ =>
-//         }
-//     }
-// }
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_wgpu_interface!(
     GateControllerPy,
     GateController,
-    "A GateController represents a gate in an LSTM cell.\n An LSTM cell generally contains three gates: an input gate, forget gate,\n and output gate. Additionally, cell gate is just used to compute the cell state"
+    "A GateController represents a gate in an LSTM cell.\n An LSTM cell generally contains three gates: an input gate, forget gate,\n and output gate. Additionally, cell gate is just used to compute the cell state
+    \n An Lstm gate is modeled as two linear transformations. The results of these transformations are used to calculate the gate's output.
+     To delve deeper into the whole system of gates and the problems it attempts to solve; i highly recommend [Learning to forget:Continual prediction with LSTM](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=e10f98b86797ebf6c8caea6f54cacbc5a50e8b34)"
 );
+
+#[pymethods]
+impl GateControllerPy {
+
+    #[staticmethod]
+    pub fn new(input: usize, output: usize, bias: bool, initializer: InitializerPy) -> Self {
+        GateController::new(input, output, bias, initializer.0, &WGPUDEVICE).into()
+    }
+
+    pub fn gate_product(&self, input: TensorPy, hidden: TensorPy) -> PyResult<TensorPy> {
+        
+            let i = match input {
+                TensorPy::TensorTwo(val) => Ok(val),
+                _ => Err(TensorError::WrongDimensions)
+            }?;
+            let o = match hidden {
+                TensorPy::TensorTwo(val) => Ok(val),
+                _ => Err(TensorError::WrongDimensions)
+            }?;
+            Ok(self.inner.gate_product(i.inner, o.inner).into())
+        
+    }
+
+}
+
+
+impl From<GateController<Wgpu>> for GateControllerPy {
+    fn from(other: GateController<Wgpu>) -> Self {
+        Self {
+            inner: other
+        }
+    }
+}
 
 implement_wgpu_interface!(
     EmbeddingPy,
