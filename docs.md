@@ -210,21 +210,16 @@ object safe. Therefore the Tensor struct cannot be used as a trait object even w
 indirection type as `Box<T>`.
 
 So this implementation is wrong.
+ 
 
-example implementations
-```rust
-```
+# Current Roadmap
 
-```rust
-```
-
-
-
-# What does it take to build a deep learning library 
-
-Preferred alternatives
----
-
+- [ ] Ensure pyburn can implement all of burn's examples
+- [ ] Implement generic architectures with pyburn
+    - Deep learning in EEG 
+    - Graph neural networks(Deep learning in molecular chemistry)
+    - Support vision models used in biomedical image analysis
+- [ ] Make inference in burn a first class citizen.
 
 
 
