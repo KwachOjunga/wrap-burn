@@ -8,7 +8,6 @@ use pyo3::prelude::*;
 use pyo3::pyclass_init::PyClassInitializer;
 use pyo3::types::PyInt;
 
-
 pub mod pool_exports {
     pub(crate) use super::*;
     use burn::{backend::Wgpu, nn::pool::*};

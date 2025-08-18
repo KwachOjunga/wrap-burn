@@ -2,12 +2,13 @@
 
 use pyo3::prelude::*;
 
+pub mod module;
 pub mod nn;
 pub mod optim;
 mod record;
 pub mod tensor;
-mod train;
 mod tests;
+mod train;
 // use tensor::wgpu_base::*;
 
 #[macro_export]
@@ -15,7 +16,6 @@ macro_rules! impl_tensor_conversions_wgpu {
     (
         $tensor_ty:ident, $tensor_bool_ty:ident, $dim:expr, $variant:ident, $variant_bool:ident
     ) => {
-
         // use super::tensor::Wgpu;
 
         // Tensor<Wgpu, N> -> Wrapper
@@ -75,14 +75,11 @@ macro_rules! impl_tensor_conversions_wgpu {
     };
 }
 
-
-
 #[macro_export]
 macro_rules! impl_tensor_conversions_ndarray {
     (
         $tensor_ty:ident, $tensor_bool_ty:ident, $dim:expr, $variant:ident, $variant_bool:ident
     ) => {
-
         // use super::tensor::NdArray;
 
         // Tensor<NdArray, N> -> Wrapper
@@ -141,9 +138,6 @@ macro_rules! impl_tensor_conversions_ndarray {
         }
     };
 }
-
-
-
 
 #[macro_export]
 macro_rules! implement_ndarray_interface {

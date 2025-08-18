@@ -8,12 +8,12 @@ use crate::{
     for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync,
     implement_wgpu_interface,
 };
+use burn::backend::ndarray::NdArrayDevice;
+use burn::backend::wgpu::WgpuDevice;
 use burn::nn::Linear;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
-use burn::backend::ndarray::NdArrayDevice;
-use burn::backend::wgpu::WgpuDevice;
 
 mod common_nn_exports;
 mod ndarray_nn_exports;
@@ -101,7 +101,6 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::TanhPy;
 
-    
     // [TODO:] Note the current implementation of this
     #[pymodule_export]
     use crate::tensor::wgpu_base::TensorPy;
@@ -381,6 +380,8 @@ pub mod ndarray_nn {
     use burn::backend::ndarray::*;
 
     #[pymodule_export]
+    use crate::tensor::ndarray_base::TensorPy;
+    #[pymodule_export]
     use ndarray_nn_exports::EmbeddingPy;
     #[pymodule_export]
     use ndarray_nn_exports::GateControllerPy;
@@ -438,8 +439,6 @@ pub mod ndarray_nn {
     use ndarray_nn_exports::SwiGluPy;
     #[pymodule_export]
     use ndarray_nn_exports::TanhPy;
-    #[pymodule_export]
-    use crate::tensor::ndarray_base::TensorPy;
     #[pymodule_export]
     use ndarray_nn_exports::Unfold4dConfigPy;
     #[pymodule_export]

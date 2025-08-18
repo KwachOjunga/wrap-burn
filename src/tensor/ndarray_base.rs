@@ -318,7 +318,7 @@ impl TensorPy {
     }
 }
 
-// 
+//
 
 impl_tensor_conversions_ndarray!(Tensor1, Tensor1Bool, 1, TensorOne, TensorOneBool);
 impl_tensor_conversions_ndarray!(Tensor2, Tensor2Bool, 2, TensorTwo, TensorTwoBool);
