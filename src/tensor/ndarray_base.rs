@@ -2,6 +2,8 @@
 
 use std::f32;
 
+use crate::impl_tensor_conversions_ndarray;
+
 // use std::sync::{Arc, Mutex};
 use super::tensor_error::*;
 use burn::backend::NdArray;
@@ -316,186 +318,13 @@ impl TensorPy {
     }
 }
 
-// Conversion between TensorPy and various types.
+// 
 
-impl From<Tensor<NdArray, 1>> for Tensor1 {
-    fn from(other: Tensor<NdArray, 1>) -> Self {
-        Self { inner: other }
-    }
-}
-
-impl From<Tensor<NdArray, 1>> for TensorPy {
-    fn from(other: Tensor<NdArray, 1>) -> Self {
-        Self::TensorOne(other.into())
-    }
-}
-
-impl From<TensorPy> for anyhow::Result<Tensor<NdArray, 1>> {
-    fn from(other: TensorPy) -> anyhow::Result<Tensor<NdArray, 1>> {
-        match other {
-            TensorPy::TensorOne(val) => Ok(val.inner),
-            _ => Err(WrongDimensions.into()),
-        }
-    }
-}
-
-impl From<TensorPy> for anyhow::Result<Tensor<NdArray, 1, Bool>> {
-    fn from(other: TensorPy) -> anyhow::Result<Tensor<NdArray, 1, Bool>> {
-        match other {
-            TensorPy::TensorOneBool(val) => Ok(val.inner),
-            _ => Err(WrongDimensions.into()),
-        }
-    }
-}
-
-impl From<Tensor<NdArray, 1, Bool>> for TensorPy {
-    fn from(other: Tensor<NdArray, 1, Bool>) -> Self {
-        Self::TensorOneBool(Tensor1Bool { inner: other })
-    }
-}
-
-impl From<Tensor<NdArray, 2>> for Tensor2 {
-    fn from(other: Tensor<NdArray, 2>) -> Self {
-        Self { inner: other }
-    }
-}
-
-impl From<Tensor<NdArray, 2>> for TensorPy {
-    fn from(other: Tensor<NdArray, 2>) -> Self {
-        Self::TensorTwo(other.into())
-    }
-}
-
-impl From<TensorPy> for anyhow::Result<Tensor<NdArray, 2>> {
-    fn from(other: TensorPy) -> anyhow::Result<Tensor<NdArray, 2>> {
-        match other {
-            TensorPy::TensorTwo(val) => Ok(val.inner),
-            _ => Err(WrongDimensions.into()),
-        }
-    }
-}
-
-impl From<Tensor<NdArray, 2, Bool>> for TensorPy {
-    fn from(other: Tensor<NdArray, 2, Bool>) -> Self {
-        Self::TensorTwoBool(Tensor2Bool { inner: other })
-    }
-}
-
-// 3 dim Tensor
-impl From<Tensor<NdArray, 3>> for Tensor3 {
-    fn from(other: Tensor<NdArray, 3>) -> Self {
-        Self { inner: other }
-    }
-}
-
-impl From<Tensor<NdArray, 3>> for TensorPy {
-    fn from(other: Tensor<NdArray, 3>) -> Self {
-        Self::TensorThree(other.into())
-    }
-}
-
-impl From<TensorPy> for anyhow::Result<Tensor<NdArray, 3>> {
-    fn from(other: TensorPy) -> anyhow::Result<Tensor<NdArray, 3>> {
-        match other {
-            TensorPy::TensorThree(val) => Ok(val.inner),
-            _ => Err(WrongDimensions.into()),
-        }
-    }
-}
-
-impl From<Tensor<NdArray, 3, Bool>> for TensorPy {
-    fn from(other: Tensor<NdArray, 3, Bool>) -> Self {
-        Self::TensorThreeBool(Tensor3Bool { inner: other })
-    }
-}
-
-// 4 dim Tensor
-impl From<Tensor<NdArray, 4>> for Tensor4 {
-    fn from(other: Tensor<NdArray, 4>) -> Self {
-        Self { inner: other }
-    }
-}
-
-impl From<Tensor<NdArray, 4>> for TensorPy {
-    fn from(other: Tensor<NdArray, 4>) -> Self {
-        Self::TensorFour(other.into())
-    }
-}
-
-impl From<TensorPy> for anyhow::Result<Tensor<NdArray, 4>> {
-    fn from(other: TensorPy) -> anyhow::Result<Tensor<NdArray, 4>> {
-        match other {
-            TensorPy::TensorFour(val) => Ok(val.inner),
-            _ => Err(WrongDimensions.into()),
-        }
-    }
-}
-
-impl From<Tensor<NdArray, 4, Bool>> for TensorPy {
-    fn from(other: Tensor<NdArray, 4, Bool>) -> Self {
-        Self::TensorFourBool(Tensor4Bool { inner: other })
-    }
-}
-
-// 5 dim Tensor
-impl From<Tensor<NdArray, 5>> for Tensor5 {
-    fn from(other: Tensor<NdArray, 5>) -> Self {
-        Self { inner: other }
-    }
-}
-
-impl From<Tensor<NdArray, 5>> for TensorPy {
-    fn from(other: Tensor<NdArray, 5>) -> Self {
-        Self::TensorFive(other.into())
-    }
-}
-
-impl From<TensorPy> for anyhow::Result<Tensor<NdArray, 5>> {
-    fn from(other: TensorPy) -> anyhow::Result<Tensor<NdArray, 5>> {
-        match other {
-            TensorPy::TensorFive(val) => Ok(val.inner),
-            _ => Err(WrongDimensions.into()),
-        }
-    }
-}
-
-impl From<Tensor<NdArray, 5, Bool>> for TensorPy {
-    fn from(other: Tensor<NdArray, 5, Bool>) -> Self {
-        Self::TensorFiveBool(Tensor5Bool { inner: other })
-    }
-}
-
-// These methods appear to be totally redundant but anyway
-
-impl From<Tensor1> for Tensor<NdArray, 1> {
-    fn from(other: Tensor1) -> Self {
-        other.inner
-    }
-}
-
-impl From<Tensor2> for Tensor<NdArray, 2> {
-    fn from(other: Tensor2) -> Self {
-        other.inner
-    }
-}
-
-impl From<Tensor3> for Tensor<NdArray, 3> {
-    fn from(other: Tensor3) -> Self {
-        other.inner
-    }
-}
-
-impl From<Tensor4> for Tensor<NdArray, 4> {
-    fn from(other: Tensor4) -> Self {
-        other.inner
-    }
-}
-
-impl From<Tensor5> for Tensor<NdArray, 5> {
-    fn from(other: Tensor5) -> Self {
-        other.inner
-    }
-}
+impl_tensor_conversions_ndarray!(Tensor1, Tensor1Bool, 1, TensorOne, TensorOneBool);
+impl_tensor_conversions_ndarray!(Tensor2, Tensor2Bool, 2, TensorTwo, TensorTwoBool);
+impl_tensor_conversions_ndarray!(Tensor3, Tensor3Bool, 3, TensorThree, TensorThreeBool);
+impl_tensor_conversions_ndarray!(Tensor4, Tensor4Bool, 4, TensorFour, TensorFourBool);
+impl_tensor_conversions_ndarray!(Tensor5, Tensor5Bool, 5, TensorFive, TensorFiveBool);
 
 #[cfg(test)]
 mod tensor_base_tests {
