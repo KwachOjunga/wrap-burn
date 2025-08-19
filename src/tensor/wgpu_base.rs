@@ -340,17 +340,17 @@ mod quantization_exports {
         QuantizationParametersPrimitive,
         "The quantization parameter primitive"
     );
-    for_normal_struct_enums!(
-        QuantizedBytesPy,
-        QuantizedBytes,
-        "Quantized data bytes representation."
-    );
+    // for_normal_struct_enums!(
+    //     QuantizedBytesPy,
+    //     QuantizedBytes,
+    //     "Quantized data bytes representation."
+    // );
 
-    for_normal_struct_enums!(
-        CalibrationPy,
-        Calibration,
-        "The calibration method used to compute the quantization mapping.\nThe method currently in use is the MinMax"
-    );
+    // for_normal_struct_enums!(
+    //     CalibrationPy,
+    //     Calibration,
+    //     "The calibration method used to compute the quantization mapping.\nThe method currently in use is the MinMax"
+    // );
 
     // Currently built to run under the specified strategy.
     // for_normal_struct_enums!(QuantizationPy, Quantization, "The quantization method used to quantize the data.\nThe method currently in use is the Symmetric");

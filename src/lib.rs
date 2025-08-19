@@ -172,7 +172,7 @@ macro_rules! implement_send_and_sync {
 #[macro_export]
 macro_rules! implement_wgpu_interface {
     ($(#[$meta:meta])* $name:ident, $actual_type:ident, $doc:literal) => {
-        use burn::backend::wgpu::*;
+        // use burn::backend::wgpu::*;
         #[doc = $doc]
         #[pyclass]
         pub struct $name {
