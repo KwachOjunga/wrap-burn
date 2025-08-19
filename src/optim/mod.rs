@@ -1,7 +1,5 @@
 mod common_exports;
 
-
-
 use pyo3::prelude::*;
 
 #[cfg(feature = "wgpu")]

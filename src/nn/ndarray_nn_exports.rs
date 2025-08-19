@@ -1,11 +1,10 @@
-use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
+use crate::nn::NDARRAYDEVICE;
 use crate::tensor::{ndarray_base::TensorPy, tensor_error::TensorError};
+use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
 use burn::nn::Linear;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
-use crate::nn::NDARRAYDEVICE;
-
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_ndarray_interface!(
@@ -18,39 +17,32 @@ implement_ndarray_interface!(
 
 #[pymethods]
 impl GateControllerPy {
-
     #[staticmethod]
     pub fn new(input: usize, output: usize, bias: bool, initializer: InitializerPy) -> Self {
         GateController::new(input, output, bias, initializer.0, &NDARRAYDEVICE).into()
     }
 
     /// yield the gate product given two Tensors of 2 dimensions
-    /// 
+    ///
     /// def gate_product(input: TensorPy, output: TensorPy) -> TensorPy :
-    /// 
+    ///
     #[pyo3(text_signature = "(input: TensorPy, output: TensorPy -> PyResult<TensorPy>)")]
     pub fn gate_product(&self, input: TensorPy, hidden: TensorPy) -> PyResult<TensorPy> {
-        
-            let i = match input {
-                TensorPy::TensorTwo(val) => Ok(val),
-                _ => Err(TensorError::WrongDimensions)
-            }?;
-            let o = match hidden {
-                TensorPy::TensorTwo(val) => Ok(val),
-                _ => Err(TensorError::WrongDimensions)
-            }?;
-            Ok(self.inner.gate_product(i.inner, o.inner).into())
-        
+        let i = match input {
+            TensorPy::TensorTwo(val) => Ok(val),
+            _ => Err(TensorError::WrongDimensions),
+        }?;
+        let o = match hidden {
+            TensorPy::TensorTwo(val) => Ok(val),
+            _ => Err(TensorError::WrongDimensions),
+        }?;
+        Ok(self.inner.gate_product(i.inner, o.inner).into())
     }
-
 }
-
 
 impl From<GateController<NdArray>> for GateControllerPy {
     fn from(other: GateController<NdArray>) -> Self {
-        Self {
-            inner: other
-        }
+        Self { inner: other }
     }
 }
 
