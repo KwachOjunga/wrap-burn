@@ -3,8 +3,10 @@
 use std::f32;
 
 // use std::sync::{Arc, Mutex};
-use super::tensor_error::*;
-use crate:: impl_tensor_conversions_wgpu;
+use super::{common_tensor_exports, tensor_error::*};
+use crate::impl_tensor_conversions_wgpu;
+use crate::nn::WGPUDEVICE;
+// use crate::optim::common;
 use burn::backend::Wgpu;
 use burn::prelude::*;
 use pyo3::prelude::*;
@@ -164,6 +166,170 @@ impl TensorPy {
         }
     }
 
+    /// Prints the shape of the tensor
+    fn dims(&self) {
+        let dim = match self {
+            TensorPy::TensorOne(val) => val.inner.shape(),
+            TensorPy::TensorTwo(val) => val.inner.shape(),
+            TensorPy::TensorThree(val) => val.inner.shape(),
+            TensorPy::TensorFour(val) => val.inner.shape(),
+            TensorPy::TensorFive(val) => val.inner.shape(),
+            TensorPy::TensorOneBool(val) => val.inner.shape(),
+            TensorPy::TensorTwoBool(val) => val.inner.shape(),
+            TensorPy::TensorThreeBool(val) => val.inner.shape(),
+            TensorPy::TensorFourBool(val) => val.inner.shape(),
+            TensorPy::TensorFiveBool(val) => val.inner.shape(),
+        };
+        println!("{:#?}", dim);
+    }
+
+    /// Creates an empty tensor provided the shape and dimensions are consistent
+    ///
+    /// ```python
+    ///
+    ///     from pb.wgpu.wgpu_tensor import TensorPy
+    ///     # this creates a 3 dim tensor whose shape is as given
+    ///     x = TensorPy.empty([2,3,4], 3)
+    ///     
+    /// ```
+    #[staticmethod]
+    fn empty(shape: Vec<usize>, dim: usize) -> PyResult<Self> {
+        match dim {
+            1 => Ok(Tensor::<Wgpu, 1>::empty(shape, &WGPUDEVICE).into()),
+            2 => Ok(Tensor::<Wgpu, 2>::empty(shape, &WGPUDEVICE).into()),
+            3 => Ok(Tensor::<Wgpu, 3>::empty(shape, &WGPUDEVICE).into()),
+            4 => Ok(Tensor::<Wgpu, 4>::empty(shape, &WGPUDEVICE).into()),
+            5 => Ok(Tensor::<Wgpu, 5>::empty(shape, &WGPUDEVICE).into()),
+            _ => Err(
+                TensorError::WrongDimensions.into(), /*("Unsupported dimensions")*/
+            ),
+        }
+    }
+
+    fn mean(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            _ => None,
+        }
+    }
+
+    /// Aggregate mean along the given dimension
+    fn mean_dim(&self, dim: usize) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorTwo(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorThree(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorFour(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorFive(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            _ => None,
+        }
+    }
+
+    #[staticmethod]
+    fn ones(shape: Vec<usize>, dim: usize) -> PyResult<Self> {
+        match dim {
+            1 => Ok(Tensor::<Wgpu, 1>::ones(shape, &WGPUDEVICE).into()),
+            2 => Ok(Tensor::<Wgpu, 2>::ones(shape, &WGPUDEVICE).into()),
+            3 => Ok(Tensor::<Wgpu, 3>::ones(shape, &WGPUDEVICE).into()),
+            4 => Ok(Tensor::<Wgpu, 4>::ones(shape, &WGPUDEVICE).into()),
+            5 => Ok(Tensor::<Wgpu, 5>::ones(shape, &WGPUDEVICE).into()),
+            _ => Err(
+                TensorError::WrongDimensions.into(), /*("Unsupported dimensions")*/
+            ),
+        }
+    }
+
+    fn ones_like(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Ok(val.inner.ones_like().into()),
+
+            TensorPy::TensorTwo(val) => Ok(val.inner.ones_like().into()),
+
+            TensorPy::TensorThree(val) => Ok(val.inner.ones_like().into()),
+
+            TensorPy::TensorFour(val) => Ok(val.inner.ones_like().into()),
+
+            TensorPy::TensorFive(val) => Ok(val.inner.ones_like().into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+
+    fn prod(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            _ => None,
+        }
+    }
+
+    /// Aggregate product along the given dimension
+    fn prod_dim(&self, dim: usize) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            TensorPy::TensorTwo(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            TensorPy::TensorThree(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            TensorPy::TensorFour(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            TensorPy::TensorFive(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            _ => None,
+        }
+    }
+    #[staticmethod]
+    fn random(
+        shape: Vec<usize>,
+        dim: usize,
+        dist: Option<common_tensor_exports::Distribution>,
+    ) -> PyResult<Self> {
+        let distribution = match dist {
+            None => burn::tensor::Distribution::Default,
+            Some(common_tensor_exports::Distribution::Bernoulli(val)) => {
+                burn::tensor::Distribution::Bernoulli(val)
+            }
+            Some(common_tensor_exports::Distribution::Normal(val1, val2)) => {
+                burn::tensor::Distribution::Normal(val1, val2)
+            }
+            Some(common_tensor_exports::Distribution::Uniform(val1, val2)) => {
+                burn::tensor::Distribution::Uniform(val1, val2)
+            }
+        };
+        match dim {
+            1 => Ok(Tensor::<Wgpu, 1>::random(shape, distribution, &WGPUDEVICE).into()),
+            2 => Ok(Tensor::<Wgpu, 2>::random(shape, distribution, &WGPUDEVICE).into()),
+            3 => Ok(Tensor::<Wgpu, 3>::random(shape, distribution, &WGPUDEVICE).into()),
+            4 => Ok(Tensor::<Wgpu, 4>::random(shape, distribution, &WGPUDEVICE).into()),
+            5 => Ok(Tensor::<Wgpu, 5>::random(shape, distribution, &WGPUDEVICE).into()),
+            _ => Err(
+                TensorError::WrongDimensions.into(), /*("Unsupported dimensions")*/
+            ),
+        }
+    }
+
     /// Performs subtraction between a tensors of similar dimensions
     fn sub(&self, other: TensorPy) -> Option<Self> {
         match self {
@@ -217,6 +383,38 @@ impl TensorPy {
             }
             TensorPy::TensorFive(val) => {
                 Some(Into::<TensorPy>::into(val.inner.clone().sub_scalar(input)))
+            }
+            _ => None,
+        }
+    }
+
+    fn sum(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            _ => None,
+        }
+    }
+
+    fn sum_dim(&self, dim: usize) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            TensorPy::TensorTwo(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            TensorPy::TensorThree(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            TensorPy::TensorFour(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            TensorPy::TensorFive(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
             }
             _ => None,
         }
@@ -315,6 +513,45 @@ impl TensorPy {
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
+
+    /// Creates a tensor with zeros provided the shape and dimensions are consistent
+    ///
+    /// ```python
+    ///
+    ///     from pb.wgpu.wgpu_tensor import TensorPy
+    ///     # this creates a 3 dim tensor whose shape is as given
+    ///     x = TensorPy.zeros([2,3,4], 3)
+    ///     
+    /// ```
+    #[staticmethod]
+    fn zeros(shape: Vec<usize>, dim: usize) -> PyResult<Self> {
+        match dim {
+            1 => Ok(Tensor::<Wgpu, 1>::zeros(shape, &WGPUDEVICE).into()),
+            2 => Ok(Tensor::<Wgpu, 2>::zeros(shape, &WGPUDEVICE).into()),
+            3 => Ok(Tensor::<Wgpu, 3>::zeros(shape, &WGPUDEVICE).into()),
+            4 => Ok(Tensor::<Wgpu, 4>::zeros(shape, &WGPUDEVICE).into()),
+            5 => Ok(Tensor::<Wgpu, 5>::zeros(shape, &WGPUDEVICE).into()),
+            _ => Err(
+                TensorError::WrongDimensions.into(), /*("Unsupported dimensions")*/
+            ),
+        }
+    }
+
+    /// Creates a tensor whose shape and dimensions is similar to the one in use
+    fn zeros_like(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Ok(val.inner.zeros_like().into()),
+
+            TensorPy::TensorTwo(val) => Ok(val.inner.zeros_like().into()),
+
+            TensorPy::TensorThree(val) => Ok(val.inner.zeros_like().into()),
+
+            TensorPy::TensorFour(val) => Ok(val.inner.zeros_like().into()),
+
+            TensorPy::TensorFive(val) => Ok(val.inner.zeros_like().into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
 }
 
 // Use the macro for each dimension
@@ -359,16 +596,36 @@ mod quantization_exports {
         QuantAccPrecision,
         "This is the precison used when accumulating values while executing algorithms such as matmul."
     );
-    for_normal_struct_enums!(QuantInputTypePy, QuantInputType, "Data type used to represent quantized values");
-    for_normal_struct_enums!(QuantLevelPy, QuantLevel, "Level of granularity of quantization");
+    for_normal_struct_enums!(
+        QuantInputTypePy,
+        QuantInputType,
+        "Data type used to represent quantized values"
+    );
+    for_normal_struct_enums!(
+        QuantLevelPy,
+        QuantLevel,
+        "Level of granularity of quantization"
+    );
     for_normal_struct_enums!(QuandtModePy, QuantMode, "Strategy used to quantize values.");
-
-
 }
 
 #[cfg(test)]
 mod tensor_base_tests {
     use super::*;
+
+    // This test panics!
+    #[test]
+    fn test_shape_of_tensors() {
+        let ten1 = Tensor::<Wgpu, 2>::empty([2, 2], &WGPUDEVICE);
+        let ten2 = Tensor::<Wgpu, 2>::empty([1; 2], &WGPUDEVICE);
+        let ten3 = Tensor::<Wgpu, 3>::empty([3; 3], &WGPUDEVICE);
+        println!("dimensions of ten1, {:#?}", ten1.dims());
+        println!("shape of ten1, {:#?}", ten1.shape());
+        println!("dimensions of ten2, {:#?}", ten2.dims());
+        println!("shape of ten2, {:#?}", ten2.shape());
+        println!("dimensions of ten3, {:#?}", ten3.dims());
+        println!("shape of ten3, {:#?}", ten3.shape());
+    }
 
     #[test]
     fn size_of_tensor() {

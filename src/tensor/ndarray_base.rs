@@ -2,9 +2,10 @@
 
 use std::f32;
 
+use super::common_tensor_exports;
 use crate::impl_tensor_conversions_ndarray;
+use crate::nn::NDARRAYDEVICE;
 
-// use std::sync::{Arc, Mutex};
 use super::tensor_error::*;
 use burn::backend::NdArray;
 use burn::prelude::*;
@@ -284,6 +285,76 @@ impl TensorPy {
         }
     }
 
+    /// Prints the shape of the tensor
+    fn dims(&self) {
+        let dim = match self {
+            TensorPy::TensorOne(val) => val.inner.shape(),
+            TensorPy::TensorTwo(val) => val.inner.shape(),
+            TensorPy::TensorThree(val) => val.inner.shape(),
+            TensorPy::TensorFour(val) => val.inner.shape(),
+            TensorPy::TensorFive(val) => val.inner.shape(),
+            TensorPy::TensorOneBool(val) => val.inner.shape(),
+            TensorPy::TensorTwoBool(val) => val.inner.shape(),
+            TensorPy::TensorThreeBool(val) => val.inner.shape(),
+            TensorPy::TensorFourBool(val) => val.inner.shape(),
+            TensorPy::TensorFiveBool(val) => val.inner.shape(),
+        };
+        println!("{:#?}", dim);
+    }
+
+    /// Creates an empty tensor provided the shape and dimensions are consistent
+    ///
+    /// ```python
+    ///
+    ///     from pb.wgpu.wgpu_tensor import TensorPy
+    ///     # this creates a 3 dim tensor whose shape is as given
+    ///     x = TensorPy.empty([2,3,4], 3)
+    ///     
+    /// ```
+    #[staticmethod]
+    fn empty(shape: Vec<usize>, dim: usize) -> PyResult<Self> {
+        match dim {
+            1 => Ok(Tensor::<NdArray, 1>::empty(shape, &NDARRAYDEVICE).into()),
+            2 => Ok(Tensor::<NdArray, 2>::empty(shape, &NDARRAYDEVICE).into()),
+            3 => Ok(Tensor::<NdArray, 3>::empty(shape, &NDARRAYDEVICE).into()),
+            4 => Ok(Tensor::<NdArray, 4>::empty(shape, &NDARRAYDEVICE).into()),
+            5 => Ok(Tensor::<NdArray, 5>::empty(shape, &NDARRAYDEVICE).into()),
+            _ => Err(
+                TensorError::WrongDimensions.into(), /*("Unsupported dimensions")*/
+            ),
+        }
+    }
+
+    #[staticmethod]
+    fn random(
+        shape: Vec<usize>,
+        dim: usize,
+        dist: Option<common_tensor_exports::Distribution>,
+    ) -> PyResult<Self> {
+        let distribution = match dist {
+            None => burn::tensor::Distribution::Default,
+            Some(common_tensor_exports::Distribution::Bernoulli(val)) => {
+                burn::tensor::Distribution::Bernoulli(val)
+            }
+            Some(common_tensor_exports::Distribution::Normal(val1, val2)) => {
+                burn::tensor::Distribution::Normal(val1, val2)
+            }
+            Some(common_tensor_exports::Distribution::Uniform(val1, val2)) => {
+                burn::tensor::Distribution::Uniform(val1, val2)
+            }
+        };
+        match dim {
+            1 => Ok(Tensor::<NdArray, 1>::random(shape, distribution, &NDARRAYDEVICE).into()),
+            2 => Ok(Tensor::<NdArray, 2>::random(shape, distribution, &NDARRAYDEVICE).into()),
+            3 => Ok(Tensor::<NdArray, 3>::random(shape, distribution, &NDARRAYDEVICE).into()),
+            4 => Ok(Tensor::<NdArray, 4>::random(shape, distribution, &NDARRAYDEVICE).into()),
+            5 => Ok(Tensor::<NdArray, 5>::random(shape, distribution, &NDARRAYDEVICE).into()),
+            _ => Err(
+                TensorError::WrongDimensions.into(), /*("Unsupported dimensions")*/
+            ),
+        }
+    }
+
     fn is_nan(&self) -> PyResult<Self> {
         match self {
             TensorPy::TensorOne(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
@@ -316,9 +387,174 @@ impl TensorPy {
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
+
+    fn mean(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            _ => None,
+        }
+    }
+
+    /// Aggregate mean along the given dimension
+    fn mean_dim(&self, dim: usize) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorTwo(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorThree(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorFour(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorFive(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            _ => None,
+        }
+    }
+
+    #[staticmethod]
+    fn ones(shape: Vec<usize>, dim: usize) -> PyResult<Self> {
+        match dim {
+            1 => Ok(Tensor::<NdArray, 1>::ones(shape, &NDARRAYDEVICE).into()),
+            2 => Ok(Tensor::<NdArray, 2>::ones(shape, &NDARRAYDEVICE).into()),
+            3 => Ok(Tensor::<NdArray, 3>::ones(shape, &NDARRAYDEVICE).into()),
+            4 => Ok(Tensor::<NdArray, 4>::ones(shape, &NDARRAYDEVICE).into()),
+            5 => Ok(Tensor::<NdArray, 5>::ones(shape, &NDARRAYDEVICE).into()),
+            _ => Err(
+                TensorError::WrongDimensions.into(), /*("Unsupported dimensions")*/
+            ),
+        }
+    }
+
+    fn ones_like(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Ok(val.inner.ones_like().into()),
+
+            TensorPy::TensorTwo(val) => Ok(val.inner.ones_like().into()),
+
+            TensorPy::TensorThree(val) => Ok(val.inner.ones_like().into()),
+
+            TensorPy::TensorFour(val) => Ok(val.inner.ones_like().into()),
+
+            TensorPy::TensorFive(val) => Ok(val.inner.ones_like().into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+
+    fn prod(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().prod())),
+            _ => None,
+        }
+    }
+
+    /// Aggregate product along the given dimension
+    fn prod_dim(&self, dim: usize) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            TensorPy::TensorTwo(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            TensorPy::TensorThree(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            TensorPy::TensorFour(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            TensorPy::TensorFive(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().prod_dim(dim)))
+            }
+            _ => None,
+        }
+    }
+
+    fn sum(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().sum())),
+            _ => None,
+        }
+    }
+
+    fn sum_dim(&self, dim: usize) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            TensorPy::TensorTwo(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            TensorPy::TensorThree(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            TensorPy::TensorFour(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            TensorPy::TensorFive(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
+            }
+            _ => None,
+        }
+    }
+
+    /// Creates a tensor with zeros provided the shape and dimensions are consistent
+    ///
+    /// ```python
+    ///
+    ///     from pb.wgpu.wgpu_tensor import TensorPy
+    ///     # this creates a 3 dim tensor whose shape is as given
+    ///     x = TensorPy.zeros([2,3,4], 3)
+    ///     
+    /// ```
+    #[staticmethod]
+    fn zeros(shape: Vec<usize>, dim: usize) -> PyResult<Self> {
+        match dim {
+            1 => Ok(Tensor::<NdArray, 1>::zeros(shape, &NDARRAYDEVICE).into()),
+            2 => Ok(Tensor::<NdArray, 2>::zeros(shape, &NDARRAYDEVICE).into()),
+            3 => Ok(Tensor::<NdArray, 3>::zeros(shape, &NDARRAYDEVICE).into()),
+            4 => Ok(Tensor::<NdArray, 4>::zeros(shape, &NDARRAYDEVICE).into()),
+            5 => Ok(Tensor::<NdArray, 5>::zeros(shape, &NDARRAYDEVICE).into()),
+            _ => Err(
+                TensorError::WrongDimensions.into(), /*("Unsupported dimensions")*/
+            ),
+        }
+    }
+
+    /// Creates a tensor whose shape and dimensions is similar to the one in use
+    fn zeros_like(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Ok(val.inner.zeros_like().into()),
+
+            TensorPy::TensorTwo(val) => Ok(val.inner.zeros_like().into()),
+
+            TensorPy::TensorThree(val) => Ok(val.inner.zeros_like().into()),
+
+            TensorPy::TensorFour(val) => Ok(val.inner.zeros_like().into()),
+
+            TensorPy::TensorFive(val) => Ok(val.inner.zeros_like().into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
 }
 
-//
 
 impl_tensor_conversions_ndarray!(Tensor1, Tensor1Bool, 1, TensorOne, TensorOneBool);
 impl_tensor_conversions_ndarray!(Tensor2, Tensor2Bool, 2, TensorTwo, TensorTwoBool);
