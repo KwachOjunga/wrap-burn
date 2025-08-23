@@ -1,6 +1,7 @@
 //! Warning. The current implementation of TensorPy is grossly inefficient.
 
 use std::f32;
+// use pyo3::types::PyBytes;
 
 // use std::sync::{Arc, Mutex};
 use super::{common_tensor_exports, tensor_error::*};
@@ -166,6 +167,67 @@ impl TensorPy {
         }
     }
 
+    fn all_dim(&self, dim: usize) -> Self {
+        match self {
+            TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorTwoBool(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorThreeBool(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorFourBool(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorFiveBool(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorOneBool(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorThree(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+        }
+    }
+
+    /// Test if any element in the Tensor evaluates to True
+    fn any(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            _ => None,
+        }
+    }
+
+    fn all(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
+            _ => None,
+        }
+    }
+
+    fn contains_nan(&self) -> PyResult<Self> {
+        match self {
+            TensorPy::TensorOne(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            TensorPy::TensorTwo(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            TensorPy::TensorThree(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            TensorPy::TensorFour(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            TensorPy::TensorFive(val) => {
+                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            }
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+
     /// Prints the shape of the tensor
     fn dims(&self) {
         let dim = match self {
@@ -205,6 +267,19 @@ impl TensorPy {
             ),
         }
     }
+
+    /// Create a tensor from the given data on the given device.
+    // #[staticmethod]
+    // fn from_data(data: PyBytes, dim : usize) -> PyResult<Self> {
+    //     match dim {
+    //         1 => Ok(Tensor::<Wgpu, 1>::from_data(data, &WGPUDEVICE).into()),
+    //         2 => Ok(Tensor::<Wgpu, 2>::from_data(data, &WGPUDEVICE).into()),
+    //         3 => Ok(Tensor::<Wgpu, 3>::from_data(data, &WGPUDEVICE).into()),
+    //         4 => Ok(Tensor::<Wgpu, 4>::from_data(data, &WGPUDEVICE).into()),
+    //         5 => Ok(Tensor::<Wgpu, 5>::from_data(data, &WGPUDEVICE).into()),
+    //         _ => Err(TensorError::WrongDimensions.into())
+    //     }
+    // }
 
     fn mean(&self) -> Option<Self> {
         match self {
@@ -417,67 +492,6 @@ impl TensorPy {
                 Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
             }
             _ => None,
-        }
-    }
-
-    fn all_dim(&self, dim: usize) -> Self {
-        match self {
-            TensorPy::TensorOne(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorTwoBool(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorThreeBool(val) => {
-                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
-            }
-            TensorPy::TensorFourBool(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorFiveBool(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorOneBool(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorTwo(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorThree(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-        }
-    }
-
-    /// Test if any element in the Tensor evaluates to True
-    fn any(&self) -> Option<Self> {
-        match self {
-            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
-            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
-            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
-            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
-            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
-            _ => None,
-        }
-    }
-
-    fn all(&self) -> Option<Self> {
-        match self {
-            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
-            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
-            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
-            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
-            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().all())),
-            _ => None,
-        }
-    }
-
-    fn contains_nan(&self) -> PyResult<Self> {
-        match self {
-            TensorPy::TensorOne(val) => {
-                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
-            }
-            TensorPy::TensorTwo(val) => {
-                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
-            }
-            TensorPy::TensorThree(val) => {
-                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
-            }
-            TensorPy::TensorFour(val) => {
-                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
-            }
-            TensorPy::TensorFive(val) => {
-                Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
-            }
-            _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
 
