@@ -177,11 +177,6 @@ pub mod wgpu_nn {
         }
     }
 
-    /// Offers an avenue to configure the BatchNorm layer
-    #[pyclass]
-    #[derive(Debug)]
-    #[repr(transparent)]
-    pub struct BatchNormConfigPy(BatchNormConfig);
 
     //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
     /// The record type for the BatchNorm module
@@ -567,11 +562,7 @@ pub mod ndarray_nn {
             }
         }
     }
-    /// Offers an avenue to configure the BatchNorm layer
-    #[pyclass]
-    #[derive(Debug)]
-    #[repr(transparent)]
-    pub struct BatchNormConfigPy(pub BatchNormConfig);
+  
 
     //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
     /// The record type for the BatchNorm module
