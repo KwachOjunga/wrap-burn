@@ -15,7 +15,6 @@ implement_ndarray_interface!(
      To delve deeper into the whole system of gates and the problems it attempts to solve; i highly recommend [Learning to forget:Continual prediction with LSTM](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=e10f98b86797ebf6c8caea6f54cacbc5a50e8b34)"
 );
 
-
 // [TODO] @kwach refactor the new method in GateControllerPy to use the Initializer instead of InitializerPy.
 #[pymethods]
 impl GateControllerPy {
@@ -63,11 +62,10 @@ pub struct BatchNormPy {
 implement_send_and_sync!(BatchNormPy);
 
 impl From<BatchNorm<NdArray, 0>> for BatchNormPy {
-    fn from(other: BatchNorm<NdArray,0>) -> Self {
+    fn from(other: BatchNorm<NdArray, 0>) -> Self {
         Self { inner: other }
     }
 }
-
 
 // [TODO:] Complete the BatchNormPy class to include the necessary methods and attributes.
 
@@ -78,12 +76,12 @@ impl BatchNormPy {
     fn new(num_features: usize, epsilon: Option<f64>, momentum: Option<f64>) -> Self {
         let epsilon = epsilon.unwrap_or(1e-5);
         let momentum = momentum.unwrap_or(0.1);
-        let batch_norm : BatchNorm<NdArray, 0> = BatchNormConfig::new(num_features)
+        let batch_norm: BatchNorm<NdArray, 0> = BatchNormConfig::new(num_features)
             .with_epsilon(epsilon)
             .with_momentum(momentum)
             .init(&NDARRAYDEVICE);
 
-            batch_norm.into()
+        batch_norm.into()
     }
 
     fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
@@ -120,17 +118,22 @@ impl From<GroupNorm<NdArray>> for GroupNormPy {
 impl GroupNormPy {
     #[new]
     #[pyo3(signature = (num_groups, num_channels, epsilon = Some(1e-5), affine = Some(true)))]
-    fn new(num_groups: usize, num_channels: usize, epsilon: Option<f64>, affine: Option<bool>) -> Self{
+    fn new(
+        num_groups: usize,
+        num_channels: usize,
+        epsilon: Option<f64>,
+        affine: Option<bool>,
+    ) -> Self {
         let epsilon = epsilon.unwrap_or(1e-5);
         let affine = affine.unwrap_or(true);
         GroupNormConfig::new(num_groups, num_channels)
             .with_epsilon(epsilon)
             .with_affine(affine)
-            .init(&NDARRAYDEVICE).into()
-
+            .init(&NDARRAYDEVICE)
+            .into()
     }
 
-    fn forward(&self, input:TensorPy) -> PyResult<TensorPy> {
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
         match input {
             TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
             TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
@@ -153,22 +156,21 @@ impl From<InstanceNorm<NdArray>> for InstanceNormPy {
     }
 }
 
-
 #[pymethods]
 impl InstanceNormPy {
     #[new]
     #[pyo3(signature = (num_channels, epsilon = Some(1e-5), affine = Some(true)))]
-    fn new(num_channels: usize, epsilon: Option<f64>, affine: Option<bool>) -> Self{
+    fn new(num_channels: usize, epsilon: Option<f64>, affine: Option<bool>) -> Self {
         let epsilon = epsilon.unwrap_or(1e-5);
         let affine = affine.unwrap_or(true);
         InstanceNormConfig::new(num_channels)
             .with_epsilon(epsilon)
             .with_affine(affine)
-            .init(&NDARRAYDEVICE).into()
-
+            .init(&NDARRAYDEVICE)
+            .into()
     }
 
-    fn forward(&self, input:TensorPy) -> PyResult<TensorPy> {
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
         match input {
             TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
             TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
@@ -180,7 +182,6 @@ impl InstanceNormPy {
     }
 }
 
-
 implement_ndarray_interface!(
     InstanceNormRecordPy,
     InstanceNormRecord,
@@ -191,6 +192,37 @@ implement_ndarray_interface!(
     LayerNorm,
     "Applies Layer Normalization over a tensor"
 );
+
+impl From<LayerNorm<NdArray>> for LayerNormPy {
+    fn from(other: LayerNorm<NdArray>) -> Self {
+        Self { inner: other }
+    }
+}
+
+#[pymethods]
+impl LayerNormPy {
+    #[new]
+    #[pyo3(signature = (d_model, epsilon = None))]
+    fn new(d_model: usize, epsilon: Option<f64>) -> Self {
+        let epsilon = epsilon.unwrap_or(1e-5);
+        LayerNormConfig::new(d_model)
+            .with_epsilon(epsilon)
+            .init(&NDARRAYDEVICE)
+            .into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
 implement_ndarray_interface!(
     LayerNormRecordPy,
     LayerNormRecord,
@@ -202,6 +234,73 @@ implement_ndarray_interface!(
     Lstm,
     "The Lstm module. This implementation is for a unidirectional, stateless, Lstm"
 );
+
+impl From<Lstm<NdArray>> for LstmPy {
+    fn from(other: Lstm<NdArray>) -> Self {
+        Self { inner: other }
+    }
+}
+
+// [TODO:] @kwach Implement the LstmState class to allow its use in the Lstm layer.
+
+#[pymethods]
+impl LstmPy {
+    #[new]
+    #[pyo3(signature = (d_input, d_hidden, bias, initializer = None))]
+    fn new(
+        d_input: usize,
+        d_hidden: usize,
+        bias: bool,
+        initializer: Option<crate::nn::common_nn_exports::Initializer>,
+    ) -> Self {
+        let init = match initializer {
+            Some(init) => match init {
+                crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    Some(burn::nn::Initializer::Constant { value })
+                }
+                crate::nn::common_nn_exports::Initializer::One() => {
+                    Some(burn::nn::Initializer::Ones)
+                }
+                crate::nn::common_nn_exports::Initializer::Zero() => {
+                    Some(burn::nn::Initializer::Zeros)
+                }
+                crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    Some(burn::nn::Initializer::Uniform { min, max })
+                }
+                crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    Some(burn::nn::Initializer::Normal { mean, std })
+                }
+                crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                    Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                }
+                crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    gain,
+                    fan_out_only,
+                } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    Some(burn::nn::Initializer::XavierNormal { gain })
+                }
+                crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    Some(burn::nn::Initializer::XavierUniform { gain })
+                }
+                crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    Some(burn::nn::Initializer::Orthogonal { gain })
+                }
+            },
+            None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+        };
+        match init {
+            Some(init) => LstmConfig::new(d_input, d_hidden, bias)
+                .with_initializer(init)
+                .init(&NDARRAYDEVICE)
+                .into(),
+            None => LstmConfig::new(d_input, d_hidden, bias)
+                .init(&NDARRAYDEVICE)
+                .into(),
+        }
+    }
+}
+
 implement_ndarray_interface!(LstmRecordPy, LstmRecord, "Record type of the Lstm module");
 implement_ndarray_interface!(PReluPy, PRelu, "Parametric Relu Layer");
 implement_ndarray_interface!(
@@ -268,7 +367,6 @@ impl TanhPy {
         TanhPy(Tanh::new())
     }
 
-
     fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
         match input {
             TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
@@ -280,7 +378,6 @@ impl TanhPy {
         }
     }
 }
-
 
 for_normal_struct_enums!(
     SwiGluConfigPy,
@@ -304,9 +401,9 @@ for_normal_struct_enums!(
 );
 for_normal_struct_enums!(LeakyReluPy, LeakyRelu, "LeakyRelu Layer");
 
-impl From<LeakyRelu> for  LeakyReluPy {
+impl From<LeakyRelu> for LeakyReluPy {
     fn from(other: LeakyRelu) -> Self {
-        Self(other)  
+        Self(other)
     }
 }
 
@@ -316,9 +413,10 @@ impl LeakyReluPy {
     #[pyo3(signature = (negative_slope = None))]
     fn new(negative_slope: Option<f64>) -> Self {
         match negative_slope {
-            Some(slope) => {
-                LeakyReluConfig::new().with_negative_slope( slope).init().into()
-            },
+            Some(slope) => LeakyReluConfig::new()
+                .with_negative_slope(slope)
+                .init()
+                .into(),
             None => LeakyReluConfig::new().init().into(),
         }
     }

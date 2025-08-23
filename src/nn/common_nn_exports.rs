@@ -8,30 +8,20 @@ use pyo3::prelude::*;
 use pyo3::pyclass_init::PyClassInitializer;
 use pyo3::types::PyInt;
 
-
 /// Enum specifying with what values a tensor should be initialized
 #[pyclass]
 #[derive(Clone, Debug)]
 pub enum Initializer {
-    Constant{ value: f64 },
+    Constant { value: f64 },
     One(),
     Zero(),
-    Uniform{ min: f64, max: f64 },
-    Normal{ mean: f64, std: f64 },
-    KaimingUniform{
-        gain: f64,
-        fan_out_only: bool,
-    },
-    KaimingNormal {
-        gain: f64,
-        fan_out_only: bool,
-    },
-    XavierUniform{
-        gain: f64    },
-    XavierNormal{gain: f64},
-    Orthogonal {
-        gain: f64,
-    },
+    Uniform { min: f64, max: f64 },
+    Normal { mean: f64, std: f64 },
+    KaimingUniform { gain: f64, fan_out_only: bool },
+    KaimingNormal { gain: f64, fan_out_only: bool },
+    XavierUniform { gain: f64 },
+    XavierNormal { gain: f64 },
+    Orthogonal { gain: f64 },
 }
 
 // [TODO] @kwach, implement Initializer methods to produce Tensors.

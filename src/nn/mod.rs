@@ -4,11 +4,11 @@
 //! [`pyburn`] attempts to expose burn's modules and methods in a manner that permits it to work
 //! as a python interface. This module exposes the [`burn::nn`] module.
 
+use crate::tensor::tensor_error::TensorError;
 use crate::{
     for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync,
     implement_wgpu_interface,
 };
-use crate::tensor::tensor_error::TensorError;
 use burn::backend::ndarray::NdArrayDevice;
 use burn::backend::wgpu::WgpuDevice;
 use burn::nn::Linear;
@@ -102,16 +102,15 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::TanhPy;
 
-    
     // [TODO:] Note the current implementation of this
     #[pymodule_export]
     use crate::tensor::wgpu_base::TensorPy;
     #[pymodule_export]
+    use common_nn_exports::Initializer;
+    #[pymodule_export]
     use wgpu_nn_exports::Unfold4dConfigPy;
     #[pymodule_export]
     use wgpu_nn_exports::Unfold4dPy;
-    #[pymodule_export]
-    use common_nn_exports::Initializer;
 
     /// Applies Linear transformation over a tensor
     #[pyclass]
@@ -131,41 +130,64 @@ pub mod wgpu_nn {
     impl LinearPy {
         #[new]
         #[pyo3(signature = (d_input, d_output, with_bias=None, with_initializer=None))]
-        fn new(d_input: usize, d_output:usize, with_bias: Option<bool>, with_initializer: Option<Initializer>) -> Self {
-           let bias = match with_bias {
+        fn new(
+            d_input: usize,
+            d_output: usize,
+            with_bias: Option<bool>,
+            with_initializer: Option<Initializer>,
+        ) -> Self {
+            let bias = match with_bias {
                 Some(b) => b,
                 None => true,
             };
             let init = match with_initializer {
-                Some(init) => {
-                    match init {
-                        Initializer::Constant { value } => Some(burn::nn::Initializer::Constant { value }),
-                        Initializer::One() => Some(burn::nn::Initializer::Ones),
-                        Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
-                        Initializer::Uniform { min, max } => Some(burn::nn::Initializer::Uniform{min, max}),
-                        Initializer::Normal { mean, std } => Some(burn::nn::Initializer::Normal { mean, std }),
-                        Initializer::KaimingNormal { gain, fan_out_only } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                        Initializer::KaimingUniform { gain, fan_out_only } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                        Initializer::XavierNormal { gain } =>  Some(burn::nn::Initializer::XavierNormal { gain }),
-                        Initializer::XavierUniform { gain } => Some(burn::nn::Initializer::XavierUniform { gain }),
-                        Initializer::Orthogonal { gain } => Some(burn::nn::Initializer::Orthogonal { gain}),
+                Some(init) => match init {
+                    Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    Initializer::One() => Some(burn::nn::Initializer::Ones),
+                    Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
+                    Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
+                    Initializer::KaimingUniform { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only })
+                    }
+                    Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
-                 None => None,/*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+                None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
             };
             match init {
-                Some(init) => {
-                    LinearConfig::new(d_input, d_output).with_bias(bias).with_initializer(init).init(&WGPUDEVICE).into()
-                },
-                None => {
-                    LinearConfig::new(d_input, d_output).with_bias(bias).init(&WGPUDEVICE).into()
+                Some(init) => LinearConfig::new(d_input, d_output)
+                    .with_bias(bias)
+                    .with_initializer(init)
+                    .init(&WGPUDEVICE)
+                    .into(),
+                None => LinearConfig::new(d_input, d_output)
+                    .with_bias(bias)
+                    .init(&WGPUDEVICE)
+                    .into(),
             }
         }
-            
-
-        }
         /// forward pass for the Linear layer
-        fn forward(&self, input: crate::tensor::wgpu_base::TensorPy) -> PyResult<crate::tensor::wgpu_base::TensorPy> {
+        fn forward(
+            &self,
+            input: crate::tensor::wgpu_base::TensorPy,
+        ) -> PyResult<crate::tensor::wgpu_base::TensorPy> {
             match input {
                 TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
                 TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
@@ -176,7 +198,6 @@ pub mod wgpu_nn {
             }
         }
     }
-
 
     //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
     /// The record type for the BatchNorm module
@@ -457,6 +478,8 @@ pub mod ndarray_nn {
     // #[pymodule_export]
     // use ndarray_nn_exports::LeakyReluConfigPy;
     #[pymodule_export]
+    use common_nn_exports::Initializer;
+    #[pymodule_export]
     use ndarray_nn_exports::LeakyReluPy;
     #[pymodule_export]
     use ndarray_nn_exports::LstmConfigPy;
@@ -498,8 +521,6 @@ pub mod ndarray_nn {
     use ndarray_nn_exports::Unfold4dConfigPy;
     #[pymodule_export]
     use ndarray_nn_exports::Unfold4dPy;
-    #[pymodule_export]
-    use common_nn_exports::Initializer;
     /// Applies Linear transformation over a tensor
     #[pyclass]
     #[derive(Debug)]
@@ -507,7 +528,6 @@ pub mod ndarray_nn {
     pub struct LinearPy {
         pub inner: Linear<NdArray>,
     }
-
 
     impl From<Linear<NdArray>> for LinearPy {
         fn from(inner: Linear<NdArray>) -> Self {
@@ -519,37 +539,59 @@ pub mod ndarray_nn {
     impl LinearPy {
         #[new]
         #[pyo3(signature = (d_input, d_output, with_bias=None, with_initializer=None))]
-        fn new(d_input: usize, d_output:usize, with_bias: Option<bool>, with_initializer: Option<Initializer>) -> Self {
-           let bias = match with_bias {
+        fn new(
+            d_input: usize,
+            d_output: usize,
+            with_bias: Option<bool>,
+            with_initializer: Option<Initializer>,
+        ) -> Self {
+            let bias = match with_bias {
                 Some(b) => b,
                 None => true,
             };
             let init = match with_initializer {
-                Some(init) => {
-                    match init {
-                        Initializer::Constant { value } => Some(burn::nn::Initializer::Constant { value }),
-                        Initializer::One() => Some(burn::nn::Initializer::Ones),
-                        Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
-                        Initializer::Uniform { min, max } => Some(burn::nn::Initializer::Uniform{min, max}),
-                        Initializer::Normal { mean, std } => Some(burn::nn::Initializer::Normal { mean, std }),
-                        Initializer::KaimingNormal { gain, fan_out_only } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                        Initializer::KaimingUniform { gain, fan_out_only } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                        Initializer::XavierNormal { gain } =>  Some(burn::nn::Initializer::XavierNormal { gain }),
-                        Initializer::XavierUniform { gain } => Some(burn::nn::Initializer::XavierUniform { gain }),
-                        Initializer::Orthogonal { gain } => Some(burn::nn::Initializer::Orthogonal { gain}),
+                Some(init) => match init {
+                    Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    Initializer::One() => Some(burn::nn::Initializer::Ones),
+                    Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
+                    Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
+                    Initializer::KaimingUniform { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only })
+                    }
+                    Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
-                 None => None,/*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+                None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
             };
             match init {
-                Some(init) => {
-                    LinearConfig::new(d_input, d_output).with_bias(bias).with_initializer(init).init(&NDARRAYDEVICE).into()
-                },
-                None => {
-                    LinearConfig::new(d_input, d_output).with_bias(bias).init(&NDARRAYDEVICE).into()
+                Some(init) => LinearConfig::new(d_input, d_output)
+                    .with_bias(bias)
+                    .with_initializer(init)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+                None => LinearConfig::new(d_input, d_output)
+                    .with_bias(bias)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
             }
         }
-    }
         /// forward pass for the Linear layer
         fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
             match input {
@@ -562,7 +604,6 @@ pub mod ndarray_nn {
             }
         }
     }
-  
 
     //[`TODO`] @kwach this `BatchNormRecord` is generic with two arguments; @kwach FIX this
     /// The record type for the BatchNorm module
