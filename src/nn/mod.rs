@@ -61,8 +61,8 @@ pub mod wgpu_nn {
     use wgpu_nn_exports::InstanceNormPy;
     #[pymodule_export]
     use wgpu_nn_exports::InstanceNormRecordPy;
-    #[pymodule_export]
-    use wgpu_nn_exports::LeakyReluConfigPy;
+    // #[pymodule_export]
+    // use wgpu_nn_exports::LeakyReluConfigPy;
     #[pymodule_export]
     use wgpu_nn_exports::LeakyReluPy;
     #[pymodule_export]
@@ -130,6 +130,7 @@ pub mod wgpu_nn {
     #[pymethods]
     impl LinearPy {
         #[new]
+        #[pyo3(signature = (d_input, d_output, with_bias=None, with_initializer=None))]
         fn new(d_input: usize, d_output:usize, with_bias: Option<bool>, with_initializer: Option<Initializer>) -> Self {
            let bias = match with_bias {
                 Some(b) => b,
@@ -458,8 +459,8 @@ pub mod ndarray_nn {
     use ndarray_nn_exports::InstanceNormPy;
     #[pymodule_export]
     use ndarray_nn_exports::InstanceNormRecordPy;
-    #[pymodule_export]
-    use ndarray_nn_exports::LeakyReluConfigPy;
+    // #[pymodule_export]
+    // use ndarray_nn_exports::LeakyReluConfigPy;
     #[pymodule_export]
     use ndarray_nn_exports::LeakyReluPy;
     #[pymodule_export]
@@ -522,6 +523,7 @@ pub mod ndarray_nn {
     #[pymethods]
     impl LinearPy {
         #[new]
+        #[pyo3(signature = (d_input, d_output, with_bias=None, with_initializer=None))]
         fn new(d_input: usize, d_output:usize, with_bias: Option<bool>, with_initializer: Option<Initializer>) -> Self {
            let bias = match with_bias {
                 Some(b) => b,

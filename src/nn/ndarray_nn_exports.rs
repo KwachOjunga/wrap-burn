@@ -157,11 +157,44 @@ for_normal_struct_enums!(
     "Configuration to create a Lstm module"
 );
 for_normal_struct_enums!(LeakyReluPy, LeakyRelu, "LeakyRelu Layer");
-for_normal_struct_enums!(
-    LeakyReluConfigPy,
-    LeakyReluConfig,
-    "Configuration to create the LeakyRelu layer"
-);
+
+impl From<LeakyRelu> for  LeakyReluPy {
+    fn from(other: LeakyRelu) -> Self {
+        Self(other)  
+    }
+}
+
+#[pymethods]
+impl LeakyReluPy {
+    #[new]
+    #[pyo3(signature = (negative_slope = None))]
+    fn new(negative_slope: Option<f64>) -> Self {
+        match negative_slope {
+            Some(slope) => {
+                LeakyReluConfig::new().with_negative_slope( slope).init().into()
+            },
+            None => LeakyReluConfig::new().init().into(),
+        }
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
+// for_normal_struct_enums!(
+//     LeakyReluConfigPy,
+//     LeakyReluConfig,
+//     "Configuration to create the LeakyRelu layer"
+// );
+
 for_normal_struct_enums!(
     GeLuPy,
     Gelu,
