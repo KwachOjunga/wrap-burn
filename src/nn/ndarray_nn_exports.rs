@@ -136,6 +136,34 @@ for_normal_struct_enums!(
     Tanh,
     "Applies the tanh activation function element-wise"
 );
+
+impl From<Tanh> for TanhPy {
+    fn from(other: Tanh) -> Self {
+        Self(other)
+    }
+}
+
+#[pymethods]
+impl TanhPy {
+    #[new]
+    fn new() -> Self {
+        TanhPy(Tanh::new())
+    }
+
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
+
 for_normal_struct_enums!(
     SwiGluConfigPy,
     SwiGluConfig,
