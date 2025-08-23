@@ -15,6 +15,8 @@ implement_ndarray_interface!(
      To delve deeper into the whole system of gates and the problems it attempts to solve; i highly recommend [Learning to forget:Continual prediction with LSTM](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=e10f98b86797ebf6c8caea6f54cacbc5a50e8b34)"
 );
 
+
+// [TODO] @kwach refactor the new method in GateControllerPy to use the Initializer instead of InitializerPy.
 #[pymethods]
 impl GateControllerPy {
     #[staticmethod]
@@ -196,6 +198,7 @@ for_normal_struct_enums!(
     Initializer,
     "Enum specifying with what values a tensor should be initialized"
 );
+
 for_normal_struct_enums!(
     PaddingConfig1dPy,
     PaddingConfig1d,
