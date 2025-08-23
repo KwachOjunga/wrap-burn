@@ -53,6 +53,55 @@ implement_ndarray_interface!(
     Embedding,
     "Lookup table to store a fix number of vectors."
 );
+
+#[pyclass]
+#[derive(Debug, Clone)]
+pub struct BatchNormPy {
+    inner: BatchNorm<NdArray, 0>,
+}
+
+implement_send_and_sync!(BatchNormPy);
+
+impl From<BatchNorm<NdArray, 0>> for BatchNormPy {
+    fn from(other: BatchNorm<NdArray,0>) -> Self {
+        Self { inner: other }
+    }
+}
+
+
+// [TODO:] Complete the BatchNormPy class to include the necessary methods and attributes.
+
+#[pymethods]
+impl BatchNormPy {
+    #[new]
+    #[pyo3(signature = (num_features, epsilon = Some(1e-5), momentum = Some(0.1)))]
+    fn new(num_features: usize, epsilon: Option<f64>, momentum: Option<f64>) -> Self {
+        let epsilon = epsilon.unwrap_or(1e-5);
+        let momentum = momentum.unwrap_or(0.1);
+        let batch_norm : BatchNorm<NdArray, 0> = BatchNormConfig::new(num_features)
+            .with_epsilon(epsilon)
+            .with_momentum(momentum)
+            .init(&NDARRAYDEVICE);
+
+            batch_norm.into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+
+    fn num_params(&self) -> usize {
+        self.inner.num_params()
+    }
+}
+
 implement_ndarray_interface!(
     GroupNormPy,
     GroupNorm,
