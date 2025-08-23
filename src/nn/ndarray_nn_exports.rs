@@ -53,6 +53,77 @@ implement_ndarray_interface!(
     "Lookup table to store a fix number of vectors."
 );
 
+impl From<Embedding<NdArray>> for EmbeddingPy {
+    fn from(other: Embedding<NdArray>) -> Self {
+        Self { inner: other }
+    }
+}
+
+#[pymethods]
+impl EmbeddingPy {
+    #[new]
+    #[pyo3(signature = (n_embedding, d_model, initializer = None))]
+    fn new(n_embedding: usize, d_model: usize, initializer: Option<crate::nn::common_nn_exports::Initializer>) -> Self {
+        let init = match initializer {
+            Some(init) => match init {
+                crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    Some(burn::nn::Initializer::Constant { value })
+                }
+                crate::nn::common_nn_exports::Initializer::One() => {
+                    Some(burn::nn::Initializer::Ones)
+                }
+                crate::nn::common_nn_exports::Initializer::Zero() => {
+                    Some(burn::nn::Initializer::Zeros)
+                }
+                crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    Some(burn::nn::Initializer::Uniform { min, max })
+                }
+                crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    Some(burn::nn::Initializer::Normal { mean, std })
+                }
+                crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                    Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                }
+                crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    gain,
+                    fan_out_only,
+                } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    Some(burn::nn::Initializer::XavierNormal { gain })
+                }
+                crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    Some(burn::nn::Initializer::XavierUniform { gain })
+                }
+                crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    Some(burn::nn::Initializer::Orthogonal { gain })
+                }
+            },
+            None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+        };
+        match init {
+            Some(init) => EmbeddingConfig::new(n_embedding, d_model)
+                .with_initializer(init)
+                .init(&NDARRAYDEVICE)
+                .into(),
+            None => EmbeddingConfig::new(n_embedding, d_model)
+                .init(&NDARRAYDEVICE)
+                .into(),
+        }
+    }
+
+    // [TODO:] @kwach add a Tensor struct to accomodate the Int type for this forward method
+
+    // fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+    //     match input {
+    //         TensorPy::TensorTwo(tensor) => {
+    //             Ok(self.inner.forward(tensor.inner).into())
+    //         },
+    //         _ => Err(TensorError::NonApplicableMethod.into()),
+    //     }
+    // } 
+}
+
+
 #[pyclass]
 #[derive(Debug, Clone)]
 pub struct BatchNormPy {
@@ -303,6 +374,41 @@ impl LstmPy {
 
 implement_ndarray_interface!(LstmRecordPy, LstmRecord, "Record type of the Lstm module");
 implement_ndarray_interface!(PReluPy, PRelu, "Parametric Relu Layer");
+
+impl From<PRelu<NdArray>> for PReluPy {
+    fn from(other: PRelu<NdArray>) -> Self {
+        Self{ inner: other}
+    }
+}
+
+
+#[pymethods]
+impl PReluPy {
+    #[new]
+    #[pyo3(signature = (num_parameters = None, alpha = None))]
+    fn new(num_parameters: Option<usize>, alpha: Option<f64>) -> Self {
+        let param = match num_parameters {
+            Some(n) => Some(PReluConfig::new().with_num_parameters(n)),
+            None => None,
+        };
+        let alpha = alpha.unwrap_or(0.25);
+        match param {
+            Some(param) => param.with_alpha(alpha).init(&NDARRAYDEVICE).into(),
+            None => PReluConfig::new().with_alpha(alpha).init(&NDARRAYDEVICE).into(),
+        }
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    } 
+}
 implement_ndarray_interface!(
     PReluRecordPy,
     PReluRecord,
