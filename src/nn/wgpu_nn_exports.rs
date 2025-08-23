@@ -110,11 +110,79 @@ implement_wgpu_interface!(
     "Applies Group Normalization over a mini-batch of inputs"
 );
 
+impl From<GroupNorm<Wgpu>> for GroupNormPy {
+    fn from(other: GroupNorm<Wgpu>) -> Self {
+        Self { inner: other }
+    }
+}
+
+
+// [TODO:]  @kwach implement a method to save the configuration to a file
+
+#[pymethods]
+impl GroupNormPy {
+    #[new]
+    #[pyo3(signature = (num_groups, num_channels, epsilon = Some(1e-5), affine = Some(true)))]
+    fn new(num_groups: usize, num_channels: usize, epsilon: Option<f64>, affine: Option<bool>) -> Self{
+        let epsilon = epsilon.unwrap_or(1e-5);
+        let affine = affine.unwrap_or(true);
+        GroupNormConfig::new(num_groups, num_channels)
+            .with_epsilon(epsilon)
+            .with_affine(affine)
+            .init(&WGPUDEVICE).into()
+
+    }
+
+    fn forward(&self, input:TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
+
 implement_wgpu_interface!(
     InstanceNormPy,
     InstanceNorm,
     "Applies Instance Normalization over a tensor"
 );
+
+impl From<InstanceNorm<Wgpu>> for InstanceNormPy {
+    fn from(other: InstanceNorm<Wgpu>) -> Self {
+        Self { inner: other }
+    }
+}
+
+#[pymethods]
+impl InstanceNormPy {
+    #[new]
+    #[pyo3(signature = (num_channels, epsilon = Some(1e-5), affine = Some(true)))]
+    fn new(num_channels: usize, epsilon: Option<f64>, affine: Option<bool>) -> Self{
+        let epsilon = epsilon.unwrap_or(1e-5);
+        let affine = affine.unwrap_or(true);
+        InstanceNormConfig::new(num_channels)
+            .with_epsilon(epsilon)
+            .with_affine(affine)
+            .init(&WGPUDEVICE).into()
+
+    }
+
+    fn forward(&self, input:TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
 
 implement_wgpu_interface!(
     InstanceNormRecordPy,
