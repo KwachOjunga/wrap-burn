@@ -24,21 +24,24 @@ pub enum Initializer {
     Orthogonal { gain: f64 },
 }
 
-
 for_normal_struct_enums!(Unfold4dPy, Unfold4d, "Four-dimensional unfolding.");
 
 impl From<Unfold4d> for Unfold4dPy {
     fn from(other: Unfold4d) -> Self {
-        Self (other) 
+        Self(other)
     }
 }
-
 
 #[pymethods]
 impl Unfold4dPy {
     #[new]
-    #[pyo3(signature = (kernel_size, stride = [1,1], dilation = [1,1], padding = [0,0]))] 
-    fn new(kernel_size: [usize; 2], stride: Option<[usize; 2]>, dilation: Option<[usize; 2]>, padding: Option<[usize;2]>) -> Self {
+    #[pyo3(signature = (kernel_size, stride = [1,1], dilation = [1,1], padding = [0,0]))]
+    fn new(
+        kernel_size: [usize; 2],
+        stride: Option<[usize; 2]>,
+        dilation: Option<[usize; 2]>,
+        padding: Option<[usize; 2]>,
+    ) -> Self {
         let stride = stride.unwrap_or([1, 1]);
         let dilation = dilation.unwrap_or([1, 1]);
         let padding = padding.unwrap_or([0, 0]);
@@ -58,7 +61,6 @@ impl Unfold4dPy {
         }
     }
 }
-
 
 for_normal_struct_enums!(
     TanhPy,
@@ -90,7 +92,6 @@ impl TanhPy {
         }
     }
 }
-
 
 for_normal_struct_enums!(LeakyReluPy, LeakyRelu, "LeakyRelu Layer");
 

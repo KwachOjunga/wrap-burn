@@ -2,15 +2,15 @@ use std::ops::DerefMut;
 use std::usize;
 
 use crate::nn::WGPUDEVICE;
+use crate::nn::common_nn_exports::*;
 use crate::tensor::{tensor_error::TensorError, wgpu_base::TensorPy};
 use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_interface};
 use burn::backend::Wgpu;
-use burn::nn::*;
 use burn::nn::Initializer as _;
+use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::*;
-use crate::nn::common_nn_exports::*;
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_wgpu_interface!(
@@ -519,9 +519,8 @@ impl From<RotaryEncoding<Wgpu>> for RotaryEncodingPy {
     }
 }
 
-// [TOOD:] @kwach There is a method to implement a rotary encoding layer 
+// [TOOD:] @kwach There is a method to implement a rotary encoding layer
 // that takes a function whose input is a tensor of dim 1 and returns a temsor of similar dimensions.
-
 
 #[pymethods]
 impl RotaryEncodingPy {
@@ -559,7 +558,6 @@ implement_wgpu_interface!(
     "Applies the SwiGLU or Swish Gated Linear Unit to the input tensor."
 );
 
-
 impl From<SwiGlu<Wgpu>> for SwiGluPy {
     fn from(other: SwiGlu<Wgpu>) -> Self {
         Self { inner: other }
@@ -570,15 +568,24 @@ impl From<SwiGlu<Wgpu>> for SwiGluPy {
 impl SwiGluPy {
     #[new]
     #[pyo3(signature = (d_input, d_output, bias = false, initializer = None))]
-    fn new(d_input: usize, d_output: usize, bias: Option<bool>, initializer: Option<crate::nn::common_nn_exports::Initializer>) -> Self {
+    fn new(
+        d_input: usize,
+        d_output: usize,
+        bias: Option<bool>,
+        initializer: Option<crate::nn::common_nn_exports::Initializer>,
+    ) -> Self {
         let bias = bias.unwrap_or(false);
         let init = match initializer {
             Some(init) => match init {
                 crate::nn::common_nn_exports::Initializer::Constant { value } => {
                     Some(burn::nn::Initializer::Constant { value })
                 }
-                crate::nn::common_nn_exports::Initializer::One() => Some(burn::nn::Initializer::Ones),
-                crate::nn::common_nn_exports::Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
+                crate::nn::common_nn_exports::Initializer::One() => {
+                    Some(burn::nn::Initializer::Ones)
+                }
+                crate::nn::common_nn_exports::Initializer::Zero() => {
+                    Some(burn::nn::Initializer::Zeros)
+                }
                 crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
                     Some(burn::nn::Initializer::Uniform { min, max })
                 }
@@ -588,9 +595,10 @@ impl SwiGluPy {
                 crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
                     Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
                 }
-                crate::nn::common_nn_exports::Initializer::KaimingUniform { gain, fan_out_only } => {
-                    Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only })
-                }
+                crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    gain,
+                    fan_out_only,
+                } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
                 crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
                     Some(burn::nn::Initializer::XavierNormal { gain })
                 }
@@ -610,7 +618,10 @@ impl SwiGluPy {
                 .init(&WGPUDEVICE)
                 .into(),
 
-            None => SwiGluConfig::new(d_input, d_output).with_bias(bias).init(&WGPUDEVICE).into(),
+            None => SwiGluConfig::new(d_input, d_output)
+                .with_bias(bias)
+                .init(&WGPUDEVICE)
+                .into(),
         }
     }
 
@@ -796,6 +807,124 @@ pub mod conv_exports {
         "
 Applies a deformable 2D convolution over input tensors."
     );
+
+    impl From<DeformConv2d<Wgpu>> for DeformConv2dPy {
+        fn from(other: DeformConv2d<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl DeformConv2dPy {
+        #[new]
+        #[pyo3(signature = (channels, kernel_size, stride = None, dilation = None, weight_groups = None, offset_groups = None, padding = None, bias = Some(true), initializer = None))]
+        fn new(
+            channels: [usize; 2],
+            kernel_size: [usize; 2],
+            stride: Option<[usize; 2]>,
+            dilation: Option<[usize; 2]>,
+            weight_groups: Option<usize>,
+            offset_groups: Option<usize>,
+            padding: Option<PaddingConfig2dPy>,
+            bias: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let stride = stride.unwrap_or([1, 1]);
+            let offset_groups = offset_groups.unwrap_or(1);
+            let dilation = dilation.unwrap_or([1, 1]);
+            let weight_groups = weight_groups.unwrap_or(1);
+            let padding = padding.unwrap_or(PaddingConfig2dPy::valid());
+            let bias = bias.unwrap_or(true);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None,
+            };
+            match init {
+                Some(init) => DeformConv2dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_weight_groups(weight_groups)
+                    .with_offset_groups(offset_groups)
+                    .with_padding(padding.0)
+                    .with_bias(bias)
+                    .with_initializer(init)
+                    .init(&WGPUDEVICE)
+                    .into(),
+                None => DeformConv2dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_weight_groups(weight_groups)
+                    .with_offset_groups(offset_groups)
+                    .with_padding(padding.0)
+                    .with_bias(bias)
+                    .init(&WGPUDEVICE)
+                    .into(),
+            }
+        }
+
+        fn forward(
+            &self,
+            input: TensorPy,
+            offset: TensorPy,
+            mask: Option<TensorPy>,
+        ) -> PyResult<TensorPy> {
+            match (input, offset, mask) {
+                (
+                    TensorPy::TensorFour(input_tensor),
+                    TensorPy::TensorFour(offset_tensor),
+                    Some(TensorPy::TensorFour(mask_tensor)),
+                ) => Ok(self
+                    .inner
+                    .forward(
+                        input_tensor.inner,
+                        offset_tensor.inner,
+                        Some(mask_tensor.inner),
+                    )
+                    .into()),
+                (TensorPy::TensorFour(input_tensor), TensorPy::TensorFour(offset_tensor), None) => {
+                    Ok(self
+                        .inner
+                        .forward(input_tensor.inner, offset_tensor.inner, None)
+                        .into())
+                }
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
+
     implement_wgpu_interface!(
         DeformConv2dRecordPy,
         DeformConv2dRecord,
@@ -1113,26 +1242,116 @@ Applies a 3D convolution over input tensors."
         ConvTranspose1d,
         "Applies a 1D transposed convolution over input tensors"
     );
+
+    impl From<ConvTranspose1d<Wgpu>> for ConvTranspose1dPy {
+        fn from(other: ConvTranspose1d<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl ConvTranspose1dPy {
+        #[new]
+        #[pyo3(signature = (channels ,kernel_size, stride = Some(1), dilation = Some(1), groups = Some(1), padding = 0, bias = Some(true), initializer = None))]
+        fn new(
+            channels: [usize; 2],
+            kernel_size: usize,
+            stride: Option<usize>,
+            dilation: Option<usize>,
+            groups: Option<usize>,
+            padding: Option<usize>,
+            bias: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let stride = stride.unwrap_or(1);
+            let dilation = dilation.unwrap_or(1);
+            let groups = groups.unwrap_or(1);
+            let bias = bias.unwrap_or(true);
+            let padding = padding.unwrap_or(0);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None,
+            };
+
+            match init {
+                Some(init) => burn::nn::conv::ConvTranspose1dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .with_initializer(init)
+                    .init(&WGPUDEVICE)
+                    .into(),
+                None => burn::nn::conv::ConvTranspose1dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .init(&WGPUDEVICE)
+                    .into(),
+            }
+        }
+    }
+
     implement_wgpu_interface!(
         ConvTranspose1dRecordPy,
         ConvTranspose1dRecord,
         " record type for the 1D convolutional transpose module."
     );
+
     implement_wgpu_interface!(
         ConvTranspose2dPy,
         ConvTranspose2d,
         "Applies a 2D transposed convolution over input tensors."
     );
+
     implement_wgpu_interface!(
         ConvTranspose2dRecordPy,
         ConvTranspose2dRecord,
         "record type for the 3D convolutional transpose module"
     );
+
     implement_wgpu_interface!(
         ConvTranspose3dPy,
         ConvTranspose3d,
         "Applies a 3D transposed convolution over input tensors."
     );
+    
     implement_wgpu_interface!(
         ConvTranspose3dRecordPy,
         ConvTranspose3dRecord,
