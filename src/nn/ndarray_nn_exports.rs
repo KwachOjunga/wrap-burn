@@ -421,6 +421,34 @@ implement_ndarray_interface!(
 );
 implement_ndarray_interface!(PositionalEncodingPy, PositionalEncoding, "
 Positional encoding layer for transformer models \n This layer adds positional information to the input embeddings,\nallowing the transformer model to take into account the order of the sequence.\n The positional encoding is added to the input embeddings by computing\n a set of sinusoidal functions with different frequencies and phases.");
+
+impl From<PositionalEncoding<NdArray>> for PositionalEncodingPy {
+    fn from(other: PositionalEncoding<NdArray>) -> Self {
+        Self { inner: other }
+    }
+}
+
+#[pymethods]
+impl PositionalEncodingPy {
+    #[new]
+    #[pyo3(signature = (d_model, max_sequence_size = 5000, max_timescale = 10_000))]
+    fn new(d_model: usize, max_sequence_size: Option<usize>, max_timescale: Option<usize>) -> Self {
+        let max_sequence_size = max_sequence_size.unwrap_or(5000);
+        let max_timescale = max_timescale.unwrap_or(10_000);
+        PositionalEncodingConfig::new(d_model)
+            .with_max_sequence_size(max_sequence_size)
+            .with_max_timescale(max_timescale)
+            .init(&NDARRAYDEVICE)
+            .into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
 implement_ndarray_interface!(
     PositionalEncodingRecordPy,
     PositionalEncodingRecord,
@@ -431,6 +459,38 @@ implement_ndarray_interface!(
     RmsNorm,
     "Applies RMS Normalization over an input tensor along the last dimension"
 );
+
+impl From<RmsNorm<NdArray>> for RmsNormPy {
+    fn from(other: RmsNorm<NdArray>) -> Self {
+        Self { inner: other }
+    }
+}
+
+#[pymethods]
+impl RmsNormPy {
+    #[new]
+    #[pyo3(signature = (d_model, eps = 1e-5))]
+    fn new(d_model: usize, eps: Option<f64>) -> Self {
+        let eps = eps.unwrap_or(1e-5);
+        RmsNormConfig::new(d_model)
+            .with_epsilon(eps)
+            .init(&NDARRAYDEVICE)
+            .into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
+
 implement_ndarray_interface!(
     RmsNormRecordPy,
     RmsNormRecord,
@@ -610,7 +670,6 @@ impl PaddingConfig1dPy {
         PaddingConfig1dPy(PaddingConfig1d::Explicit(val))
     }
 }
-
 
 for_normal_struct_enums!(
     PaddingConfig2dPy,
