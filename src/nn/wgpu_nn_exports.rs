@@ -511,6 +511,40 @@ implement_wgpu_interface!(
     "A module that applies rotary positional encoding to a tensor.\n Rotary Position Encoding or Embedding (RoPE), is a type of \nposition embedding which encodes absolute positional\n information with rotation matrix and naturally incorporates explicit relative \nposition dependency in self-attention formulation."
 );
 
+impl From<RotaryEncoding<Wgpu>> for RotaryEncodingPy {
+    fn from(other: RotaryEncoding<Wgpu>) -> Self {
+        Self { inner: other }
+    }
+}
+
+// [TOOD:] @kwach There is a method to implement a rotary encoding layer 
+// that takes a function whose input is a tensor of dim 1 and returns a temsor of similar dimensions.
+
+
+#[pymethods]
+impl RotaryEncodingPy {
+    #[new]
+    #[pyo3(signature = (max_sequence_length, d_model, theta = 10000.0))]
+    fn new(max_sequence_length: usize, d_model: usize, theta: Option<f32>) -> Self {
+        let theta = theta.unwrap_or(10000.0);
+        RotaryEncodingConfig::new(max_sequence_length, d_model)
+            .with_theta(theta)
+            .init(&WGPUDEVICE)
+            .into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
 implement_wgpu_interface!(
     RotaryEncodingRecordPy,
     RotaryEncodingRecord,
@@ -523,15 +557,73 @@ implement_wgpu_interface!(
     "Applies the SwiGLU or Swish Gated Linear Unit to the input tensor."
 );
 
+
+impl From<SwiGlu<Wgpu>> for SwiGluPy {
+    fn from(other: SwiGlu<Wgpu>) -> Self {
+        Self { inner: other }
+    }
+}
+
+#[pymethods]
+impl SwiGluPy {
+    #[new]
+    #[pyo3(signature = (d_input, d_output, bias = false, initializer = None))]
+    fn new(d_input: usize, d_output: usize, bias: Option<bool>, initializer: Option<crate::nn::common_nn_exports::Initializer>) -> Self {
+        let bias = bias.unwrap_or(false);
+        let init = match initializer {
+            Some(init) => match init {
+                crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    Some(burn::nn::Initializer::Constant { value })
+                }
+                crate::nn::common_nn_exports::Initializer::One() => Some(burn::nn::Initializer::Ones),
+                crate::nn::common_nn_exports::Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
+                crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    Some(burn::nn::Initializer::Uniform { min, max })
+                }
+                crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    Some(burn::nn::Initializer::Normal { mean, std })
+                }
+                crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                    Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                }
+                crate::nn::common_nn_exports::Initializer::KaimingUniform { gain, fan_out_only } => {
+                    Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only })
+                }
+                crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    Some(burn::nn::Initializer::XavierNormal { gain })
+                }
+                crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    Some(burn::nn::Initializer::XavierUniform { gain })
+                }
+                crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    Some(burn::nn::Initializer::Orthogonal { gain })
+                }
+            },
+            None => None,
+        };
+        match init {
+            Some(init) => SwiGluConfig::new(d_input, d_output)
+                .with_bias(bias)
+                .with_initializer(init)
+                .init(&WGPUDEVICE)
+                .into(),
+
+            None => SwiGluConfig::new(d_input, d_output).with_bias(bias).init(&WGPUDEVICE).into(),
+        }
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
 // implement_wgpu_interface!(PySwiGluRecord, SwiGluRecord);
-
-for_normal_struct_enums!(Unfold4dPy, Unfold4d, "Four-dimensional unfolding.");
-
-for_normal_struct_enums!(
-    Unfold4dConfigPy,
-    Unfold4dConfig,
-    "Configuration to create unfold4d layer"
-);
 
 for_normal_struct_enums!(
     TanhPy,
@@ -564,27 +656,7 @@ impl TanhPy {
     }
 }
 
-for_normal_struct_enums!(
-    SwiGluConfigPy,
-    SwiGluConfig,
-    "Configuration to create a SwiGlu activation layer"
-);
 
-for_normal_struct_enums!(
-    PositionalEncodingConfigPy,
-    PositionalEncodingConfig,
-    "Configuration to create a PositionalEncoding layer"
-);
-for_normal_struct_enums!(
-    PReluConfigPy,
-    PReluConfig,
-    "Configuration to create the PRelu layer"
-);
-for_normal_struct_enums!(
-    LstmConfigPy,
-    LstmConfig,
-    "Configuration to create a Lstm module"
-);
 for_normal_struct_enums!(LeakyReluPy, LeakyRelu, "LeakyRelu Layer");
 
 impl From<LeakyRelu> for LeakyReluPy {

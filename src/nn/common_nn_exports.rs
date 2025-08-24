@@ -24,6 +24,41 @@ pub enum Initializer {
     Orthogonal { gain: f64 },
 }
 
+
+for_normal_struct_enums!(Unfold4dPy, Unfold4d, "Four-dimensional unfolding.");
+
+impl From<Unfold4d> for Unfold4dPy {
+    fn from(other: Unfold4d) -> Self {
+        Self (other) 
+    }
+}
+
+
+#[pymethods]
+impl Unfold4dPy {
+    #[new]
+    #[pyo3(signature = (kernel_size, stride = [1,1], dilation = [1,1], padding = [0,0]))] 
+    fn new(kernel_size: [usize; 2], stride: Option<[usize; 2]>, dilation: Option<[usize; 2]>, padding: Option<[usize;2]>) -> Self {
+        let stride = stride.unwrap_or([1, 1]);
+        let dilation = dilation.unwrap_or([1, 1]);
+        let padding = padding.unwrap_or([0, 0]);
+
+        Unfold4dConfig::new(kernel_size)
+            .with_stride(stride)
+            .with_dilation(dilation)
+            .with_padding(padding)
+            .init()
+            .into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
 // [TODO] @kwach, implement Initializer methods to produce Tensors.
 
 pub mod pool_exports {

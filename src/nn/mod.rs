@@ -66,8 +66,6 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::LeakyReluPy;
     #[pymodule_export]
-    use wgpu_nn_exports::LstmConfigPy;
-    #[pymodule_export]
     use wgpu_nn_exports::LstmPy;
     #[pymodule_export]
     use wgpu_nn_exports::LstmRecordPy;
@@ -96,8 +94,6 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::SigmoidPy;
     #[pymodule_export]
-    use wgpu_nn_exports::SwiGluConfigPy;
-    #[pymodule_export]
     use wgpu_nn_exports::SwiGluPy;
     #[pymodule_export]
     use wgpu_nn_exports::TanhPy;
@@ -108,9 +104,7 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use common_nn_exports::Initializer;
     #[pymodule_export]
-    use wgpu_nn_exports::Unfold4dConfigPy;
-    #[pymodule_export]
-    use wgpu_nn_exports::Unfold4dPy;
+    use common_nn_exports::Unfold4dPy;
 
     /// Applies Linear transformation over a tensor
     #[pyclass]
@@ -508,15 +502,13 @@ pub mod ndarray_nn {
     #[pymodule_export]
     use ndarray_nn_exports::SigmoidPy;
     #[pymodule_export]
-    use ndarray_nn_exports::SwiGluConfigPy;
-    #[pymodule_export]
     use ndarray_nn_exports::SwiGluPy;
     #[pymodule_export]
     use ndarray_nn_exports::TanhPy;
     #[pymodule_export]
-    use ndarray_nn_exports::Unfold4dConfigPy;
-    #[pymodule_export]
-    use ndarray_nn_exports::Unfold4dPy;
+    use common_nn_exports::Unfold4dPy;
+
+
     /// Applies Linear transformation over a tensor
     #[pyclass]
     #[derive(Debug)]
