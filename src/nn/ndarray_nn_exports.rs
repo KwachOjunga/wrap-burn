@@ -63,7 +63,11 @@ impl From<Embedding<NdArray>> for EmbeddingPy {
 impl EmbeddingPy {
     #[new]
     #[pyo3(signature = (n_embedding, d_model, initializer = None))]
-    fn new(n_embedding: usize, d_model: usize, initializer: Option<crate::nn::common_nn_exports::Initializer>) -> Self {
+    fn new(
+        n_embedding: usize,
+        d_model: usize,
+        initializer: Option<crate::nn::common_nn_exports::Initializer>,
+    ) -> Self {
         let init = match initializer {
             Some(init) => match init {
                 crate::nn::common_nn_exports::Initializer::Constant { value } => {
@@ -120,9 +124,8 @@ impl EmbeddingPy {
     //         },
     //         _ => Err(TensorError::NonApplicableMethod.into()),
     //     }
-    // } 
+    // }
 }
-
 
 #[pyclass]
 #[derive(Debug, Clone)]
@@ -377,10 +380,9 @@ implement_ndarray_interface!(PReluPy, PRelu, "Parametric Relu Layer");
 
 impl From<PRelu<NdArray>> for PReluPy {
     fn from(other: PRelu<NdArray>) -> Self {
-        Self{ inner: other}
+        Self { inner: other }
     }
 }
-
 
 #[pymethods]
 impl PReluPy {
@@ -394,7 +396,10 @@ impl PReluPy {
         let alpha = alpha.unwrap_or(0.25);
         match param {
             Some(param) => param.with_alpha(alpha).init(&NDARRAYDEVICE).into(),
-            None => PReluConfig::new().with_alpha(alpha).init(&NDARRAYDEVICE).into(),
+            None => PReluConfig::new()
+                .with_alpha(alpha)
+                .init(&NDARRAYDEVICE)
+                .into(),
         }
     }
 
@@ -407,7 +412,7 @@ impl PReluPy {
             TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
-    } 
+    }
 }
 implement_ndarray_interface!(
     PReluRecordPy,
@@ -587,16 +592,72 @@ for_normal_struct_enums!(
     PaddingConfig1d,
     "Padding configuration for 1D operators."
 );
+
+#[pymethods]
+impl PaddingConfig1dPy {
+    #[classattr]
+    pub fn same() -> Self {
+        PaddingConfig1dPy(PaddingConfig1d::Same)
+    }
+
+    #[classattr]
+    pub fn valid() -> Self {
+        PaddingConfig1dPy(PaddingConfig1d::Valid)
+    }
+
+    #[staticmethod]
+    pub fn explicit(val: usize) -> Self {
+        PaddingConfig1dPy(PaddingConfig1d::Explicit(val))
+    }
+}
+
+
 for_normal_struct_enums!(
     PaddingConfig2dPy,
     PaddingConfig2d,
     "Padding configuration for 2D operators."
 );
+
+#[pymethods]
+impl PaddingConfig2dPy {
+    #[classattr]
+    pub fn same() -> Self {
+        PaddingConfig2dPy(PaddingConfig2d::Same)
+    }
+
+    #[classattr]
+    pub fn valid() -> Self {
+        PaddingConfig2dPy(PaddingConfig2d::Valid)
+    }
+
+    #[staticmethod]
+    pub fn explicit(val1: usize, val2: usize) -> Self {
+        PaddingConfig2dPy(PaddingConfig2d::Explicit(val1, val2))
+    }
+}
 for_normal_struct_enums!(
     PaddingConfig3dPy,
     PaddingConfig3d,
     "Padding configuration for 3D operators."
 );
+
+#[pymethods]
+impl PaddingConfig3dPy {
+    #[classattr]
+    pub fn same() -> Self {
+        PaddingConfig3dPy(PaddingConfig3d::Same)
+    }
+
+    #[classattr]
+    pub fn valid() -> Self {
+        PaddingConfig3dPy(PaddingConfig3d::Valid)
+    }
+
+    #[staticmethod]
+    pub fn explicit(val1: usize, val2: usize, val3: usize) -> Self {
+        PaddingConfig3dPy(PaddingConfig3d::Explicit(val1, val2, val3))
+    }
+}
 
 implement_send_and_sync!(SwiGluPy);
 // implement_send_and_sync!(PySwiGluRecord);
@@ -777,6 +838,100 @@ Applies a deformable 2D convolution over input tensors."
         Conv1d,
         "Applies a 1D convolution over input tensors."
     );
+
+    impl From<Conv1d<NdArray>> for Conv1dPy {
+        fn from(other: Conv1d<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl Conv1dPy {
+        #[new]
+        #[pyo3(signature = (channels_in, channels_out, kernel_size, stride = Some(1), dilation = Some(1), groups = Some(1), padding = PaddingConfig1dPy::valid(), bias = Some(true), initializer = None))]
+        fn new(
+            channels_in: usize,
+            channels_out: usize,
+            kernel_size: usize,
+            stride: Option<usize>,
+            dilation: Option<usize>,
+            groups: Option<usize>,
+            padding: Option<PaddingConfig1dPy>,
+            bias: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let stride = stride.unwrap_or(1);
+            let dilation = dilation.unwrap_or(1);
+            let groups = groups.unwrap_or(1);
+            let bias = bias.unwrap_or(true);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None,
+            };
+            let padding = padding.unwrap_or(PaddingConfig1dPy::valid());
+
+            match init {
+                Some(init) => {
+                    burn::nn::conv::Conv1dConfig::new(channels_in, channels_out, kernel_size)
+                        .with_stride(stride)
+                        .with_dilation(dilation)
+                        .with_padding(padding.0)
+                        .with_bias(bias)
+                        .with_initializer(init)
+                        .init(&NDARRAYDEVICE)
+                        .into()
+                }
+                None => burn::nn::conv::Conv1dConfig::new(channels_in, channels_out, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding.0)
+                    .with_bias(bias)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+            }
+        }
+
+        fn foward(&self, input: TensorPy) -> PyResult<TensorPy> {
+            match input {
+                TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
+    
     implement_ndarray_interface!(
         Conv1dRecordPy,
         Conv1dRecord,
@@ -788,6 +943,99 @@ Applies a deformable 2D convolution over input tensors."
         "
 Applies a 2D convolution over input tensors."
     );
+
+    impl From<Conv2d<NdArray>> for Conv2dPy {
+        fn from(other: Conv2d<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl Conv2dPy {
+        #[new]
+        #[pyo3(signature = (channels, kernel_size, dilation = Some([1,1]) , stride = Some([1,1]), groups = Some(1), padding = None, bias = Some(true), initializer = None))]
+        fn new(
+            channels: [usize; 2],
+            kernel_size: [usize; 2],
+            dilation: Option<[usize; 2]>,
+            stride: Option<[usize; 2]>,
+            groups: Option<usize>,
+            padding: Option<PaddingConfig2dPy>,
+            bias: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let stride = stride.unwrap_or([1, 1]);
+            let dilation = dilation.unwrap_or([1, 1]);
+            let groups = groups.unwrap_or(1);
+            let bias = bias.unwrap_or(true);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None,
+            };
+            let padding = padding.unwrap_or(PaddingConfig2dPy::valid());
+
+            match init {
+                Some(init) => burn::nn::conv::Conv2dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding.0)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .with_initializer(init)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+                None => burn::nn::conv::Conv2dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding.0)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+            }
+        }
+
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+            match input {
+                TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
     implement_ndarray_interface!(
         Conv2dRecordPy,
         Conv2dRecord,
@@ -799,6 +1047,99 @@ Applies a 2D convolution over input tensors."
         "
 Applies a 3D convolution over input tensors."
     );
+
+    impl From<Conv3d<NdArray>> for Conv3DPy {
+        fn from(other: Conv3d<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl Conv3DPy {
+        #[new]
+        #[pyo3(signature = (channels, kernel_size, dilation = Some([1,1,1]) , stride = Some([1,1,1]), groups = Some(1), padding = None, bias = Some(true), initializer = None))]
+        fn new(
+            channels: [usize; 2],
+            kernel_size: [usize; 3],
+            dilation: Option<[usize; 3]>,
+            stride: Option<[usize; 3]>,
+            groups: Option<usize>,
+            padding: Option<PaddingConfig3dPy>,
+            bias: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let stride = stride.unwrap_or([1, 1, 1]);
+            let dilation = dilation.unwrap_or([1, 1, 1]);
+            let groups = groups.unwrap_or(1);
+            let bias = bias.unwrap_or(true);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None,
+            };
+            let padding = padding.unwrap_or(PaddingConfig3dPy::valid());
+
+            match init {
+                Some(init) => burn::nn::conv::Conv3dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding.0)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .with_initializer(init)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+                None => burn::nn::conv::Conv3dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding.0)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+            }
+        }
+
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+            match input {
+                TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
     implement_ndarray_interface!(
         ConvTranspose1dPy,
         ConvTranspose1d,
