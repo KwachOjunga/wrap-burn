@@ -2,9 +2,18 @@ use crate::nn::NDARRAYDEVICE;
 use crate::tensor::{ndarray_base::TensorPy, tensor_error::TensorError};
 use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
 use burn::nn::Linear;
-use burn::nn::*;
+use burn::nn::{
+    BatchNorm, BatchNormConfig, conv::*, Embedding, EmbeddingConfig,
+    GateController, GroupNorm, GroupNormConfig, InstanceNorm,
+    InstanceNormConfig, InstanceNormRecord, LayerNorm, LayerNormConfig, LayerNormRecord,
+    Lstm, LstmConfig, LstmRecord, PRelu, PReluConfig, PReluRecord, PositionalEncoding,
+    PositionalEncodingConfig, PositionalEncodingRecord, RmsNorm, RmsNormConfig,
+    RmsNormRecord, RotaryEncoding, RotaryEncodingConfig, RotaryEncodingRecord,
+    SwiGlu, SwiGluConfig, SwiGluRecord,
+};
 use burn::prelude::*;
 use pyo3::prelude::*;
+use crate::nn::common_nn_exports::*;
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_ndarray_interface!(
@@ -15,13 +24,15 @@ implement_ndarray_interface!(
      To delve deeper into the whole system of gates and the problems it attempts to solve; i highly recommend [Learning to forget:Continual prediction with LSTM](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=e10f98b86797ebf6c8caea6f54cacbc5a50e8b34)"
 );
 
+
+// This is now neccesary; there is a clash between the // common_nn_exports::Initializer and Initializer in the burn::nn module.
 // [TODO] @kwach refactor the new method in GateControllerPy to use the Initializer instead of InitializerPy.
 #[pymethods]
 impl GateControllerPy {
-    #[staticmethod]
-    pub fn new(input: usize, output: usize, bias: bool, initializer: InitializerPy) -> Self {
-        GateController::new(input, output, bias, initializer.0, &NDARRAYDEVICE).into()
-    }
+    // #[staticmethod]
+    // pub fn new(input: usize, output: usize, bias: bool, initializer: InitializerPy) -> Self {
+    //     GateController::new(input, output, bias, initializer.0, &NDARRAYDEVICE).into()
+    // }
 
     /// yield the gate product given two Tensors of 2 dimensions
     ///
@@ -613,187 +624,6 @@ impl SwiGluPy {
 }
 
 // implement_ndarray_interface!(PySwiGluRecord, SwiGluRecord);
-
-
-
-for_normal_struct_enums!(
-    TanhPy,
-    Tanh,
-    "Applies the tanh activation function element-wise"
-);
-
-impl From<Tanh> for TanhPy {
-    fn from(other: Tanh) -> Self {
-        Self(other)
-    }
-}
-
-#[pymethods]
-impl TanhPy {
-    #[new]
-    fn new() -> Self {
-        TanhPy(Tanh::new())
-    }
-
-    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
-        match input {
-            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            _ => Err(TensorError::NonApplicableMethod.into()),
-        }
-    }
-}
-
-for_normal_struct_enums!(LeakyReluPy, LeakyRelu, "LeakyRelu Layer");
-
-impl From<LeakyRelu> for LeakyReluPy {
-    fn from(other: LeakyRelu) -> Self {
-        Self(other)
-    }
-}
-
-#[pymethods]
-impl LeakyReluPy {
-    #[new]
-    #[pyo3(signature = (negative_slope = None))]
-    fn new(negative_slope: Option<f64>) -> Self {
-        match negative_slope {
-            Some(slope) => LeakyReluConfig::new()
-                .with_negative_slope(slope)
-                .init()
-                .into(),
-            None => LeakyReluConfig::new().init().into(),
-        }
-    }
-
-    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
-        match input {
-            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            _ => Err(TensorError::NonApplicableMethod.into()),
-        }
-    }
-}
-
-// for_normal_struct_enums!(
-//     LeakyReluConfigPy,
-//     LeakyReluConfig,
-//     "Configuration to create the LeakyRelu layer"
-// );
-
-for_normal_struct_enums!(
-    GeLuPy,
-    Gelu,
-    "Applies the Gaussian Error Linear Units function element-wise."
-);
-for_normal_struct_enums!(HardSigmoidPy, HardSigmoid, "HardSigmoid Layer");
-for_normal_struct_enums!(
-    HardSigmoidConfigPy,
-    HardSigmoidConfig,
-    "Configuration to build the HardSigmoid layer"
-);
-for_normal_struct_enums!(
-    InstanceNormConfigPy,
-    InstanceNormConfig,
-    "Configuration to create a InstanceNorm layer"
-);
-for_normal_struct_enums!(
-    LayerNormConfigPy,
-    LayerNormConfig,
-    "Configuration to create a LayerNorm layer "
-);
-for_normal_struct_enums!(
-    RmsNormConfigPy,
-    RmsNormConfig,
-    "Configuration to create a RMS Norm layer"
-);
-for_normal_struct_enums!(
-    SigmoidPy,
-    Sigmoid,
-    "Applies the sigmoid function element-wise"
-);
-for_normal_struct_enums!(
-    InitializerPy,
-    Initializer,
-    "Enum specifying with what values a tensor should be initialized"
-);
-
-for_normal_struct_enums!(
-    PaddingConfig1dPy,
-    PaddingConfig1d,
-    "Padding configuration for 1D operators."
-);
-
-#[pymethods]
-impl PaddingConfig1dPy {
-    #[classattr]
-    pub fn same() -> Self {
-        PaddingConfig1dPy(PaddingConfig1d::Same)
-    }
-
-    #[classattr]
-    pub fn valid() -> Self {
-        PaddingConfig1dPy(PaddingConfig1d::Valid)
-    }
-
-    #[staticmethod]
-    pub fn explicit(val: usize) -> Self {
-        PaddingConfig1dPy(PaddingConfig1d::Explicit(val))
-    }
-}
-
-for_normal_struct_enums!(
-    PaddingConfig2dPy,
-    PaddingConfig2d,
-    "Padding configuration for 2D operators."
-);
-
-#[pymethods]
-impl PaddingConfig2dPy {
-    #[classattr]
-    pub fn same() -> Self {
-        PaddingConfig2dPy(PaddingConfig2d::Same)
-    }
-
-    #[classattr]
-    pub fn valid() -> Self {
-        PaddingConfig2dPy(PaddingConfig2d::Valid)
-    }
-
-    #[staticmethod]
-    pub fn explicit(val1: usize, val2: usize) -> Self {
-        PaddingConfig2dPy(PaddingConfig2d::Explicit(val1, val2))
-    }
-}
-for_normal_struct_enums!(
-    PaddingConfig3dPy,
-    PaddingConfig3d,
-    "Padding configuration for 3D operators."
-);
-
-#[pymethods]
-impl PaddingConfig3dPy {
-    #[classattr]
-    pub fn same() -> Self {
-        PaddingConfig3dPy(PaddingConfig3d::Same)
-    }
-
-    #[classattr]
-    pub fn valid() -> Self {
-        PaddingConfig3dPy(PaddingConfig3d::Valid)
-    }
-
-    #[staticmethod]
-    pub fn explicit(val1: usize, val2: usize, val3: usize) -> Self {
-        PaddingConfig3dPy(PaddingConfig3d::Explicit(val1, val2, val3))
-    }
-}
 
 implement_send_and_sync!(SwiGluPy);
 // implement_send_and_sync!(PySwiGluRecord);

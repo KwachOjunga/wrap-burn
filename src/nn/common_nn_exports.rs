@@ -59,6 +59,188 @@ impl Unfold4dPy {
     }
 }
 
+
+for_normal_struct_enums!(
+    TanhPy,
+    Tanh,
+    "Applies the tanh activation function element-wise"
+);
+
+impl From<Tanh> for TanhPy {
+    fn from(other: Tanh) -> Self {
+        Self(other)
+    }
+}
+
+#[pymethods]
+impl TanhPy {
+    #[new]
+    fn new() -> Self {
+        TanhPy(Tanh::new())
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
+
+for_normal_struct_enums!(LeakyReluPy, LeakyRelu, "LeakyRelu Layer");
+
+impl From<LeakyRelu> for LeakyReluPy {
+    fn from(other: LeakyRelu) -> Self {
+        Self(other)
+    }
+}
+
+#[pymethods]
+impl LeakyReluPy {
+    #[new]
+    #[pyo3(signature = (negative_slope = None))]
+    fn new(negative_slope: Option<f64>) -> Self {
+        match negative_slope {
+            Some(slope) => LeakyReluConfig::new()
+                .with_negative_slope(slope)
+                .init()
+                .into(),
+            None => LeakyReluConfig::new().init().into(),
+        }
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
+for_normal_struct_enums!(
+    GeLuPy,
+    Gelu,
+    "Applies the Gaussian Error Linear Units function element-wise."
+);
+for_normal_struct_enums!(HardSigmoidPy, HardSigmoid, "HardSigmoid Layer");
+for_normal_struct_enums!(
+    HardSigmoidConfigPy,
+    HardSigmoidConfig,
+    "Configuration to build the HardSigmoid layer"
+);
+for_normal_struct_enums!(
+    InstanceNormConfigPy,
+    InstanceNormConfig,
+    "Configuration to create a InstanceNorm layer"
+);
+for_normal_struct_enums!(
+    LayerNormConfigPy,
+    LayerNormConfig,
+    "Configuration to create a LayerNorm layer "
+);
+for_normal_struct_enums!(
+    RmsNormConfigPy,
+    RmsNormConfig,
+    "Configuration to create a RMS Norm layer"
+);
+for_normal_struct_enums!(
+    SigmoidPy,
+    Sigmoid,
+    "Applies the sigmoid function element-wise"
+);
+for_normal_struct_enums!(
+    InitializerPy,
+    Initializer,
+    "Enum specifying with what values a tensor should be initialized"
+);
+
+// [TODO*] There are methods exposed by this type that are relevant for uploading config files for
+// reproduction of train/test results
+for_normal_struct_enums!(
+    PaddingConfig1dPy,
+    PaddingConfig1d,
+    "Padding configuration for 1D operators.
+    With three options: Same, Valid and Explicit
+    * Same - Dynamically calculate the amount of padding necessary to ensure that the output size will be the same as the input.
+    * Valid - Same as no padding
+    * Explicit - Takes an input and applies the specified amount of padding to all inputs."
+);
+
+#[pymethods]
+impl PaddingConfig1dPy {
+    #[classattr]
+    pub fn same() -> Self {
+        PaddingConfig1dPy(PaddingConfig1d::Same)
+    }
+
+    #[classattr]
+    pub fn valid() -> Self {
+        PaddingConfig1dPy(PaddingConfig1d::Valid)
+    }
+
+    #[staticmethod]
+    pub fn explicit(val: usize) -> Self {
+        PaddingConfig1dPy(PaddingConfig1d::Explicit(val))
+    }
+}
+
+for_normal_struct_enums!(
+    PaddingConfig2dPy,
+    PaddingConfig2d,
+    "Padding configuration for 2D operators."
+);
+
+#[pymethods]
+impl PaddingConfig2dPy {
+    #[classattr]
+    pub fn same() -> Self {
+        PaddingConfig2dPy(PaddingConfig2d::Same)
+    }
+
+    #[classattr]
+    pub fn valid() -> Self {
+        PaddingConfig2dPy(PaddingConfig2d::Valid)
+    }
+
+    #[staticmethod]
+    pub fn explicit(val1: usize, val2: usize) -> Self {
+        PaddingConfig2dPy(PaddingConfig2d::Explicit(val1, val2))
+    }
+}
+
+for_normal_struct_enums!(
+    PaddingConfig3dPy,
+    PaddingConfig3d,
+    "Padding configuration for 3D operators."
+);
+
+#[pymethods]
+impl PaddingConfig3dPy {
+    #[classattr]
+    pub fn same() -> Self {
+        PaddingConfig3dPy(PaddingConfig3d::Same)
+    }
+
+    #[classattr]
+    pub fn valid() -> Self {
+        PaddingConfig3dPy(PaddingConfig3d::Valid)
+    }
+
+    #[staticmethod]
+    pub fn explicit(val1: usize, val2: usize, val3: usize) -> Self {
+        PaddingConfig3dPy(PaddingConfig3d::Explicit(val1, val2, val3))
+    }
+}
+
 // [TODO] @kwach, implement Initializer methods to produce Tensors.
 
 pub mod pool_exports {

@@ -48,15 +48,15 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::GateControllerPy;
     #[pymodule_export]
-    use wgpu_nn_exports::GeLuPy;
+    use common_nn_exports::GeLuPy;
     #[pymodule_export]
     use wgpu_nn_exports::GroupNormPy;
     #[pymodule_export]
-    use wgpu_nn_exports::HardSigmoidPy;
+    use common_nn_exports::HardSigmoidPy;
     // #[pymodule_export]
     // use wgpu_nn_exports::InitializerPy;
     #[pymodule_export]
-    use wgpu_nn_exports::InstanceNormConfigPy;
+    use common_nn_exports::InstanceNormConfigPy;
     #[pymodule_export]
     use wgpu_nn_exports::InstanceNormPy;
     #[pymodule_export]
@@ -64,7 +64,7 @@ pub mod wgpu_nn {
     // #[pymodule_export]
     // use wgpu_nn_exports::LeakyReluConfigPy;
     #[pymodule_export]
-    use wgpu_nn_exports::LeakyReluPy;
+    use common_nn_exports::LeakyReluPy;
     #[pymodule_export]
     use wgpu_nn_exports::LstmPy;
     #[pymodule_export]
@@ -74,15 +74,15 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::PReluRecordPy;
     #[pymodule_export]
-    use wgpu_nn_exports::PaddingConfig1dPy;
+    use common_nn_exports::PaddingConfig1dPy;
     #[pymodule_export]
-    use wgpu_nn_exports::PaddingConfig2dPy;
+    use common_nn_exports::PaddingConfig2dPy;
     #[pymodule_export]
-    use wgpu_nn_exports::PaddingConfig3dPy;
+    use common_nn_exports::PaddingConfig3dPy;
     #[pymodule_export]
     use wgpu_nn_exports::PositionalEncodingPy;
     #[pymodule_export]
-    use wgpu_nn_exports::RmsNormConfigPy;
+    use common_nn_exports::RmsNormConfigPy;
     #[pymodule_export]
     use wgpu_nn_exports::RmsNormPy;
     #[pymodule_export]
@@ -92,11 +92,11 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use wgpu_nn_exports::RotaryEncodingRecordPy;
     #[pymodule_export]
-    use wgpu_nn_exports::SigmoidPy;
+    use common_nn_exports::SigmoidPy;
     #[pymodule_export]
     use wgpu_nn_exports::SwiGluPy;
     #[pymodule_export]
-    use wgpu_nn_exports::TanhPy;
+    use common_nn_exports::TanhPy;
 
     // [TODO:] Note the current implementation of this
     #[pymodule_export]
@@ -452,15 +452,15 @@ pub mod ndarray_nn {
     #[pymodule_export]
     use ndarray_nn_exports::GateControllerPy;
     #[pymodule_export]
-    use ndarray_nn_exports::GeLuPy;
+    use common_nn_exports::GeLuPy;
     #[pymodule_export]
     use ndarray_nn_exports::GroupNormPy;
     #[pymodule_export]
-    use ndarray_nn_exports::HardSigmoidPy;
+    use common_nn_exports::HardSigmoidPy;
     // #[pymodule_export]
     // use ndarray_nn_exports::InitializerPy;
     #[pymodule_export]
-    use ndarray_nn_exports::InstanceNormConfigPy;
+    use common_nn_exports::InstanceNormConfigPy;
     #[pymodule_export]
     use ndarray_nn_exports::InstanceNormPy;
     #[pymodule_export]
@@ -470,9 +470,7 @@ pub mod ndarray_nn {
     #[pymodule_export]
     use common_nn_exports::Initializer;
     #[pymodule_export]
-    use ndarray_nn_exports::LeakyReluPy;
-    #[pymodule_export]
-    use ndarray_nn_exports::LstmConfigPy;
+    use common_nn_exports::LeakyReluPy;
     #[pymodule_export]
     use ndarray_nn_exports::LstmPy;
     #[pymodule_export]
@@ -482,15 +480,15 @@ pub mod ndarray_nn {
     #[pymodule_export]
     use ndarray_nn_exports::PReluRecordPy;
     #[pymodule_export]
-    use ndarray_nn_exports::PaddingConfig1dPy;
+    use common_nn_exports::PaddingConfig1dPy;
     #[pymodule_export]
-    use ndarray_nn_exports::PaddingConfig2dPy;
+    use common_nn_exports::PaddingConfig2dPy;
     #[pymodule_export]
-    use ndarray_nn_exports::PaddingConfig3dPy;
+    use common_nn_exports::PaddingConfig3dPy;
     #[pymodule_export]
     use ndarray_nn_exports::PositionalEncodingPy;
     #[pymodule_export]
-    use ndarray_nn_exports::RmsNormConfigPy;
+    use common_nn_exports::RmsNormConfigPy;
     #[pymodule_export]
     use ndarray_nn_exports::RmsNormPy;
     #[pymodule_export]
@@ -500,11 +498,11 @@ pub mod ndarray_nn {
     #[pymodule_export]
     use ndarray_nn_exports::RotaryEncodingRecordPy;
     #[pymodule_export]
-    use ndarray_nn_exports::SigmoidPy;
+    use common_nn_exports::SigmoidPy;
     #[pymodule_export]
     use ndarray_nn_exports::SwiGluPy;
     #[pymodule_export]
-    use ndarray_nn_exports::TanhPy;
+    use common_nn_exports::TanhPy;
     #[pymodule_export]
     use common_nn_exports::Unfold4dPy;
 
