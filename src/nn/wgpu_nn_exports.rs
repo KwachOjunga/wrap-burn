@@ -1213,25 +1213,9 @@ Applies a 3D convolution over input tensors."
         "Configuration to create a 3D convolution transpose layer"
     );
 
-    // [TODO*] @kwach Eliminate the ConvConfig types from the Python interface.
+    
 
-    for_normal_struct_enums!(
-        Conv1DConfigPy,
-        Conv1dConfig,
-        "Configuration to create a 1D convolution layer"
-    );
-    for_normal_struct_enums!(
-        Conv2DConfigPy,
-        Conv2dConfig,
-        "
-Configuration to create a 2D convolution layer,"
-    );
-    for_normal_struct_enums!(
-        Conv3DConfigPy,
-        Conv3dConfig,
-        "
-Configuration to create a 3D convolution layer,"
-    );
+
 
     implement_send_and_sync!(Conv1dPy);
     implement_send_and_sync!(Conv3DPy);

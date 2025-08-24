@@ -931,7 +931,7 @@ Applies a deformable 2D convolution over input tensors."
             }
         }
     }
-    
+
     implement_ndarray_interface!(
         Conv1dRecordPy,
         Conv1dRecord,
@@ -1190,23 +1190,6 @@ Applies a 3D convolution over input tensors."
         ConvTranspose3dConfigPy,
         ConvTranspose3dConfig,
         "Configuration to create a 3D convolution transpose layer"
-    );
-    for_normal_struct_enums!(
-        Conv1DConfigPy,
-        Conv1dConfig,
-        "Configuration to create a 1D convolution layer"
-    );
-    for_normal_struct_enums!(
-        Conv2DConfigPy,
-        Conv2dConfig,
-        "
-Configuration to create a 2D convolution layer,"
-    );
-    for_normal_struct_enums!(
-        Conv3DConfigPy,
-        Conv3dConfig,
-        "
-Configuration to create a 3D convolution layer,"
     );
 
     implement_send_and_sync!(Conv1dPy);

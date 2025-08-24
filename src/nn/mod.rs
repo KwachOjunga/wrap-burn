@@ -297,20 +297,17 @@ pub mod wgpu_nn {
     pub mod conv {
         use super::*;
 
-        #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::Conv1DConfigPy;
+        
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv1dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv1dRecordPy;
-        #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::Conv2DConfigPy;
+        
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv2dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv2dRecordPy;
-        #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::Conv3DConfigPy;
+        
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv3DPy;
         #[pymodule_export]
@@ -703,20 +700,17 @@ pub mod ndarray_nn {
     pub mod conv {
         use super::*;
 
-        #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::Conv1DConfigPy;
+        
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::Conv1dPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::Conv1dRecordPy;
-        #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::Conv2DConfigPy;
+        
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::Conv2dPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::Conv2dRecordPy;
-        #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::Conv3DConfigPy;
+        
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::Conv3DPy;
         #[pymodule_export]
