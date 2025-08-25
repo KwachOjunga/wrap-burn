@@ -1,5 +1,6 @@
 use std::ops::DerefMut;
 use std::usize;
+use std::sync::{Arc, Mutex};
 
 use crate::nn::WGPUDEVICE;
 use crate::nn::common_nn_exports::*;
@@ -807,16 +808,161 @@ pub mod transformer_exports {
     );
 
     implement_wgpu_interface!(TransformerDecoderPy, TransformerDecoder);
+
+    impl From<TransformerDecoder<Wgpu>> for TransformerDecoderPy {
+        fn from(other: TransformerDecoder<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+
+    // [TODO:] @kwach Implement all remaining methods of TransformerdecoderPy layer all that require the other layers for input
+    //                  an autoregressive cache, forwarding method that performs autoregressive inference.
+    #[pymethods]
+    impl TransformerDecoderPy {
+
+        /// Initializes a new TransformerDecoder layer.
+        /// 
+        /// params: d_model: The size of the model
+        ///         d_ff: The size of the positionwisefeedforward layer
+        ///         n_heads: The number of attention heads
+        ///         n_layers: The number of layers
+        ///         dropout: The dropout rate. Defaults to 0.1
+        ///         norm_first: Whether layer normalization will be applied first instead of after the other modules. Defaults to false.
+        ///         quiet_softmax: Use “quiet softmax” instead of regular softmax.
+        ///                             Usage may improve performance by allowing attention heads to deposit no information (if the sequence contains no information relevant to that head).
+        ///                             Usage may reduce the entropy of weights in the model, enhancing quantization and compression
+        ///         iniitializer: The weight initializer to use. Defaults to KaimingUniform. with gain of 1.0 and fan_out_only set to false.
+        #[new]
+        #[pyo3(signature = (d_model, d_ff, n_heads, n_layers, dropout = Some(0.1), norm_first = Some(false), quiet_softmax = Some(false), initializer = None))]
+        fn new(
+            d_model: usize,
+            d_ff: usize,
+            n_heads: usize,
+            n_layers: usize,
+            dropout: Option<f64>,
+            norm_first: Option<bool>,
+            quiet_softmax: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let dropout = dropout.unwrap_or(0.1);
+            let norm_first = norm_first.unwrap_or(false);
+            let quet_softmax = quiet_softmax.unwrap_or(false);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+            };
+
+            match init {
+                Some(init) => TransformerDecoderConfig::new(d_model, d_ff, n_heads, n_layers)
+                    .with_dropout(dropout)
+                    .with_norm_first(norm_first)
+                    .with_quiet_softmax(quet_softmax)
+                    .with_initializer(init)
+                    .init(&WGPUDEVICE)
+                    .into(),
+                None => TransformerDecoderConfig::new(d_model, d_ff, n_heads, n_layers)
+                    .with_dropout(dropout)
+                    .with_norm_first(norm_first)
+                    .with_quiet_softmax(quet_softmax)
+                    .init(&WGPUDEVICE)
+                    .into(),
+            }
+        }
+
+
+        // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
+
+        fn forward(&self, input: &mut TransformerDecoderInputPy) -> TensorPy {
+            let mut guard = input.inner.lock().unwrap().take().unwrap();
+            self.inner.forward(guard).into()
+            // match guard {
+            //     Some(inner) => Ok(self.inner.forward(inner).into()),
+            //     None => Err(TensorError::NonApplicableMethod.into()),
+            // }
+        }
+    }
+
     implement_wgpu_interface!(
         TransformerDecoderAutoregressiveCachePy,
         TransformerDecoderAutoregressiveCache,
         "Autoregressive cache for the Transformer Decoder layer"
     );
-    implement_wgpu_interface!(
-        TransformerDecoderInputPy,
-        TransformerDecoderInput,
-        "Transformer Decoder forward pass input argument"
-    );
+
+    impl From<TransformerDecoderAutoregressiveCache<Wgpu>> for TransformerDecoderAutoregressiveCachePy {
+        fn from(other: TransformerDecoderAutoregressiveCache<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    //[NOTE:] @kwach This type is more of a landmine than anything else.
+    //               while its interface is safe; i'm afraid the implications of its usage are more than what one may expect.
+    #[pyclass]
+    pub struct TransformerDecoderInputPy {
+        pub inner: Arc<Mutex<Option<TransformerDecoderInput<Wgpu>>>>,
+    }
+
+
+    impl From<TransformerDecoderInput<Wgpu>> for TransformerDecoderInputPy {
+        fn from(other: TransformerDecoderInput<Wgpu>) -> Self {
+            Self { inner: Arc::new(Mutex::new(Some(other))) }
+        }
+    }
+
+    #[pymethods]
+    impl TransformerDecoderInputPy {
+        #[new]
+        fn new(target: TensorPy, memory: TensorPy) -> PyResult<Self> {
+            match (target, memory) {
+                (TensorPy::TensorThree(t1), TensorPy::TensorThree(t2)) => {
+                    Ok(TransformerDecoderInput::new(t1.inner, t2.inner).into())
+                    }
+
+                    _ => Err(TensorError::NonApplicableMethod.into())
+                }
+        }
+
+        fn memory_mask_pad(&mut self, mask_pad: TensorPy) -> PyResult<Self> {
+            match mask_pad {
+                TensorPy::TensorTwoBool(tensor) => Ok(self.inner.lock().unwrap().take().unwrap().memory_mask_pad(tensor.inner).into()),
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
+
+    
     implement_wgpu_interface!(
         TransformerDecoderLayerPy,
         TransformerDecoderLayer,

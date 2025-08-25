@@ -175,6 +175,7 @@ macro_rules! implement_wgpu_interface {
         // use burn::backend::wgpu::*;
         #[doc = $doc]
         #[pyclass]
+        // #[derive(Clone)]
         pub struct $name {
             pub inner: $actual_type<Wgpu>,
         }
@@ -184,6 +185,7 @@ macro_rules! implement_wgpu_interface {
         use burn::backend::wgpu::*;
 
         #[pyclass]
+        // #[derive(Clone)]
         pub struct $name {
             pub inner: $actual_type<Wgpu>,
         }
