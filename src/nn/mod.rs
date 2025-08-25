@@ -381,8 +381,6 @@ pub mod wgpu_nn {
         use super::*;
         use burn::nn::transformer::*;
 
-        
-
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::PositionWiseFeedForwardPy;
         // #[pymodule_export]
@@ -415,8 +413,6 @@ pub mod wgpu_nn {
         use wgpu_nn_exports::transformer_exports::TransformerEncoderPy;
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::TransformerEncoderRecordPy;
-
-        
     }
 }
 
@@ -718,7 +714,6 @@ pub mod ndarray_nn {
     pub mod gru {
         use super::*;
 
-        
         #[pymodule_export]
         use ndarray_nn_exports::gru_exports::GruPy;
         #[pymodule_export]
@@ -766,7 +761,6 @@ pub mod ndarray_nn {
         use super::*;
         use burn::nn::transformer::*;
 
-        
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::PositionWiseFeedForwardPy;
         #[pymodule_export]
@@ -797,8 +791,6 @@ pub mod ndarray_nn {
         use ndarray_nn_exports::transformer_exports::TransformerEncoderPy;
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::TransformerEncoderRecordPy;
-
-       
     }
 }
 

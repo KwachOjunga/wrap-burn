@@ -656,13 +656,29 @@ pub mod attention_exports {
     use super::*;
     use burn::nn::attention::*;
 
-    // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
-
     implement_ndarray_interface!(
         GeneratePaddingMaskPy,
         GeneratePaddingMask,
         "Generate a padding attention mask."
     );
+
+    impl From<GeneratePaddingMask<NdArray>> for GeneratePaddingMaskPy {
+        fn from(other: GeneratePaddingMask<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl GeneratePaddingMaskPy {
+        #[new]
+        fn new(pad_token: usize,
+            tokens_list: Vec<Vec<usize>>,
+            max_seq_length: Option<usize>
+        ) -> Self {
+            generate_padding_mask(pad_token, tokens_list, max_seq_length, &NDARRAYDEVICE).into()
+        }
+    }
+    
     implement_ndarray_interface!(
         MhaCachePy,
         MhaCache,
@@ -719,16 +735,20 @@ pub mod transformer_exports {
 
     #[pymethods]
     impl PositionWiseFeedForwardPy {
-
         /// Initializes a new PositionWiseFeedForward layer.
-        /// 
+        ///
         /// params: d_model: The dimension of the input and output features.
         ///         d_ff: The dimension of the hidden inner features.
         ///         dropout: The dorpout rate. Defaults to 0.1
         ///        initializer: The weight initializer to use. Defaults to KaimingUniform. with gain of 1.0 and fan_out_only set to false.
         #[new]
         #[pyo3(signature = (d_model, d_ff, dropout = Some(0.1), initializer = None))]
-        fn new(d_model: usize, d_ff: usize, dropout: Option<f64>, initializer: Option<crate::nn::common_nn_exports::Initializer>) -> Self {
+        fn new(
+            d_model: usize,
+            d_ff: usize,
+            dropout: Option<f64>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
             let dropout = dropout.unwrap_or(0.1);
             let init = match initializer {
                 Some(init) => match init {
@@ -747,9 +767,10 @@ pub mod transformer_exports {
                     crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
-                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
-                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
                     crate::nn::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -767,24 +788,19 @@ pub mod transformer_exports {
                 None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
             };
             match init {
-                Some(init) => {
-                    PositionWiseFeedForwardConfig::new(d_model, d_ff)
-                        .with_dropout(dropout)
-                        .with_initializer(init)
-                        .init(&NDARRAYDEVICE)
-                        .into()
-                }
-                None => {
-                    PositionWiseFeedForwardConfig::new(d_model, d_ff)
-                        .with_dropout(dropout)
-                        .init(&NDARRAYDEVICE)
-                        .into()
-                }
+                Some(init) => PositionWiseFeedForwardConfig::new(d_model, d_ff)
+                    .with_dropout(dropout)
+                    .with_initializer(init)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+                None => PositionWiseFeedForwardConfig::new(d_model, d_ff)
+                    .with_dropout(dropout)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
             }
-
         }
 
-        fn forward(&self, input: TensorPy) -> PyResult<TensorPy>{ 
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
             match input {
                 TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
                 TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
@@ -803,14 +819,12 @@ pub mod transformer_exports {
         }
     }
 
-
     // [TODO:] @kwach Implement all remaining methods of TransformerdecoderPy layer all that require the other layers for input
     //                  an autoregressive cache, forwarding method that performs autoregressive inference.
     #[pymethods]
     impl TransformerDecoderPy {
-
         /// Initializes a new TransformerDecoder layer.
-        /// 
+        ///
         /// params: d_model: The size of the model
         ///         d_ff: The size of the positionwisefeedforward layer
         ///         n_heads: The number of attention heads
@@ -853,9 +867,10 @@ pub mod transformer_exports {
                     crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
-                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
-                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
                     crate::nn::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -890,7 +905,6 @@ pub mod transformer_exports {
             }
         }
 
-
         // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
 
         fn forward(&self, input: &mut TransformerDecoderInputPy) -> TensorPy {
@@ -918,10 +932,11 @@ pub mod transformer_exports {
         pub inner: Arc<Mutex<Option<TransformerDecoderInput<NdArray>>>>,
     }
 
-
     impl From<TransformerDecoderInput<NdArray>> for TransformerDecoderInputPy {
         fn from(other: TransformerDecoderInput<NdArray>) -> Self {
-            Self { inner: Arc::new(Mutex::new(Some(other))) }
+            Self {
+                inner: Arc::new(Mutex::new(Some(other))),
+            }
         }
     }
 
@@ -932,15 +947,22 @@ pub mod transformer_exports {
             match (target, memory) {
                 (TensorPy::TensorThree(t1), TensorPy::TensorThree(t2)) => {
                     Ok(TransformerDecoderInput::new(t1.inner, t2.inner).into())
-                    }
-
-                    _ => Err(TensorError::NonApplicableMethod.into())
                 }
+
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
         }
 
         fn memory_mask_pad(&mut self, mask_pad: TensorPy) -> PyResult<Self> {
             match mask_pad {
-                TensorPy::TensorTwoBool(tensor) => Ok(self.inner.lock().unwrap().take().unwrap().memory_mask_pad(tensor.inner).into()),
+                TensorPy::TensorTwoBool(tensor) => Ok(self
+                    .inner
+                    .lock()
+                    .unwrap()
+                    .take()
+                    .unwrap()
+                    .memory_mask_pad(tensor.inner)
+                    .into()),
                 _ => Err(TensorError::NonApplicableMethod.into()),
             }
         }
@@ -965,6 +987,104 @@ pub mod transformer_exports {
         TransformerEncoder,
         "The transformer encoder module as describe in the paper Attention Is All You Need."
     );
+
+    impl From<TransformerEncoder<NdArray>> for TransformerEncoderPy {
+        fn from(other: TransformerEncoder<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+    
+    #[pymethods]
+    impl TransformerEncoderPy {
+        /// Initializes a new TransformerDecoder layer.
+        ///
+        /// params: d_model: The size of the model
+        ///         d_ff: The size of the positionwisefeedforward layer
+        ///         n_heads: The number of attention heads
+        ///         n_layers: The number of layers
+        ///         dropout: The dropout rate. Defaults to 0.1
+        ///         norm_first: Whether layer normalization will be applied first instead of after the other modules. Defaults to false.
+        ///         quiet_softmax: Use “quiet softmax” instead of regular softmax.
+        ///                             Usage may improve performance by allowing attention heads to deposit no information (if the sequence contains no information relevant to that head).
+        ///                             Usage may reduce the entropy of weights in the model, enhancing quantization and compression
+        ///         iniitializer: The weight initializer to use. Defaults to KaimingUniform. with gain of 1.0 and fan_out_only set to false.
+        #[new]
+        #[pyo3(signature = (d_model, d_ff, n_heads, n_layers, dropout = Some(0.1), norm_first = Some(false), quiet_softmax = Some(false), initializer = None))]
+        fn new(
+            d_model: usize,
+            d_ff: usize,
+            n_heads: usize,
+            n_layers: usize,
+            dropout: Option<f64>,
+            norm_first: Option<bool>,
+            quiet_softmax: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let dropout = dropout.unwrap_or(0.1);
+            let norm_first = norm_first.unwrap_or(false);
+            let quet_softmax = quiet_softmax.unwrap_or(false);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+            };
+
+            match init {
+                Some(init) => TransformerEncoderConfig::new(d_model, d_ff, n_heads, n_layers)
+                    .with_dropout(dropout)
+                    .with_norm_first(norm_first)
+                    .with_quiet_softmax(quet_softmax)
+                    .with_initializer(init)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+                None => TransformerEncoderConfig::new(d_model, d_ff, n_heads, n_layers)
+                    .with_dropout(dropout)
+                    .with_norm_first(norm_first)
+                    .with_quiet_softmax(quet_softmax)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+            }
+        }
+
+        // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
+
+        fn forward(&self, input: &mut TransformerEncoderInputPy) -> TensorPy {
+            let mut guard = input.inner.lock().unwrap().take().unwrap();
+            self.inner.forward(guard).into()
+        }
+    }
     implement_ndarray_interface!(
         TransformerEncoderAutoregressiveCachePy,
         TransformerEncoderAutoregressiveCache,
@@ -985,11 +1105,59 @@ pub mod transformer_exports {
         TransformerEncoderRecord,
         "Record type of the transformer encoder module"
     );
-    implement_ndarray_interface!(
-        TransformerEncoderInputPy,
-        TransformerEncoderInput,
-        "Transformer Encoder forward pass input argument"
-    );
+    
+    #[pyclass]
+    pub struct TransformerEncoderInputPy {
+        pub inner: Arc<Mutex<Option<TransformerEncoderInput<NdArray>>>>,
+    }
+
+    impl From<TransformerEncoderInput<NdArray>> for TransformerEncoderInputPy {
+        fn from(other: TransformerEncoderInput<NdArray>) -> Self {
+            Self {
+                inner: Arc::new(Mutex::new(Some(other))),
+            }
+        }
+    }
+
+    #[pymethods]
+    impl TransformerEncoderInputPy {
+        #[new]
+        fn new(tensor: TensorPy) -> PyResult<Self> {
+            match (tensor) {
+                (TensorPy::TensorThree(t1)) => Ok(TransformerEncoderInput::new(t1.inner).into()),
+
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+
+        fn mask_pad(&mut self, mask_pad: TensorPy) -> PyResult<Self> {
+            match mask_pad {
+                TensorPy::TensorTwoBool(tensor) => Ok(self
+                    .inner
+                    .lock()
+                    .unwrap()
+                    .take()
+                    .unwrap()
+                    .mask_pad(tensor.inner)
+                    .into()),
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+
+        fn mask_attn(&mut self, mask_attn: TensorPy) -> PyResult<Self> {
+            match mask_attn {
+                TensorPy::TensorThreeBool(tensor) => Ok(self
+                    .inner
+                    .lock()
+                    .unwrap()
+                    .take()
+                    .unwrap()
+                    .mask_attn(tensor.inner)
+                    .into()),
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
 
     for_normal_struct_enums!(
         TransformerDecoderConfigPy,
@@ -1885,7 +2053,7 @@ pub mod gru_exports {
             }
         }
     }
-    
+
     implement_send_and_sync!(GruRecordPy);
     implement_send_and_sync!(GruPy);
 }
