@@ -631,10 +631,7 @@ impl SwiGluPy {
     }
 }
 
-// implement_ndarray_interface!(PySwiGluRecord, SwiGluRecord);
-
 implement_send_and_sync!(SwiGluPy);
-// implement_send_and_sync!(PySwiGluRecord);
 implement_send_and_sync!(RotaryEncodingPy);
 implement_send_and_sync!(RotaryEncodingRecordPy);
 implement_send_and_sync!(RmsNormPy);
@@ -645,7 +642,6 @@ implement_send_and_sync!(PReluRecordPy);
 implement_send_and_sync!(PReluPy);
 implement_send_and_sync!(LstmPy);
 implement_send_and_sync!(LstmRecordPy);
-// implement_send_and_sync(PyLinearRecord);
 implement_send_and_sync!(LayerNormPy);
 implement_send_and_sync!(LayerNormRecordPy);
 implement_send_and_sync!(InstanceNormRecordPy);
@@ -708,6 +704,95 @@ pub mod transformer_exports {
         "Record type for position wise feed forward record"
     );
 
+    #[pyclass]
+    pub struct PositionWiseFeedForwardPy {
+        pub inner: PositionWiseFeedForward<NdArray>,
+    }
+
+    impl From<PositionWiseFeedForward<NdArray>> for PositionWiseFeedForwardPy {
+        fn from(other: PositionWiseFeedForward<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl PositionWiseFeedForwardPy {
+
+        /// Initializes a new PositionWiseFeedForward layer.
+        /// 
+        /// params: d_model: The dimension of the input and output features.
+        ///         d_ff: The dimension of the hidden inner features.
+        ///         dropout: The dorpout rate. Defaults to 0.1
+        ///        initializer: The weight initializer to use. Defaults to KaimingUniform. with gain of 1.0 and fan_out_only set to false.
+        #[new]
+        #[pyo3(signature = (d_model, d_ff, dropout = Some(0.1), initializer = None))]
+        fn new(d_model: usize, d_ff: usize, dropout: Option<f64>, initializer: Option<crate::nn::common_nn_exports::Initializer>) -> Self {
+            let dropout = dropout.unwrap_or(0.1);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+            };
+            match init {
+                Some(init) => {
+                    PositionWiseFeedForwardConfig::new(d_model, d_ff)
+                        .with_dropout(dropout)
+                        .with_initializer(init)
+                        .init(&NDARRAYDEVICE)
+                        .into()
+                }
+                None => {
+                    PositionWiseFeedForwardConfig::new(d_model, d_ff)
+                        .with_dropout(dropout)
+                        .init(&NDARRAYDEVICE)
+                        .into()
+                }
+            }
+
+        }
+
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy>{ 
+            match input {
+                TensorPy::TensorOne(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+                TensorPy::TensorTwo(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+                TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+                TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+                TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
     implement_ndarray_interface!(TransformerDecoderPy, TransformerDecoder);
     implement_ndarray_interface!(
         TransformerDecoderAutoregressiveCachePy,
@@ -766,11 +851,6 @@ pub mod transformer_exports {
     );
 
     for_normal_struct_enums!(
-        PositionWiseFeedForwardConfigPy,
-        PositionWiseFeedForwardConfig,
-        "Configuration to create a position-wise feed-forward layer"
-    );
-    for_normal_struct_enums!(
         TransformerDecoderConfigPy,
         TransformerDecoderConfig,
         "Configuration to create a Transformer Decoder layer"
@@ -788,6 +868,7 @@ pub mod transformer_exports {
     implement_send_and_sync!(TransformerDecoderInputPy);
     implement_send_and_sync!(TransformerDecoderAutoregressiveCachePy);
     implement_send_and_sync!(TransformerDecoderPy);
+    implement_send_and_sync!(PositionWiseFeedForwardPy);
     implement_send_and_sync!(PositionWiseFeedForwardRecordPy);
 }
 

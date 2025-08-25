@@ -381,14 +381,12 @@ pub mod wgpu_nn {
         use super::*;
         use burn::nn::transformer::*;
 
-        /// Applies the position-wise feed-forward network to the input tensor from the paper [`Attention Is All You Need`](https://arxiv.org/pdf/1706.03762v7).
-        #[pyclass]
-        pub struct PositionWiseFeedForwardPy {
-            pub inner: PositionWiseFeedForward<Wgpu>,
-        }
+        
 
         #[pymodule_export]
-        use wgpu_nn_exports::transformer_exports::PositionWiseFeedForwardConfigPy;
+        use wgpu_nn_exports::transformer_exports::PositionWiseFeedForwardPy;
+        // #[pymodule_export]
+        // use wgpu_nn_exports::transformer_exports::PositionWiseFeedForwardConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::PositionWiseFeedForwardRecordPy;
         #[pymodule_export]
@@ -418,7 +416,7 @@ pub mod wgpu_nn {
         #[pymodule_export]
         use wgpu_nn_exports::transformer_exports::TransformerEncoderRecordPy;
 
-        implement_send_and_sync!(PositionWiseFeedForwardPy);
+        
     }
 }
 
@@ -768,14 +766,9 @@ pub mod ndarray_nn {
         use super::*;
         use burn::nn::transformer::*;
 
-        /// Applies the position-wise feed-forward network to the input tensor from the paper [`Attention Is All You Need`](https://arxiv.org/pdf/1706.03762v7).
-        #[pyclass]
-        pub struct PositionWiseFeedForwardPy {
-            pub inner: PositionWiseFeedForward<NdArray>,
-        }
-
+        
         #[pymodule_export]
-        use ndarray_nn_exports::transformer_exports::PositionWiseFeedForwardConfigPy;
+        use ndarray_nn_exports::transformer_exports::PositionWiseFeedForwardPy;
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::PositionWiseFeedForwardRecordPy;
         #[pymodule_export]
@@ -805,7 +798,7 @@ pub mod ndarray_nn {
         #[pymodule_export]
         use ndarray_nn_exports::transformer_exports::TransformerEncoderRecordPy;
 
-        implement_send_and_sync!(PositionWiseFeedForwardPy);
+       
     }
 }
 
