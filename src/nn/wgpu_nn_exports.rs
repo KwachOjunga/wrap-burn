@@ -1326,6 +1326,15 @@ Applies a 3D convolution over input tensors."
                     .into(),
             }
         }
+
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+            match input {
+                TensorPy::TensorThree(tensor) => {
+                    Ok(self.inner.forward(tensor.inner).into())
+                }
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
     }
 
     implement_wgpu_interface!(
@@ -1340,6 +1349,103 @@ Applies a 3D convolution over input tensors."
         "Applies a 2D transposed convolution over input tensors."
     );
 
+    
+    impl From<ConvTranspose2d<Wgpu>> for ConvTranspose2dPy {
+        fn from(other: ConvTranspose2d<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl ConvTranspose2dPy {
+        #[new]
+        #[pyo3(signature = (channels ,kernel_size, stride = Some([1,1]), dilation = Some([1,1]), groups = Some(1), padding = [0,0], padding_out = [0,0] , bias = Some(true), initializer = None))]
+        fn new(
+            channels: [usize; 2],
+            kernel_size: [usize; 2],
+            stride: Option<[usize;2 ]>,
+            dilation: Option<[usize;2 ]>,
+            groups: Option<usize>,
+            padding: Option<[usize;2]>,
+            padding_out: Option<[usize;2]>,
+            bias: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let stride = stride.unwrap_or([1,1]);
+            let dilation = dilation.unwrap_or([1,1]);
+            let groups = groups.unwrap_or(1);
+            let bias = bias.unwrap_or(true);
+            let padding_out = padding_out.unwrap_or([0,0]);
+            let padding = padding.unwrap_or([0,0]);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None,
+            };
+
+            match init {
+                Some(init) => burn::nn::conv::ConvTranspose2dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .with_initializer(init)
+                    .init(&WGPUDEVICE)
+                    .into(),
+                None => burn::nn::conv::ConvTranspose2dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .init(&WGPUDEVICE)
+                    .into(),
+            }
+        }
+
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+            match input {
+                TensorPy::TensorFour(tensor) => {
+                    Ok(self.inner.forward(tensor.inner).into())
+                }
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
+
     implement_wgpu_interface!(
         ConvTranspose2dRecordPy,
         ConvTranspose2dRecord,
@@ -1351,32 +1457,108 @@ Applies a 3D convolution over input tensors."
         ConvTranspose3d,
         "Applies a 3D transposed convolution over input tensors."
     );
-    
+
+    impl From<ConvTranspose3d<Wgpu>> for ConvTranspose3dPy {
+        fn from(other: ConvTranspose3d<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl ConvTranspose3dPy {
+        #[new]
+        #[pyo3(signature = (channels ,kernel_size, stride = Some([1,1,1]), dilation = Some([1,1,1]), groups = Some(1), padding = [0,0,0], padding_out = [0,0,0] , bias = Some(true), initializer = None))]
+        fn new(
+            channels: [usize; 2],
+            kernel_size: [usize; 3],
+            stride: Option<[usize; 3]>,
+            dilation: Option<[usize; 3]>,
+            groups: Option<usize>,
+            padding: Option<[usize;3]>,
+            padding_out: Option<[usize;3]>,
+            bias: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let stride = stride.unwrap_or([1,1,1]);
+            let dilation = dilation.unwrap_or([1,1,1]);
+            let groups = groups.unwrap_or(1);
+            let bias = bias.unwrap_or(true);
+            let padding_out = padding_out.unwrap_or([0,0,0]);
+            let padding = padding.unwrap_or([0,0,0]);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None,
+            };
+
+            match init {
+                Some(init) => burn::nn::conv::ConvTranspose3dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .with_initializer(init)
+                    .init(&WGPUDEVICE)
+                    .into(),
+                None => burn::nn::conv::ConvTranspose3dConfig::new(channels, kernel_size)
+                    .with_stride(stride)
+                    .with_dilation(dilation)
+                    .with_padding(padding)
+                    .with_groups(groups)
+                    .with_bias(bias)
+                    .init(&WGPUDEVICE)
+                    .into(),
+            }
+        }
+
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+            match input {
+                TensorPy::TensorFive(tensor) => {
+                    Ok(self.inner.forward(tensor.inner).into())
+                }
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
+
+
     implement_wgpu_interface!(
         ConvTranspose3dRecordPy,
         ConvTranspose3dRecord,
         " record type for the 3D convolutional transpose module."
-    );
-
-    for_normal_struct_enums!(
-        DeformConv2dConfigPy,
-        DeformConv2dConfig,
-        "Configuration for the 2d Deform convolution layer."
-    );
-    for_normal_struct_enums!(
-        ConvTranspose1dConfigPy,
-        ConvTranspose1dConfig,
-        "Configuration to create a 1D convolution transpose layer."
-    );
-    for_normal_struct_enums!(
-        ConvTranspose2dConfigPy,
-        ConvTranspose2dConfig,
-        "Configuration to create a 2D convolution transpose layer"
-    );
-    for_normal_struct_enums!(
-        ConvTranspose3dConfigPy,
-        ConvTranspose3dConfig,
-        "Configuration to create a 3D convolution transpose layer"
     );
 
     implement_send_and_sync!(Conv1dPy);

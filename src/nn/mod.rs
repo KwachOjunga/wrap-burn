@@ -303,26 +303,26 @@ pub mod wgpu_nn {
 
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv3DPy;
-        #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::ConvTranspose1dConfigPy;
+        // #[pymodule_export]
+        // use wgpu_nn_exports::conv_exports::ConvTranspose1dConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose1dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose1dRecordPy;
-        #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::ConvTranspose2dConfigPy;
+        // #[pymodule_export]
+        // use wgpu_nn_exports::conv_exports::ConvTranspose2dConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose2dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose2dRecordPy;
-        #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::ConvTranspose3dConfigPy;
+        // #[pymodule_export]
+        // use wgpu_nn_exports::conv_exports::ConvTranspose3dConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose3dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose3dRecordPy;
-        #[pymodule_export]
-        use wgpu_nn_exports::conv_exports::DeformConv2dConfigPy;
+        // #[pymodule_export]
+        // use wgpu_nn_exports::conv_exports::DeformConv2dConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::DeformConv2dPy;
         #[pymodule_export]
@@ -701,25 +701,17 @@ pub mod ndarray_nn {
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::Conv3DPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::ConvTranspose1dConfigPy;
-        #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose1dPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose1dRecordPy;
-        #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::ConvTranspose2dConfigPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose2dPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose2dRecordPy;
         #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::ConvTranspose3dConfigPy;
-        #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose3dPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::ConvTranspose3dRecordPy;
-        #[pymodule_export]
-        use ndarray_nn_exports::conv_exports::DeformConv2dConfigPy;
         #[pymodule_export]
         use ndarray_nn_exports::conv_exports::DeformConv2dPy;
         #[pymodule_export]
