@@ -671,30 +671,35 @@ pub mod attention_exports {
     #[pymethods]
     impl GeneratePaddingMaskPy {
         #[new]
-        fn new(pad_token: usize,
+        fn new(
+            pad_token: usize,
             tokens_list: Vec<Vec<usize>>,
-            max_seq_length: Option<usize>
+            max_seq_length: Option<usize>,
         ) -> Self {
             generate_padding_mask(pad_token, tokens_list, max_seq_length, &NDARRAYDEVICE).into()
         }
     }
-    
+
     implement_ndarray_interface!(
         MhaCachePy,
         MhaCache,
         "Cache for the Multi Head Attention layer."
     );
+
     implement_ndarray_interface!(
         MhaInputPy,
         MhaInput,
         "Multihead attention forward pass input argument."
     );
+
     implement_ndarray_interface!(
         MultiHeadAttentionPy,
         MultiHeadAttention,
         "The multihead attention module as describe in the paper Attention Is All You Need."
     );
+
     implement_ndarray_interface!(MhaOutputPy, MhaOutput, "Multihead attention outputs.");
+
     implement_ndarray_interface!(
         MultiHeadAttentionRecordPy,
         MultiHeadAttentionRecord,
@@ -993,7 +998,7 @@ pub mod transformer_exports {
             Self { inner: other }
         }
     }
-    
+
     #[pymethods]
     impl TransformerEncoderPy {
         /// Initializes a new TransformerDecoder layer.
@@ -1105,7 +1110,7 @@ pub mod transformer_exports {
         TransformerEncoderRecord,
         "Record type of the transformer encoder module"
     );
-    
+
     #[pyclass]
     pub struct TransformerEncoderInputPy {
         pub inner: Arc<Mutex<Option<TransformerEncoderInput<NdArray>>>>,

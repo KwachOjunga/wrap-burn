@@ -16,7 +16,6 @@ macro_rules! impl_tensor_conversions_wgpu {
     (
         $tensor_ty:ident, $tensor_bool_ty:ident, $dim:expr, $variant:ident, $variant_bool:ident
     ) => {
-        // use super::tensor::Wgpu;
 
         // Tensor<Wgpu, N> -> Wrapper
         impl From<Tensor<Wgpu, $dim>> for $tensor_ty {
@@ -200,9 +199,9 @@ macro_rules! for_normal_struct_enums {
         #[pyclass]
         pub struct $name(pub $actual_type);
 
-        impl From<$name> for $actual_type {
-            fn from(other: $name) -> Self {
-                other.0
+        impl From<$actual_type> for $name {
+            fn from(other: $actual_type) -> Self {
+                Self(other)
             }
         }
     };
@@ -211,9 +210,9 @@ macro_rules! for_normal_struct_enums {
         #[pyclass]
         pub struct $name(pub $actual_type);
 
-        impl From<$name> for $actual_type {
-            fn from(other: $name) -> Self {
-                other.0
+        impl From<$actual_type> for $name {
+            fn from(other: $actual_type) -> Self {
+                Self(other)
             }
         }
     };

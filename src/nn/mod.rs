@@ -55,8 +55,8 @@ pub mod wgpu_nn {
     use wgpu_nn_exports::GroupNormPy;
     // #[pymodule_export]
     // use wgpu_nn_exports::InitializerPy;
-    #[pymodule_export]
-    use common_nn_exports::InstanceNormConfigPy;
+    // #[pymodule_export]
+    // use common_nn_exports::InstanceNormConfigPy;
     #[pymodule_export]
     use wgpu_nn_exports::InstanceNormPy;
     #[pymodule_export]
@@ -71,8 +71,8 @@ pub mod wgpu_nn {
     use common_nn_exports::PaddingConfig2dPy;
     #[pymodule_export]
     use common_nn_exports::PaddingConfig3dPy;
-    #[pymodule_export]
-    use common_nn_exports::RmsNormConfigPy;
+    // #[pymodule_export]
+    // use common_nn_exports::RmsNormConfigPy;
     #[pymodule_export]
     use common_nn_exports::SigmoidPy;
     #[pymodule_export]
@@ -449,16 +449,10 @@ pub mod ndarray_nn {
     use ndarray_nn_exports::GateControllerPy;
     #[pymodule_export]
     use ndarray_nn_exports::GroupNormPy;
-    // #[pymodule_export]
-    // use ndarray_nn_exports::InitializerPy;
-    #[pymodule_export]
-    use common_nn_exports::InstanceNormConfigPy;
     #[pymodule_export]
     use ndarray_nn_exports::InstanceNormPy;
     #[pymodule_export]
     use ndarray_nn_exports::InstanceNormRecordPy;
-    // #[pymodule_export]
-    // use ndarray_nn_exports::LeakyReluConfigPy;
     #[pymodule_export]
     use common_nn_exports::Initializer;
     #[pymodule_export]
@@ -469,8 +463,6 @@ pub mod ndarray_nn {
     use common_nn_exports::PaddingConfig2dPy;
     #[pymodule_export]
     use common_nn_exports::PaddingConfig3dPy;
-    #[pymodule_export]
-    use common_nn_exports::RmsNormConfigPy;
     #[pymodule_export]
     use common_nn_exports::SigmoidPy;
     #[pymodule_export]

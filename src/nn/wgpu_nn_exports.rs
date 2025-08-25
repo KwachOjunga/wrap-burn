@@ -683,15 +683,15 @@ pub mod attention_exports {
     impl GeneratePaddingMaskPy {
         #[new]
         #[pyo3(signature = (pad_token, tokens_list, max_seq_length = None))]
-        fn new(pad_token: usize,
+        fn new(
+            pad_token: usize,
             tokens_list: Vec<Vec<usize>>,
-            max_seq_length: Option<usize>
+            max_seq_length: Option<usize>,
         ) -> Self {
             generate_padding_mask(pad_token, tokens_list, max_seq_length, &WGPUDEVICE).into()
         }
     }
 
-    
     implement_wgpu_interface!(
         MhaCachePy,
         MhaCache,

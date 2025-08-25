@@ -26,12 +26,6 @@ pub enum Initializer {
 
 for_normal_struct_enums!(Unfold4dPy, Unfold4d, "Four-dimensional unfolding.");
 
-impl From<Unfold4d> for Unfold4dPy {
-    fn from(other: Unfold4d) -> Self {
-        Self(other)
-    }
-}
-
 #[pymethods]
 impl Unfold4dPy {
     #[new]
@@ -68,12 +62,6 @@ for_normal_struct_enums!(
     "Applies the tanh activation function element-wise"
 );
 
-impl From<Tanh> for TanhPy {
-    fn from(other: Tanh) -> Self {
-        Self(other)
-    }
-}
-
 #[pymethods]
 impl TanhPy {
     #[new]
@@ -94,12 +82,6 @@ impl TanhPy {
 }
 
 for_normal_struct_enums!(LeakyReluPy, LeakyRelu, "LeakyRelu Layer");
-
-impl From<LeakyRelu> for LeakyReluPy {
-    fn from(other: LeakyRelu) -> Self {
-        Self(other)
-    }
-}
 
 #[pymethods]
 impl LeakyReluPy {
@@ -132,32 +114,83 @@ for_normal_struct_enums!(
     Gelu,
     "Applies the Gaussian Error Linear Units function element-wise."
 );
-for_normal_struct_enums!(HardSigmoidPy, HardSigmoid, "HardSigmoid Layer");
+
+#[pymethods]
+impl GeLuPy {
+    #[new]
+    fn new() -> Self {
+        Gelu::new().into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into()),
+        }
+    }
+}
+
 for_normal_struct_enums!(
-    HardSigmoidConfigPy,
-    HardSigmoidConfig,
-    "Configuration to build the HardSigmoid layer"
+    HardSigmoidPy, 
+    HardSigmoid, 
+    "HardSigmoid Layer"
 );
-for_normal_struct_enums!(
-    InstanceNormConfigPy,
-    InstanceNormConfig,
-    "Configuration to create a InstanceNorm layer"
-);
-for_normal_struct_enums!(
-    LayerNormConfigPy,
-    LayerNormConfig,
-    "Configuration to create a LayerNorm layer "
-);
-for_normal_struct_enums!(
-    RmsNormConfigPy,
-    RmsNormConfig,
-    "Configuration to create a RMS Norm layer"
-);
+
+#[pymethods]
+impl HardSigmoidPy {
+    #[new]
+    #[pyo3(signature = (alpha = Some(0.2), beta = Some(0.5)))]
+    fn new(alpha: Option<f64>, beta: Option<f64>) -> Self {
+        let alpha = alpha.unwrap_or(0.2);
+        let beta = beta.unwrap_or(0.5);
+        HardSigmoidConfig::new()
+            .with_alpha(alpha)
+            .with_beta(beta)
+            .init()
+            .into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into())
+        }
+    }
+}
+
 for_normal_struct_enums!(
     SigmoidPy,
     Sigmoid,
     "Applies the sigmoid function element-wise"
 );
+
+#[pymethods]
+impl SigmoidPy {
+    #[new]
+    fn new() -> Self {
+        Sigmoid::new().into()
+    }
+
+    fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+        match input {
+            TensorPy::TensorOne(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorTwo(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
+            _ => Err(TensorError::NonApplicableMethod.into())
+        }
+    }
+}
+
 for_normal_struct_enums!(
     InitializerPy,
     Initializer,
@@ -319,11 +352,11 @@ Applies a 2D max pooling over input tensors."
     // Methods section
     // PyAdaptivePool1d
 
-    impl From<AdaptiveAvgPool1d> for AdaptiveAvgPool1dPy {
-        fn from(other: AdaptiveAvgPool1d) -> Self {
-            Self(other)
-        }
-    }
+    // impl From<AdaptiveAvgPool1d> for AdaptiveAvgPool1dPy {
+    //     fn from(other: AdaptiveAvgPool1d) -> Self {
+    //         Self(other)
+    //     }
+    // }
 
     #[pymethods]
     impl AdaptiveAvgPool1dPy {
@@ -358,11 +391,11 @@ Applies a 2D max pooling over input tensors."
 
     //[NOTE**] PyAdaptiveAvgPool2d
 
-    impl From<AdaptiveAvgPool2d> for AdaptiveAvgPool2dPy {
-        fn from(other: AdaptiveAvgPool2d) -> Self {
-            Self(other)
-        }
-    }
+    // impl From<AdaptiveAvgPool2d> for AdaptiveAvgPool2dPy {
+    //     fn from(other: AdaptiveAvgPool2d) -> Self {
+    //         Self(other)
+    //     }
+    // }
 
     #[pymethods]
     impl AdaptiveAvgPool2dPy {
