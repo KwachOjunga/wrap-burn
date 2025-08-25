@@ -48,22 +48,6 @@ pub mod wgpu_nn {
     #[pymodule_export]
     use common_nn_exports::HardSigmoidPy;
     #[pymodule_export]
-    use wgpu_nn_exports::EmbeddingPy;
-    #[pymodule_export]
-    use wgpu_nn_exports::GateControllerPy;
-    #[pymodule_export]
-    use wgpu_nn_exports::GroupNormPy;
-    // #[pymodule_export]
-    // use wgpu_nn_exports::InitializerPy;
-    // #[pymodule_export]
-    // use common_nn_exports::InstanceNormConfigPy;
-    #[pymodule_export]
-    use wgpu_nn_exports::InstanceNormPy;
-    #[pymodule_export]
-    use wgpu_nn_exports::InstanceNormRecordPy;
-    // #[pymodule_export]
-    // use wgpu_nn_exports::LeakyReluConfigPy;
-    #[pymodule_export]
     use common_nn_exports::LeakyReluPy;
     #[pymodule_export]
     use common_nn_exports::PaddingConfig1dPy;
@@ -71,12 +55,20 @@ pub mod wgpu_nn {
     use common_nn_exports::PaddingConfig2dPy;
     #[pymodule_export]
     use common_nn_exports::PaddingConfig3dPy;
-    // #[pymodule_export]
-    // use common_nn_exports::RmsNormConfigPy;
     #[pymodule_export]
     use common_nn_exports::SigmoidPy;
     #[pymodule_export]
     use common_nn_exports::TanhPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::EmbeddingPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::GateControllerPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::GroupNormPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::InstanceNormPy;
+    #[pymodule_export]
+    use wgpu_nn_exports::InstanceNormRecordPy;
     #[pymodule_export]
     use wgpu_nn_exports::LstmPy;
     #[pymodule_export]
@@ -204,10 +196,79 @@ pub mod wgpu_nn {
     /// The implementation of the Bidirectional LSTM module.
     #[pyclass]
     #[repr(transparent)]
-    pub struct BiLSTMPy {
+    pub struct BiLstmPy {
         pub inner: BiLstm<Wgpu>,
     }
 
+    impl From<BiLstm<Wgpu>> for BiLstmPy {
+        fn from(other: BiLstm<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl BiLstmPy {
+        #[new]
+        fn new(
+            d_input: usize,
+            d_hidden: usize,
+            bias: bool,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+            };
+
+            match init {
+                Some(init) => BiLstmConfig::new(d_input, d_hidden, bias)
+                    .with_initializer(init)
+                    .init(&WGPUDEVICE)
+                    .into(),
+                None => BiLstmConfig::new(d_input, d_hidden, bias)
+                    .init(&WGPUDEVICE)
+                    .into(),
+            }
+        }
+
+        // [TODO:] @kwach One of the input parametres for this method is LstmStatePy which is not yet implemented and requires a specific
+        //               dimension size.
+        //                  Figure that out before ou implement this forward method.
+        fn forward(&self) {}
+    }
     /// Configuraation to build the BiLSTM module
     #[pyclass]
     pub struct BiLSTMConfigPy(pub BiLstmConfig);
@@ -220,7 +281,7 @@ pub mod wgpu_nn {
 
     implement_send_and_sync!(LinearPy);
     implement_send_and_sync!(BatchNormRecordPy);
-    implement_send_and_sync!(BiLSTMPy);
+    implement_send_and_sync!(BiLstmPy);
 
     /// Loss module that exposes various loss functions
     #[pymodule]
@@ -573,8 +634,78 @@ pub mod ndarray_nn {
     /// The implementation of the Bidirectional LSTM module.
     #[pyclass]
     #[repr(transparent)]
-    pub struct BiLSTMPy {
+    pub struct BiLstmPy {
         pub inner: BiLstm<NdArray>,
+    }
+
+    impl From<BiLstm<NdArray>> for BiLstmPy {
+        fn from(other: BiLstm<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl BiLstmPy {
+        #[new]
+        fn new(
+            d_input: usize,
+            d_hidden: usize,
+            bias: bool,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None, /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+            };
+
+            match init {
+                Some(init) => BiLstmConfig::new(d_input, d_hidden, bias)
+                    .with_initializer(init)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+                None => BiLstmConfig::new(d_input, d_hidden, bias)
+                    .init(&NDARRAYDEVICE)
+                    .into(),
+            }
+        }
+
+        // [TODO:] @kwach One of the input parametres for this method is LstmStatePy which is not yet implemented and requires a specific
+        //               dimension size.
+        //                  Figure that out before ou implement this forward method.
+        fn forward(&self) {}
     }
 
     /// Configuraation to build the BiLSTM module
@@ -589,7 +720,7 @@ pub mod ndarray_nn {
 
     implement_send_and_sync!(LinearPy);
     implement_send_and_sync!(BatchNormRecordPy);
-    implement_send_and_sync!(BiLSTMPy);
+    implement_send_and_sync!(BiLstmPy);
 
     /// Loss module that exposes various loss functions
     #[pymodule]
