@@ -16,7 +16,6 @@ macro_rules! impl_tensor_conversions_wgpu {
     (
         $tensor_ty:ident, $tensor_bool_ty:ident, $dim:expr, $variant:ident, $variant_bool:ident
     ) => {
-
         // Tensor<Wgpu, N> -> Wrapper
         impl From<Tensor<Wgpu, $dim>> for $tensor_ty {
             fn from(other: Tensor<Wgpu, $dim>) -> Self {

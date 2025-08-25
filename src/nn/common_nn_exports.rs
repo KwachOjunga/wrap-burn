@@ -134,11 +134,7 @@ impl GeLuPy {
     }
 }
 
-for_normal_struct_enums!(
-    HardSigmoidPy, 
-    HardSigmoid, 
-    "HardSigmoid Layer"
-);
+for_normal_struct_enums!(HardSigmoidPy, HardSigmoid, "HardSigmoid Layer");
 
 #[pymethods]
 impl HardSigmoidPy {
@@ -161,7 +157,7 @@ impl HardSigmoidPy {
             TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
             TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
             TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            _ => Err(TensorError::NonApplicableMethod.into())
+            _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
 }
@@ -186,16 +182,16 @@ impl SigmoidPy {
             TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
             TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
             TensorPy::TensorFive(tensor) => Ok(self.0.forward(tensor.inner).into()),
-            _ => Err(TensorError::NonApplicableMethod.into())
+            _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
 }
 
-for_normal_struct_enums!(
-    InitializerPy,
-    Initializer,
-    "Enum specifying with what values a tensor should be initialized"
-);
+// for_normal_struct_enums!(
+//     InitializerPy,
+//     Initializer,
+//     "Enum specifying with what values a tensor should be initialized"
+// );
 
 // [TODO*] There are methods exposed by this type that are relevant for uploading config files for
 // reproduction of train/test results
@@ -352,12 +348,6 @@ Applies a 2D max pooling over input tensors."
     // Methods section
     // PyAdaptivePool1d
 
-    // impl From<AdaptiveAvgPool1d> for AdaptiveAvgPool1dPy {
-    //     fn from(other: AdaptiveAvgPool1d) -> Self {
-    //         Self(other)
-    //     }
-    // }
-
     #[pymethods]
     impl AdaptiveAvgPool1dPy {
         #[getter]
@@ -367,7 +357,8 @@ Applies a 2D max pooling over input tensors."
 
         #[new]
         fn new(output: usize) -> Self {
-            AdaptiveAvgPool1dConfigPy::new(output)
+            let mut pool_layer = AdaptiveAvgPool1dConfig::new(output);
+            pool_layer.init().into()
         }
 
         /// Perform a feedforward tensor operation on a 3 dimensional tensor
@@ -379,23 +370,7 @@ Applies a 2D max pooling over input tensors."
         }
     }
 
-    #[pymethods]
-    impl AdaptiveAvgPool1dConfigPy {
-        /// create a new AdaptiveAvgPool1d layer with the given output size
-        #[staticmethod]
-        fn new(output: usize) -> AdaptiveAvgPool1dPy {
-            let mut pool_layer = AdaptiveAvgPool1dConfig::new(output);
-            pool_layer.init().into()
-        }
-    }
-
     //[NOTE**] PyAdaptiveAvgPool2d
-
-    // impl From<AdaptiveAvgPool2d> for AdaptiveAvgPool2dPy {
-    //     fn from(other: AdaptiveAvgPool2d) -> Self {
-    //         Self(other)
-    //     }
-    // }
 
     #[pymethods]
     impl AdaptiveAvgPool2dPy {
@@ -406,7 +381,8 @@ Applies a 2D max pooling over input tensors."
 
         #[new]
         fn new(output: [usize; 2]) -> Self {
-            AdaptiveAvgPool2dConfigPy::new(output)
+            let mut pool_layer = AdaptiveAvgPool2dConfig::new(output);
+            pool_layer.init().into()
         }
 
         /// Perform a feedforward tensor operation on a 3 dimensional tensor
@@ -415,16 +391,6 @@ Applies a 2D max pooling over input tensors."
                 TensorPy::TensorFour(val) => Ok(self.0.forward(val.inner).into()),
                 _ => Err(TensorError::WrongDimensions.into()),
             }
-        }
-    }
-
-    #[pymethods]
-    impl AdaptiveAvgPool2dConfigPy {
-        /// create a new AdaptiveAvgPool1d layer with the given output size
-        #[staticmethod]
-        fn new(output: [usize; 2]) -> AdaptiveAvgPool2dPy {
-            let mut pool_layer = AdaptiveAvgPool2dConfig::new(output);
-            pool_layer.init().into()
         }
     }
 
@@ -496,7 +462,7 @@ Applies a 2D max pooling over input tensors."
     #[pymethods]
     impl AvgPool2dPy {
         // #[classmethod]
-        #[staticmethod]
+        #[new]
         #[pyo3(signature = (kernel_size , stride = None, padding = None, count_bool_pad = None))]
         fn new(
             py: Python<'_>,
@@ -519,7 +485,7 @@ Applies a 2D max pooling over input tensors."
 
     #[pymethods]
     impl AvgPool2dConfigPy {
-        #[staticmethod]
+        #[new]
         pub fn new(kernel_size: [usize; 2]) -> AvgPool2dConfigPy {
             AvgPool2dConfigPy(AvgPool2dConfig::new(kernel_size))
         }
@@ -698,27 +664,88 @@ pub mod interpolate_exports {
         "
 Interpolate module for resizing 1D tensors with shape [N, C, L]"
     );
-    for_normal_struct_enums!(
-        Interpolate1dConfigPy,
-        Interpolate1dConfig,
-        "Configuration for the 1D interpolation module."
-    );
+
+    #[pymethods]
+    impl Interpolate1dPy {
+        #[new]
+        #[pyo3(signature = (output_size = None, scale_factor = None, mode = InterpolateModePy::nearest()))]
+        fn new(
+            output_size: Option<usize>,
+            scale_factor: Option<f32>,
+            mode: Option<InterpolateModePy>,
+        ) -> Self {
+            let mode = mode.unwrap_or(InterpolateMode::new_nearest().into());
+            Interpolate1dConfig::new()
+                .with_output_size(output_size)
+                .with_scale_factor(scale_factor)
+                .with_mode(mode.0)
+                .init()
+                .into()
+        }
+
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+            match input {
+                TensorPy::TensorThree(tensor) => Ok(self.0.forward(tensor.inner).into()),
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
+
     for_normal_struct_enums!(
         Interpolate2dPy,
         Interpolate2d,
         "
 Interpolate module for resizing tensors with shape [N, C, H, W]."
     );
-    for_normal_struct_enums!(
-        Interpolate2dConfigPy,
-        Interpolate2dConfig,
-        "
-Configuration for the 2D interpolation "
-    );
+
+    #[pymethods]
+    impl Interpolate2dPy {
+        #[new]
+        #[pyo3(signature = (output_size = None, scale_factor = None, mode = InterpolateModePy::nearest()))]
+        fn new(
+            output_size: Option<[usize; 2]>,
+            scale_factor: Option<[f32; 2]>,
+            mode: Option<InterpolateModePy>,
+        ) -> Self {
+            let mode = mode.unwrap_or(InterpolateMode::new_nearest().into());
+            Interpolate2dConfig::new()
+                .with_output_size(output_size)
+                .with_scale_factor(scale_factor)
+                .with_mode(mode.0)
+                .init()
+                .into()
+        }
+
+        fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
+            match input {
+                TensorPy::TensorFour(tensor) => Ok(self.0.forward(tensor.inner).into()),
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
+
     for_normal_struct_enums!(
         InterpolateModePy,
         InterpolateMode,
         "
 Algorithm used for downsampling and upsampling"
     );
+
+    #[pymethods]
+    impl InterpolateModePy {
+        #[staticmethod]
+        fn nearest() -> Self {
+            InterpolateMode::new_nearest().into()
+        }
+
+        #[staticmethod]
+        fn cubic() -> Self {
+            InterpolateMode::new_cubic().into()
+        }
+
+        #[staticmethod]
+        fn linear() -> Self {
+            InterpolateMode::new_linear().into()
+        }
+    }
 }

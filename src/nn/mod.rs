@@ -303,26 +303,18 @@ pub mod wgpu_nn {
 
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::Conv3DPy;
-        // #[pymodule_export]
-        // use wgpu_nn_exports::conv_exports::ConvTranspose1dConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose1dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose1dRecordPy;
-        // #[pymodule_export]
-        // use wgpu_nn_exports::conv_exports::ConvTranspose2dConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose2dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose2dRecordPy;
-        // #[pymodule_export]
-        // use wgpu_nn_exports::conv_exports::ConvTranspose3dConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose3dPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::ConvTranspose3dRecordPy;
-        // #[pymodule_export]
-        // use wgpu_nn_exports::conv_exports::DeformConv2dConfigPy;
         #[pymodule_export]
         use wgpu_nn_exports::conv_exports::DeformConv2dPy;
         #[pymodule_export]
@@ -344,11 +336,7 @@ pub mod wgpu_nn {
         use super::*;
 
         #[pymodule_export]
-        use super::common_nn_exports::interpolate_exports::Interpolate1dConfigPy;
-        #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate1dPy;
-        #[pymodule_export]
-        use super::common_nn_exports::interpolate_exports::Interpolate2dConfigPy;
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate2dPy;
         #[pymodule_export]
@@ -444,16 +432,6 @@ pub mod ndarray_nn {
     #[pymodule_export]
     use common_nn_exports::HardSigmoidPy;
     #[pymodule_export]
-    use ndarray_nn_exports::EmbeddingPy;
-    #[pymodule_export]
-    use ndarray_nn_exports::GateControllerPy;
-    #[pymodule_export]
-    use ndarray_nn_exports::GroupNormPy;
-    #[pymodule_export]
-    use ndarray_nn_exports::InstanceNormPy;
-    #[pymodule_export]
-    use ndarray_nn_exports::InstanceNormRecordPy;
-    #[pymodule_export]
     use common_nn_exports::Initializer;
     #[pymodule_export]
     use common_nn_exports::LeakyReluPy;
@@ -469,6 +447,16 @@ pub mod ndarray_nn {
     use common_nn_exports::TanhPy;
     #[pymodule_export]
     use common_nn_exports::Unfold4dPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::EmbeddingPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::GateControllerPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::GroupNormPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::InstanceNormPy;
+    #[pymodule_export]
+    use ndarray_nn_exports::InstanceNormRecordPy;
     #[pymodule_export]
     use ndarray_nn_exports::LstmPy;
     #[pymodule_export]
@@ -717,11 +705,7 @@ pub mod ndarray_nn {
         use super::*;
 
         #[pymodule_export]
-        use super::common_nn_exports::interpolate_exports::Interpolate1dConfigPy;
-        #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate1dPy;
-        #[pymodule_export]
-        use super::common_nn_exports::interpolate_exports::Interpolate2dConfigPy;
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate2dPy;
         #[pymodule_export]
