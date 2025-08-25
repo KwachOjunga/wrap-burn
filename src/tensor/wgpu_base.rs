@@ -268,9 +268,13 @@ impl TensorPy {
         }
     }
 
+    // [TODO:] @kwach this method will require a lot of loop jumping to accomodate its generic nature
+    //                Data of all types will need to be read into the Tensor struct via this method
+    //                NOTE: you will have to look to external crates for help
+    //                      think faer-rs or numpy-rs
     /// Create a tensor from the given data on the given device.
     // #[staticmethod]
-    // fn from_data(data: PyBytes, dim : usize) -> PyResult<Self> {
+    // fn from_data(data: &[usize], dim : usize) -> PyResult<Self> {
     //     match dim {
     //         1 => Ok(Tensor::<Wgpu, 1>::from_data(data, &WGPUDEVICE).into()),
     //         2 => Ok(Tensor::<Wgpu, 2>::from_data(data, &WGPUDEVICE).into()),

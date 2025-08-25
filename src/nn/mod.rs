@@ -334,8 +334,6 @@ pub mod wgpu_nn {
         use super::*;
 
         #[pymodule_export]
-        use wgpu_nn_exports::gru_exports::GruConfigPy;
-        #[pymodule_export]
         use wgpu_nn_exports::gru_exports::GruPy;
         #[pymodule_export]
         use wgpu_nn_exports::gru_exports::GruRecordPy;
@@ -722,8 +720,7 @@ pub mod ndarray_nn {
     pub mod gru {
         use super::*;
 
-        #[pymodule_export]
-        use ndarray_nn_exports::gru_exports::GruConfigPy;
+        
         #[pymodule_export]
         use ndarray_nn_exports::gru_exports::GruPy;
         #[pymodule_export]

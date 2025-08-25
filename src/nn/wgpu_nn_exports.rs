@@ -21,6 +21,7 @@ implement_wgpu_interface!(
      To delve deeper into the whole system of gates and the problems it attempts to solve; i highly recommend [Learning to forget:Continual prediction with LSTM](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=e10f98b86797ebf6c8caea6f54cacbc5a50e8b34)"
 );
 
+// [TODO] @kwach implement this new method with the Initializer type defined in common module.
 #[pymethods]
 impl GateControllerPy {
     // #[staticmethod]
@@ -1329,9 +1330,7 @@ Applies a 3D convolution over input tensors."
 
         fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
             match input {
-                TensorPy::TensorThree(tensor) => {
-                    Ok(self.inner.forward(tensor.inner).into())
-                }
+                TensorPy::TensorThree(tensor) => Ok(self.inner.forward(tensor.inner).into()),
                 _ => Err(TensorError::NonApplicableMethod.into()),
             }
         }
@@ -1349,7 +1348,6 @@ Applies a 3D convolution over input tensors."
         "Applies a 2D transposed convolution over input tensors."
     );
 
-    
     impl From<ConvTranspose2d<Wgpu>> for ConvTranspose2dPy {
         fn from(other: ConvTranspose2d<Wgpu>) -> Self {
             Self { inner: other }
@@ -1363,20 +1361,20 @@ Applies a 3D convolution over input tensors."
         fn new(
             channels: [usize; 2],
             kernel_size: [usize; 2],
-            stride: Option<[usize;2 ]>,
-            dilation: Option<[usize;2 ]>,
+            stride: Option<[usize; 2]>,
+            dilation: Option<[usize; 2]>,
             groups: Option<usize>,
-            padding: Option<[usize;2]>,
-            padding_out: Option<[usize;2]>,
+            padding: Option<[usize; 2]>,
+            padding_out: Option<[usize; 2]>,
             bias: Option<bool>,
             initializer: Option<crate::nn::common_nn_exports::Initializer>,
         ) -> Self {
-            let stride = stride.unwrap_or([1,1]);
-            let dilation = dilation.unwrap_or([1,1]);
+            let stride = stride.unwrap_or([1, 1]);
+            let dilation = dilation.unwrap_or([1, 1]);
             let groups = groups.unwrap_or(1);
             let bias = bias.unwrap_or(true);
-            let padding_out = padding_out.unwrap_or([0,0]);
-            let padding = padding.unwrap_or([0,0]);
+            let padding_out = padding_out.unwrap_or([0, 0]);
+            let padding = padding.unwrap_or([0, 0]);
             let init = match initializer {
                 Some(init) => match init {
                     crate::nn::common_nn_exports::Initializer::Constant { value } => {
@@ -1438,9 +1436,7 @@ Applies a 3D convolution over input tensors."
 
         fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
             match input {
-                TensorPy::TensorFour(tensor) => {
-                    Ok(self.inner.forward(tensor.inner).into())
-                }
+                TensorPy::TensorFour(tensor) => Ok(self.inner.forward(tensor.inner).into()),
                 _ => Err(TensorError::NonApplicableMethod.into()),
             }
         }
@@ -1474,17 +1470,17 @@ Applies a 3D convolution over input tensors."
             stride: Option<[usize; 3]>,
             dilation: Option<[usize; 3]>,
             groups: Option<usize>,
-            padding: Option<[usize;3]>,
-            padding_out: Option<[usize;3]>,
+            padding: Option<[usize; 3]>,
+            padding_out: Option<[usize; 3]>,
             bias: Option<bool>,
             initializer: Option<crate::nn::common_nn_exports::Initializer>,
         ) -> Self {
-            let stride = stride.unwrap_or([1,1,1]);
-            let dilation = dilation.unwrap_or([1,1,1]);
+            let stride = stride.unwrap_or([1, 1, 1]);
+            let dilation = dilation.unwrap_or([1, 1, 1]);
             let groups = groups.unwrap_or(1);
             let bias = bias.unwrap_or(true);
-            let padding_out = padding_out.unwrap_or([0,0,0]);
-            let padding = padding.unwrap_or([0,0,0]);
+            let padding_out = padding_out.unwrap_or([0, 0, 0]);
+            let padding = padding.unwrap_or([0, 0, 0]);
             let init = match initializer {
                 Some(init) => match init {
                     crate::nn::common_nn_exports::Initializer::Constant { value } => {
@@ -1546,14 +1542,11 @@ Applies a 3D convolution over input tensors."
 
         fn forward(&self, input: TensorPy) -> PyResult<TensorPy> {
             match input {
-                TensorPy::TensorFive(tensor) => {
-                    Ok(self.inner.forward(tensor.inner).into())
-                }
+                TensorPy::TensorFive(tensor) => Ok(self.inner.forward(tensor.inner).into()),
                 _ => Err(TensorError::NonApplicableMethod.into()),
             }
         }
     }
-
 
     implement_wgpu_interface!(
         ConvTranspose3dRecordPy,
@@ -1581,15 +1574,103 @@ pub mod gru_exports {
     use burn::nn::gru::*;
 
     implement_wgpu_interface!(GruRecordPy, GruRecord, "record type for the Gru module");
-    implement_wgpu_interface!(GruPy, Gru, "
-The Gru (Gated recurrent unit) module. This implementation is for a unidirectional, stateless, Gru.");
-
-    for_normal_struct_enums!(
-        GruConfigPy,
-        GruConfig,
-        "
-Configuration to create a gru module"
+    implement_wgpu_interface!(
+        GruPy,
+        Gru,
+        "The Gru (Gated recurrent unit) module. This implementation is for a unidirectional, stateless, Gru."
     );
+
+    impl From<Gru<Wgpu>> for GruPy {
+        fn from(other: Gru<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl GruPy {
+        /// To instantiate a new gru module.
+        ///
+        /// Default values:
+        /// - bias: True
+        /// - reset_after: True
+        /// - initializer: Initializer::KaimingUniform { gain: 1.0, fan_out_only: false }
+        #[new]
+        #[pyo3(signature = (d_input, d_hidden, bias, reset_after = true, initializer = None))]
+        fn new(
+            d_input: usize,
+            d_hidden: usize,
+            bias: bool,
+            reset_after: Option<bool>,
+            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        ) -> Self {
+            // let bias = bias.unwrap_or(true);
+            let reset_after = reset_after.unwrap_or(true);
+            let init = match initializer {
+                Some(init) => match init {
+                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        Some(burn::nn::Initializer::Constant { value })
+                    }
+                    crate::nn::common_nn_exports::Initializer::One() => {
+                        Some(burn::nn::Initializer::Ones)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                        Some(burn::nn::Initializer::Zeros)
+                    }
+                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        Some(burn::nn::Initializer::Uniform { min, max })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        Some(burn::nn::Initializer::Normal { mean, std })
+                    }
+                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        gain,
+                        fan_out_only,
+                    } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        Some(burn::nn::Initializer::XavierNormal { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        Some(burn::nn::Initializer::XavierUniform { gain })
+                    }
+                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        Some(burn::nn::Initializer::Orthogonal { gain })
+                    }
+                },
+                None => None,
+            };
+            match init {
+                Some(init) => GruConfig::new(d_input, d_hidden, bias)
+                    .with_reset_after(reset_after)
+                    .with_initializer(init)
+                    .init(&WGPUDEVICE)
+                    .into(),
+                None => GruConfig::new(d_input, d_hidden, bias)
+                    .with_reset_after(reset_after)
+                    .init(&WGPUDEVICE)
+                    .into(),
+            }
+        }
+
+        fn forward(&self, batched_input: TensorPy, state: Option<TensorPy>) -> PyResult<TensorPy> {
+            match (batched_input, state) {
+                (
+                    TensorPy::TensorThree(batched_input_tensor),
+                    Some(TensorPy::TensorTwo(state_tensor)),
+                ) => Ok(self
+                    .inner
+                    .forward(batched_input_tensor.inner, Some(state_tensor.inner))
+                    .into()),
+                (TensorPy::TensorThree(batched_input_tensor), None) => {
+                    Ok(self.inner.forward(batched_input_tensor.inner, None).into())
+                }
+                _ => Err(TensorError::NonApplicableMethod.into()),
+            }
+        }
+    }
 
     implement_send_and_sync!(GruRecordPy);
     implement_send_and_sync!(GruPy);
