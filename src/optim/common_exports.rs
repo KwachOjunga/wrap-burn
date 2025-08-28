@@ -3,6 +3,7 @@
 use crate::{for_normal_struct_enums, implement_send_and_sync};
 use burn::optim::*;
 use pyo3::prelude::*;
+use burn::optim::momentum::MomentumConfig;
 
 for_normal_struct_enums!(AdaGradPy, AdaGrad);
 for_normal_struct_enums!(AdaGradConfigPy, AdaGradConfig);
@@ -15,6 +16,8 @@ for_normal_struct_enums!(RmsPropPy, RmsProp);
 for_normal_struct_enums!(RmsPropConfigPy, RmsPropConfig);
 for_normal_struct_enums!(RmsPropMomentumPy, RmsPropMomentum);
 for_normal_struct_enums!(SgdConfigPy, SgdConfig);
+for_normal_struct_enums!(MomentumConfigPy, MomentumConfig);
+implement_send_and_sync!(MomentumConfigPy);
 
 implement_send_and_sync!(GradientsParamsPy);
 

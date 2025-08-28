@@ -11,6 +11,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 anyhow = "*"
 burn = { version = "0.18.0", features = ["train", "wgpu", "ndarray", "dataset", "audio", "sqlite", "metrics",  "fusion", "tui"] }
+numpy = "0.25.0"
 pyo3 = { version = "0.25.1", features = ["multiple-pymethods", "extension-module"] }
 
 [features]
