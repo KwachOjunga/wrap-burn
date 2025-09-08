@@ -228,6 +228,28 @@ impl TensorPy {
         }
     }
 
+    fn cos(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().cos())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().cos())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().cos())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().cos())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().cos())),
+            _ => None,
+        }
+    }
+
+    fn cosh(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().cosh())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().cosh())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().cosh())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().cosh())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().cosh())),
+            _ => None,
+        }
+    }
+
     /// Prints the shape of the tensor
     fn dims(&self) {
         let dim = match self {
@@ -268,6 +290,31 @@ impl TensorPy {
         }
     }
 
+    /// Applies the error function (erf) element-wise.
+    fn erf(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().erf())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().erf())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().erf())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().erf())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().erf())),
+            _ => None,
+        }
+    }
+
+    /// Applies the exponential function element-wise.
+    fn exp(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().exp())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().exp())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().exp())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().exp())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().exp())),
+            _ => None,
+        }
+    }
+
+
     // [TODO:] @kwach this method will require a lot of loop jumping to accomodate its generic nature
     //                Data of all types will need to be read into the Tensor struct via this method
     //                NOTE: you will have to look to external crates for help
@@ -284,6 +331,18 @@ impl TensorPy {
     //         _ => Err(TensorError::WrongDimensions.into())
     //     }
     // }
+
+    /// Applies the natural logarithm of 1 plus the input tensor
+    fn log1p(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().log1p())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().log1p())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().log1p())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().log1p())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().log1p())),
+            _ => None,
+        }
+    }
 
     fn mean(&self) -> Option<Self> {
         match self {
@@ -409,6 +468,19 @@ impl TensorPy {
         }
     }
 
+    ///
+    /// Applies reciprocal operation element wise
+    fn recip(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().recip())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().recip())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().recip())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().recip())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().recip())),
+            _ => None,
+        }
+    }
+
     /// Performs subtraction between a tensors of similar dimensions
     fn sub(&self, other: TensorPy) -> Option<Self> {
         match self {
@@ -442,6 +514,17 @@ impl TensorPy {
                         .expect("expected 5 dim tensor"),
                 ),
             )),
+            _ => None,
+        }
+    }
+
+    fn sin(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().sin())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().sin())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().sin())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().sin())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().sin())),
             _ => None,
         }
     }
@@ -495,6 +578,39 @@ impl TensorPy {
             TensorPy::TensorFive(val) => {
                 Some(Into::<TensorPy>::into(val.inner.clone().sum_dim(dim)))
             }
+            _ => None,
+        }
+    }
+
+    fn sqrt(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().sqrt())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().sqrt())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().sqrt())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().sqrt())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().sqrt())),
+            _ => None,
+        }
+    }
+
+    fn tan(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().tan())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().tan())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().tan())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().tan())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().tan())),
+            _ => None,
+        }
+    }
+
+    fn tanh(&self) -> Option<Self> {
+        match self {
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().tanh())),
+            TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().tanh())),
+            TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().tanh())),
+            TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().tanh())),
+            TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().tanh())),
             _ => None,
         }
     }
