@@ -314,7 +314,6 @@ impl TensorPy {
         }
     }
 
-
     // [TODO:] @kwach this method will require a lot of loop jumping to accomodate its generic nature
     //                Data of all types will need to be read into the Tensor struct via this method
     //                NOTE: you will have to look to external crates for help

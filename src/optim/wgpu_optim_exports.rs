@@ -1,4 +1,4 @@
-use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_interface};
+use crate::{/*for_normal_struct_enums, implement_send_and_sync,*/ implement_wgpu_interface};
 use burn::optim::Sgd;
 use burn::optim::momentum::*;
 
@@ -6,7 +6,7 @@ use pyo3::prelude::*;
 
 implement_wgpu_interface!(MomentumPy, Momentum);
 
-implement_wgpu_interface!(SdgPy,Sgd);
+implement_wgpu_interface!(SdgPy, Sgd);
 
 // [TODO:] @kwach fix this
 // #[pymethods]

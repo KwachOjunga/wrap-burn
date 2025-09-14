@@ -2,8 +2,8 @@
 
 use pyo3::prelude::*;
 
-
 mod grad_clipping;
+mod lr_scheduler;
 pub mod module;
 pub mod nn;
 pub mod optim;
