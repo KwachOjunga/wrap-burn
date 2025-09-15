@@ -3,7 +3,6 @@ mod ndarray_optim_exports;
 mod wgpu_optim_exports;
 use pyo3::prelude::*;
 
-#[cfg(feature = "wgpu")]
 #[pymodule]
 pub mod common {
     use super::*;

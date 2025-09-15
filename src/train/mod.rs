@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 
 mod base;
 
+#[cfg(feature = "wgpu")]
 #[pymodule]
 pub mod wgpu_train {
     use super::*;
@@ -139,6 +140,7 @@ pub mod wgpu_train {
     }
 }
 
+#[cfg(feature = "ndarray")]
 #[pymodule]
 pub mod ndarray_train {
     use super::*;
