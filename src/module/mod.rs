@@ -1,6 +1,6 @@
-//! Implment burn::module
+//! This implements burn::module
 //!
-//! Some of the structs implemented heer are necessary for
+//! Some of the structs implemented here are necessary for
 //! operations like quantization. This enables a user to opt in
 //! to such features if they wish`to.
 //!

@@ -229,6 +229,9 @@ pub mod pyburn {
     #[pymodule]
     mod wgpu {
 
+        #[pymodule_export]
+        use super::lr_scheduler::scheduler;
+
         /// Train module
         #[pymodule_export]
         use super::train::wgpu_train;
@@ -250,6 +253,9 @@ pub mod pyburn {
     #[cfg(feature = "ndarray")]
     #[pymodule]
     mod ndarray {
+
+        #[pymodule_export]
+        use super::lr_scheduler::scheduler;
 
         /// Train module
         #[pymodule_export]
