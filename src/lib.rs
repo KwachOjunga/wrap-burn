@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 
 mod grad_clipping;
 mod lr_scheduler;
-pub mod module;
+mod module;
 pub mod nn;
 pub mod optim;
 mod record;
@@ -229,6 +229,10 @@ pub mod pyburn {
     #[pymodule]
     mod wgpu {
 
+
+         #[pymodule_export]
+        use super::module::module;
+
         #[pymodule_export]
         use super::lr_scheduler::scheduler;
 
@@ -253,6 +257,9 @@ pub mod pyburn {
     #[cfg(feature = "ndarray")]
     #[pymodule]
     mod ndarray {
+
+        #[pymodule_export]
+        use super::module::module;
 
         #[pymodule_export]
         use super::lr_scheduler::scheduler;

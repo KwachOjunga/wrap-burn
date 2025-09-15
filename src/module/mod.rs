@@ -35,13 +35,45 @@ pub mod module {
     use super::*;
    
 
+    #[cfg(feature = "wgpu")]
     #[pyclass]
     pub struct WgpuNNModulePy {
         inner: NNModule<Wgpu>,
     }
 
+    impl From<NNModule<Wgpu>> for WgpuNNModulePy {
+        fn from(other: NNModule<Wgpu>) -> Self {
+            Self{
+                inner : other
+            }
+        }
+    }
+
+    #[pymethods]
+    impl WgpuNNModulePy {
+        fn quantize_weights(&self, quant: &mut QuantizerPy ) -> Self {
+            self.inner.clone().quantize_weights(&mut quant.0).into()
+        }
+    }
+
+    #[cfg(feature = "ndarray")]
     #[pyclass]
     pub struct NdArrayNModulePy {
         inner: NNModule<NdArray>,
+    }
+
+    impl From<NNModule<NdArray>> for NdArrayNModulePy {
+        fn from(other: NNModule<NdArray>) -> Self {
+            Self{
+                inner : other
+            }
+        }
+    }
+
+    #[pymethods]
+    impl NdArrayNModulePy {
+        fn quantize_weights(&self, quant: &mut QuantizerPy ) -> Self {
+            self.inner.clone().quantize_weights(&mut quant.0).into()
+        }
     }
 }
