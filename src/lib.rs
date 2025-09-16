@@ -229,8 +229,7 @@ pub mod pyburn {
     #[pymodule]
     mod wgpu {
 
-
-         #[pymodule_export]
+        #[pymodule_export]
         use super::module::module;
 
         #[pymodule_export]
