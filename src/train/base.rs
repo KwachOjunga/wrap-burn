@@ -196,9 +196,99 @@ pub mod wgpu {
         use super::*;
 
         implement_wgpu_interface!(AccuracyInputPy, AccuracyInput);
+
+        impl From<AccuracyInput<Wgpu>> for AccuracyInputPy {
+            fn from(other: AccuracyInput<Wgpu>) -> Self {
+                Self { inner: other }
+            }
+        }
+
+        #[pymethods]
+        impl AccuracyInputPy {
+            #[new]
+            fn new(
+                outputs: TensorPy, /*Tensor<B, 2>*/
+                targets: TensorPy, /*Tensor<B, 1, Int>*/
+            ) -> Self {
+                let out = match outputs {
+                    TensorPy::TensorTwo(val) => Ok(val.inner    ),
+                    _ => Err(TensorError::WrongDimensions),
+                };
+                let target = match targets {
+                    TensorPy::TensorOneInt(val) => Ok(val.inner),
+                    _ => Err(TensorError::WrongDimensions),
+                };
+                AccuracyInput::new(out.unwrap(), target.unwrap()).into()
+            }
+        }
+
+
         implement_wgpu_interface!(AccuracyMetricPy, AccuracyMetric);
+
+        impl From<AccuracyMetric<Wgpu>> for AccuracyMetricPy {
+            fn from(other: AccuracyMetric<Wgpu>) -> Self {
+                Self { inner: other }
+            }
+        }
+
+        #[pymethods]
+        impl AccuracyMetricPy {
+            #[new]
+            #[pyo3(signature = (pad_token = None))]
+            fn new(pad_token: Option<usize>) -> Self {
+                match pad_token {
+                    Some(val) => AccuracyMetric::new().with_pad_token(val).into(),
+                    None => AccuracyMetric::new().into()
+                }
+                // if let Some(val) = pad_token {
+                //     AccuracyMetric::new().with_pad_token(val).into()
+                // }else{
+                //     AccuracyMetric::new().into()
+                // }
+            }
+        }
         implement_wgpu_interface!(AurocInputPy, AurocInput);
+
+        impl From<AurocInput<Wgpu>> for AurocInputPy {
+            fn from(other: AurocInput<Wgpu>) -> Self {
+                Self {inner: other}
+            }
+        }
+
+        #[pymethods]
+        impl AurocInputPy {
+            #[new]
+            fn new(output: TensorPy, targets: TensorPy) -> Self {
+                let out = match output {
+                    TensorPy::TensorTwo(val) => Ok(val.inner),
+                    _  => Err(TensorError::WrongDimensions)
+                };
+                let targets = match targets {
+                    TensorPy::TensorOneInt(val) => Ok(val.inner),
+                    _ => Err(TensorError::WrongDimensions)
+                };
+
+                AurocInput::new(out.unwrap(), targets.unwrap()).into()
+            }
+        }
+
         implement_wgpu_interface!(AurocMetricPy, AurocMetric);
+
+        impl From<AurocMetric<Wgpu>> for AurocMetricPy {
+            fn from(other: AurocMetric<Wgpu>) -> Self {
+                Self {inner: other}
+            }
+        }
+
+        #[pymethods]
+        impl AurocMetricPy {
+            #[new]
+            fn new() -> Self {
+                AurocMetric::new().into()
+            }
+        }
+
+
         implement_wgpu_interface!(ConfusionStatsInputPy, ConfusionStatsInput);
         implement_wgpu_interface!(FBetaScoreMetricPy, FBetaScoreMetric);
         implement_wgpu_interface!(HammingScorePy, HammingScore);
@@ -217,7 +307,15 @@ pub mod wgpu {
         for_normal_struct_enums!(CpuTemperaturePy, CpuTemperature);
         for_normal_struct_enums!(CpuUsePy, CpuUse);
         // for_normal_struct_enums!(PyMetricEntry,MetricEntry); --re-exported
+
+        // [TODO: ] @kwach This type uses private structures.
+        // It may require the position of burn in its ecosystem.
         for_normal_struct_enums!(MetricMetadataPy, MetricMetadata);
+
+        // #[pymethods]
+        // impl MetricMetadataPy {
+
+        // }
         for_normal_struct_enums!(ClassReductionPy, ClassReduction);
         for_normal_struct_enums!(NumericEntryPy, NumericEntry);
 
