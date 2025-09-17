@@ -60,7 +60,6 @@ pub struct Tensor3Bool {
     pub inner: Tensor<Wgpu, 3, Bool>,
 }
 
-
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor3Int {
@@ -223,9 +222,7 @@ impl TensorPy {
             TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorTwoInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
-            TensorPy::TensorThreeInt(val) => {
-                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
-            }
+            TensorPy::TensorThreeInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorFourInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorFiveInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorOneInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
@@ -737,11 +734,51 @@ impl TensorPy {
 }
 
 // Use the macro for each dimension
-impl_tensor_conversions_wgpu!(Tensor1, Tensor1Bool, 1, TensorOne, TensorOneBool, TensorOneInt, Tensor1Int);
-impl_tensor_conversions_wgpu!(Tensor2, Tensor2Bool, 2, TensorTwo, TensorTwoBool, TensorTwoInt,  Tensor2Int);
-impl_tensor_conversions_wgpu!(Tensor3, Tensor3Bool, 3, TensorThree, TensorThreeBool, TensorThreeInt, Tensor3Int);
-impl_tensor_conversions_wgpu!(Tensor4, Tensor4Bool, 4, TensorFour, TensorFourBool, TensorFourInt, Tensor4Int);
-impl_tensor_conversions_wgpu!(Tensor5, Tensor5Bool, 5, TensorFive, TensorFiveBool, TensorFiveInt, Tensor5Int);
+impl_tensor_conversions_wgpu!(
+    Tensor1,
+    Tensor1Bool,
+    1,
+    TensorOne,
+    TensorOneBool,
+    TensorOneInt,
+    Tensor1Int
+);
+impl_tensor_conversions_wgpu!(
+    Tensor2,
+    Tensor2Bool,
+    2,
+    TensorTwo,
+    TensorTwoBool,
+    TensorTwoInt,
+    Tensor2Int
+);
+impl_tensor_conversions_wgpu!(
+    Tensor3,
+    Tensor3Bool,
+    3,
+    TensorThree,
+    TensorThreeBool,
+    TensorThreeInt,
+    Tensor3Int
+);
+impl_tensor_conversions_wgpu!(
+    Tensor4,
+    Tensor4Bool,
+    4,
+    TensorFour,
+    TensorFourBool,
+    TensorFourInt,
+    Tensor4Int
+);
+impl_tensor_conversions_wgpu!(
+    Tensor5,
+    Tensor5Bool,
+    5,
+    TensorFive,
+    TensorFiveBool,
+    TensorFiveInt,
+    Tensor5Int
+);
 
 mod quantization_exports {
     use crate::{for_normal_struct_enums, implement_wgpu_interface};

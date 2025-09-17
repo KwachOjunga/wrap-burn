@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+use crate::tensor::tensor_error::TensorError;
 use crate::{
     for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync,
     implement_wgpu_interface,
@@ -11,28 +12,125 @@ use pyo3::prelude::*;
 #[cfg(feature = "wgpu")]
 pub mod wgpu {
     use super::*;
+    use crate::tensor::wgpu_base::TensorPy;
 
     // find a way to implement learner, LearnerBuilder, MultiDevicesTrainStep, TrainEpoch.
     implement_wgpu_interface!(ClassificationOutputPy, ClassificationOutput);
 
-    // #[pymethods]
-    // impl ClassificationOutputPy {
-    //     #[new]
-    //     fn new() {
+    impl From<ClassificationOutput<Wgpu>> for ClassificationOutputPy {
+        fn from(other: ClassificationOutput<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+    #[pymethods]
+    impl ClassificationOutputPy {
+        #[new]
+        fn new(
+            loss: TensorPy,    /*Tensor<B, 1>,*/
+            output: TensorPy,  /*Tensor<B, 2>*/
+            targets: TensorPy, /*Tensor<B, 1, Int>*/
+        ) -> Self {
+            let loss = match loss {
+                TensorPy::TensorOne(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let output = match output {
+                TensorPy::TensorTwo(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let targets = match targets {
+                TensorPy::TensorOneInt(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            ClassificationOutput::new(loss.unwrap(), output.unwrap(), targets.unwrap()).into()
+        }
+    }
 
-    //     }
-    // }
-    
     implement_wgpu_interface!(
         MultiLabelClassificationOutputPy,
         MultiLabelClassificationOutput
     );
+
+    #[pymethods]
+    impl MultiLabelClassificationOutputPy {
+        #[new]
+        fn new(
+            loss: TensorPy,    /*Tensor<B, 1>,*/
+            output: TensorPy,  /*Tensor<B, 2>*/
+            targets: TensorPy, /*Tensor<B, 1, Int>*/
+        ) -> Self {
+            let loss = match loss {
+                TensorPy::TensorOne(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let output = match output {
+                TensorPy::TensorTwo(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let targets = match targets {
+                TensorPy::TensorTwoInt(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            MultiLabelClassificationOutput::new(loss.unwrap(), output.unwrap(), targets.unwrap())
+                .into()
+        }
+    }
+
+    impl From<MultiLabelClassificationOutput<Wgpu>> for MultiLabelClassificationOutputPy {
+        fn from(other: MultiLabelClassificationOutput<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
     implement_wgpu_interface!(RegressionOutputPy, RegressionOutput);
+
+    impl From<RegressionOutput<Wgpu>> for RegressionOutputPy {
+        fn from(other: RegressionOutput<Wgpu>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl RegressionOutputPy {
+        #[new]
+        fn new(
+            loss: TensorPy,    /*Tensor<B, 1>,*/
+            output: TensorPy,  /*Tensor<B, 2>*/
+            targets: TensorPy, /*Tensor<B, 1, Int>*/
+        ) -> Self {
+            let loss = match loss {
+                TensorPy::TensorOne(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let output = match output {
+                TensorPy::TensorTwo(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let targets = match targets {
+                TensorPy::TensorTwo(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            RegressionOutput::new(loss.unwrap(), output.unwrap(), targets.unwrap()).into()
+        }
+    }
 
     for_normal_struct_enums!(
         FileApplicationLoggerInstallerPy,
         FileApplicationLoggerInstaller
     );
+
+    #[pymethods]
+    impl FileApplicationLoggerInstallerPy {
+        #[new]
+        fn new(path: &str) -> Self {
+            FileApplicationLoggerInstaller::new(path).into()
+        }
+
+        fn install(&self) -> PyResult<()> {
+            Ok(self.0.install().unwrap())
+        }
+    }
+
     for_normal_struct_enums!(LearnerSummaryPy, LearnerSummary);
     for_normal_struct_enums!(MetricEarlyStoppingStrategyPy, MetricEarlyStoppingStrategy);
     for_normal_struct_enums!(MetricEntryPy, MetricEntry);
@@ -161,19 +259,124 @@ pub mod wgpu {
 #[cfg(feature = "ndarray")]
 pub mod ndarray {
     use super::*;
+    use crate::tensor::ndarray_base::TensorPy;
 
     // find a way to implement learner, LearnerBuilder, MultiDevicesTrainStep, TrainEpoch.
     implement_ndarray_interface!(ClassificationOutputPy, ClassificationOutput);
+
+    impl From<ClassificationOutput<NdArray>> for ClassificationOutputPy {
+        fn from(other: ClassificationOutput<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+    #[pymethods]
+    impl ClassificationOutputPy {
+        #[new]
+        fn new(
+            loss: TensorPy,    /*Tensor<B, 1>,*/
+            output: TensorPy,  /*Tensor<B, 2>*/
+            targets: TensorPy, /*Tensor<B, 1, Int>*/
+        ) -> Self {
+            let loss = match loss {
+                TensorPy::TensorOne(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let output = match output {
+                TensorPy::TensorTwo(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let targets = match targets {
+                TensorPy::TensorOneInt(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            ClassificationOutput::new(loss.unwrap(), output.unwrap(), targets.unwrap()).into()
+        }
+    }
+
     implement_ndarray_interface!(
         MultiLabelClassificationOutputPy,
         MultiLabelClassificationOutput
     );
+
+    impl From<MultiLabelClassificationOutput<NdArray>> for MultiLabelClassificationOutputPy {
+        fn from(other: MultiLabelClassificationOutput<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl MultiLabelClassificationOutputPy {
+        #[new]
+        fn new(
+            loss: TensorPy,    /*Tensor<B, 1>,*/
+            output: TensorPy,  /*Tensor<B, 2>*/
+            targets: TensorPy, /*Tensor<B, 1, Int>*/
+        ) -> Self {
+            let loss = match loss {
+                TensorPy::TensorOne(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let output = match output {
+                TensorPy::TensorTwo(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let targets = match targets {
+                TensorPy::TensorTwoInt(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            MultiLabelClassificationOutput::new(loss.unwrap(), output.unwrap(), targets.unwrap())
+                .into()
+        }
+    }
+
     implement_ndarray_interface!(RegressionOutputPy, RegressionOutput);
+
+    impl From<RegressionOutput<NdArray>> for RegressionOutputPy {
+        fn from(other: RegressionOutput<NdArray>) -> Self {
+            Self { inner: other }
+        }
+    }
+
+    #[pymethods]
+    impl RegressionOutputPy {
+        #[new]
+        fn new(
+            loss: TensorPy,    /*Tensor<B, 1>,*/
+            output: TensorPy,  /*Tensor<B, 2>*/
+            targets: TensorPy, /*Tensor<B, 1, Int>*/
+        ) -> Self {
+            let loss = match loss {
+                TensorPy::TensorOne(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let output = match output {
+                TensorPy::TensorTwo(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            let targets = match targets {
+                TensorPy::TensorTwo(val) => Ok(val.inner),
+                _ => Err(TensorError::WrongDimensions),
+            };
+            RegressionOutput::new(loss.unwrap(), output.unwrap(), targets.unwrap()).into()
+        }
+    }
 
     for_normal_struct_enums!(
         FileApplicationLoggerInstallerPy,
         FileApplicationLoggerInstaller
     );
+
+    #[pymethods]
+    impl FileApplicationLoggerInstallerPy {
+        #[new]
+        fn new(path: &str) -> Self {
+            FileApplicationLoggerInstaller::new(path).into()
+        }
+
+        fn install(&self) -> PyResult<()> {
+            Ok(self.0.install().unwrap())
+        }
+    }
     for_normal_struct_enums!(LearnerSummaryPy, LearnerSummary);
     for_normal_struct_enums!(MetricEarlyStoppingStrategyPy, MetricEarlyStoppingStrategy);
     for_normal_struct_enums!(MetricEntryPy, MetricEntry);
