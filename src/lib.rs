@@ -16,7 +16,7 @@ mod train;
 #[macro_export]
 macro_rules! impl_tensor_conversions_wgpu {
     (
-        $tensor_ty:ident, $tensor_bool_ty:ident, $dim:expr, $variant:ident, $variant_bool:ident
+        $tensor_ty:ident, $tensor_bool_ty:ident, $dim:expr, $variant:ident, $variant_bool:ident, $variant_int:ident, $tensor_int_ty:ident
     ) => {
         // Tensor<Wgpu, N> -> Wrapper
         impl From<Tensor<Wgpu, $dim>> for $tensor_ty {
@@ -72,13 +72,36 @@ macro_rules! impl_tensor_conversions_wgpu {
                 other.inner
             }
         }
+
+        // Tensor<Wgpu, N, Int> -> TensorPy
+        impl From<Tensor<Wgpu, $dim, Int>> for TensorPy {
+            fn from(other: Tensor<Wgpu, $dim, Int>) -> Self {
+                TensorPy::$variant_int($tensor_int_ty { inner: other })
+            }
+        }
+        // TensorPy -> anyhow::Result<Tensor<Wgpu, N, Int>>
+        impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, $dim, Int>> {
+            fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, $dim, Int>> {
+                match other {
+                    TensorPy::$variant_int(val) => Ok(val.inner),
+                    _ => Err(WrongDimensions.into()),
+                }
+            }
+        }
+
+        // WrapperInt -> Tensor<Wgpu, N, Int>
+        impl From<$tensor_int_ty> for Tensor<Wgpu, $dim, Int> {
+            fn from(other: $tensor_int_ty) -> Self {
+                other.inner
+            }
+        }
     };
 }
 
 #[macro_export]
 macro_rules! impl_tensor_conversions_ndarray {
     (
-        $tensor_ty:ident, $tensor_bool_ty:ident, $dim:expr, $variant:ident, $variant_bool:ident
+        $tensor_ty:ident, $tensor_bool_ty:ident, $dim:expr, $variant:ident, $variant_bool:ident, $variant_int:ident, $tensor_int_ty:ident
     ) => {
         // use super::tensor::NdArray;
 
@@ -133,6 +156,28 @@ macro_rules! impl_tensor_conversions_ndarray {
         // WrapperBool -> Tensor<NdArray, N, Bool>
         impl From<$tensor_bool_ty> for Tensor<NdArray, $dim, Bool> {
             fn from(other: $tensor_bool_ty) -> Self {
+                other.inner
+            }
+        }
+        // Tensor<NdArray, N, Int> -> TensorPy
+        impl From<Tensor<NdArray, $dim, Int>> for TensorPy {
+            fn from(other: Tensor<NdArray, $dim, Int>) -> Self {
+                TensorPy::$variant_int($tensor_int_ty { inner: other })
+            }
+        }
+        // TensorPy -> anyhow::Result<Tensor<NdArray, N, Int>>
+        impl From<TensorPy> for anyhow::Result<Tensor<NdArray, $dim, Int>> {
+            fn from(other: TensorPy) -> anyhow::Result<Tensor<NdArray, $dim, Int>> {
+                match other {
+                    TensorPy::$variant_int(val) => Ok(val.inner),
+                    _ => Err(WrongDimensions.into()),
+                }
+            }
+        }
+
+        // WrapperInt -> Tensor<NdArray, N, Int>
+        impl From<$tensor_int_ty> for Tensor<NdArray, $dim, Int> {
+            fn from(other: $tensor_int_ty) -> Self {
                 other.inner
             }
         }
