@@ -23,6 +23,12 @@ pub struct Tensor1Bool {
     pub inner: Tensor<NdArray, 1, Bool>,
 }
 
+#[derive(Clone, Debug)]
+#[pyclass]
+pub struct Tensor1Int {
+    pub inner: Tensor<NdArray, 1, Int>,
+}
+
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor2 {
@@ -33,6 +39,12 @@ pub struct Tensor2 {
 #[pyclass]
 pub struct Tensor2Bool {
     pub inner: Tensor<NdArray, 2, Bool>,
+}
+
+#[derive(Clone, Debug)]
+#[pyclass]
+pub struct Tensor2Int {
+    pub inner: Tensor<NdArray, 2, Int>,
 }
 
 #[derive(Clone)]
@@ -47,6 +59,11 @@ pub struct Tensor3Bool {
     pub inner: Tensor<NdArray, 3, Bool>,
 }
 
+#[derive(Clone, Debug)]
+#[pyclass]
+pub struct Tensor3Int {
+    pub inner: Tensor<NdArray, 3, Int>,
+}
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor4 {
@@ -57,6 +74,12 @@ pub struct Tensor4 {
 #[pyclass]
 pub struct Tensor4Bool {
     pub inner: Tensor<NdArray, 4, Bool>,
+}
+
+#[derive(Clone, Debug)]
+#[pyclass]
+pub struct Tensor4Int {
+    pub inner: Tensor<NdArray, 4, Int>,
 }
 
 #[derive(Clone)]
@@ -71,6 +94,12 @@ pub struct Tensor5Bool {
     pub inner: Tensor<NdArray, 5, Bool>,
 }
 
+#[derive(Clone)]
+#[pyclass]
+pub struct Tensor5Int {
+    pub inner: Tensor<NdArray, 5, Int>,
+}
+
 /// A non-idiomatic struct
 
 #[pyclass]
@@ -79,14 +108,19 @@ pub struct Tensor5Bool {
 pub enum TensorPy {
     TensorOne(Tensor1),
     TensorOneBool(Tensor1Bool),
+    TensorOneInt(Tensor1Int),
     TensorTwo(Tensor2),
     TensorTwoBool(Tensor2Bool),
+    TensorTwoInt(Tensor2Int),
     TensorThree(Tensor3),
     TensorThreeBool(Tensor3Bool),
+    TensorThreeInt(Tensor3Int),
     TensorFour(Tensor4),
     TensorFourBool(Tensor4Bool),
+    TensorFourInt(Tensor4Int),
     TensorFive(Tensor5),
     TensorFiveBool(Tensor5Bool),
+    TensorFiveInt(Tensor5Int),
 }
 
 #[pymethods]
@@ -238,6 +272,13 @@ impl TensorPy {
             TensorPy::TensorThree(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorTwoInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorThreeInt(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorFourInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorFiveInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorOneInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
         }
     }
 
@@ -298,6 +339,11 @@ impl TensorPy {
             TensorPy::TensorThreeBool(val) => val.inner.shape(),
             TensorPy::TensorFourBool(val) => val.inner.shape(),
             TensorPy::TensorFiveBool(val) => val.inner.shape(),
+            TensorPy::TensorOneInt(val) => val.inner.shape(),
+            TensorPy::TensorTwoInt(val) => val.inner.shape(),
+            TensorPy::TensorThreeInt(val) => val.inner.shape(),
+            TensorPy::TensorFourInt(val) => val.inner.shape(),
+            TensorPy::TensorFiveInt(val) => val.inner.shape(),
         };
         println!("{:#?}", dim);
     }
@@ -555,11 +601,11 @@ impl TensorPy {
     }
 }
 
-impl_tensor_conversions_ndarray!(Tensor1, Tensor1Bool, 1, TensorOne, TensorOneBool);
-impl_tensor_conversions_ndarray!(Tensor2, Tensor2Bool, 2, TensorTwo, TensorTwoBool);
-impl_tensor_conversions_ndarray!(Tensor3, Tensor3Bool, 3, TensorThree, TensorThreeBool);
-impl_tensor_conversions_ndarray!(Tensor4, Tensor4Bool, 4, TensorFour, TensorFourBool);
-impl_tensor_conversions_ndarray!(Tensor5, Tensor5Bool, 5, TensorFive, TensorFiveBool);
+impl_tensor_conversions_ndarray!(Tensor1, Tensor1Bool, 1, TensorOne, TensorOneBool, TensorOneInt, Tensor1Int);
+impl_tensor_conversions_ndarray!(Tensor2, Tensor2Bool, 2, TensorTwo, TensorTwoBool, TensorTwoInt, Tensor2Int);
+impl_tensor_conversions_ndarray!(Tensor3, Tensor3Bool, 3, TensorThree, TensorThreeBool, TensorThreeInt, Tensor3Int);
+impl_tensor_conversions_ndarray!(Tensor4, Tensor4Bool, 4, TensorFour, TensorFourBool, TensorFourInt, Tensor4Int);
+impl_tensor_conversions_ndarray!(Tensor5, Tensor5Bool, 5, TensorFive, TensorFiveBool, TensorFiveInt, Tensor5Int);
 
 #[cfg(test)]
 mod tensor_base_tests {

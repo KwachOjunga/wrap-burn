@@ -14,6 +14,15 @@ pub mod wgpu {
 
     // find a way to implement learner, LearnerBuilder, MultiDevicesTrainStep, TrainEpoch.
     implement_wgpu_interface!(ClassificationOutputPy, ClassificationOutput);
+
+    // #[pymethods]
+    // impl ClassificationOutputPy {
+    //     #[new]
+    //     fn new() {
+
+    //     }
+    // }
+    
     implement_wgpu_interface!(
         MultiLabelClassificationOutputPy,
         MultiLabelClassificationOutput
@@ -39,7 +48,6 @@ pub mod wgpu {
         use pyo3::exceptions::PyValueError;
         // [`TODO`] FileCheckpointer
         // implement_wgpu_interface!(PyAsyncCheckPointer,AsyncCheckpointer);
-        // implement_wgpu_interface!();
 
         for_normal_struct_enums!(
             ComposedCheckpointingStrategyPy,

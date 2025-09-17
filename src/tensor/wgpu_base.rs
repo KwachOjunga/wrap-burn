@@ -24,6 +24,12 @@ pub struct Tensor1Bool {
     pub inner: Tensor<Wgpu, 1, Bool>,
 }
 
+#[derive(Clone, Debug)]
+#[pyclass]
+pub struct Tensor1Int {
+    pub inner: Tensor<Wgpu, 1, Int>,
+}
+
 #[derive(Clone)]
 #[pyclass]
 pub struct Tensor2 {
@@ -38,6 +44,12 @@ pub struct Tensor2Bool {
 
 #[derive(Clone)]
 #[pyclass]
+pub struct Tensor2Int {
+    pub inner: Tensor<Wgpu, 2, Int>,
+}
+
+#[derive(Clone)]
+#[pyclass]
 pub struct Tensor3 {
     pub inner: Tensor<Wgpu, 3>,
 }
@@ -46,6 +58,13 @@ pub struct Tensor3 {
 #[pyclass]
 pub struct Tensor3Bool {
     pub inner: Tensor<Wgpu, 3, Bool>,
+}
+
+
+#[derive(Clone)]
+#[pyclass]
+pub struct Tensor3Int {
+    pub inner: Tensor<Wgpu, 3, Int>,
 }
 
 #[derive(Clone)]
@@ -62,6 +81,12 @@ pub struct Tensor4Bool {
 
 #[derive(Clone)]
 #[pyclass]
+pub struct Tensor4Int {
+    pub inner: Tensor<Wgpu, 4, Int>,
+}
+
+#[derive(Clone)]
+#[pyclass]
 pub struct Tensor5 {
     pub inner: Tensor<Wgpu, 5>,
 }
@@ -72,6 +97,12 @@ pub struct Tensor5Bool {
     pub inner: Tensor<Wgpu, 5, Bool>,
 }
 
+#[derive(Clone)]
+#[pyclass]
+pub struct Tensor5Int {
+    pub inner: Tensor<Wgpu, 5, Int>,
+}
+
 /// A non-idiomatic struct
 
 #[pyclass]
@@ -80,14 +111,19 @@ pub struct Tensor5Bool {
 pub enum TensorPy {
     TensorOne(Tensor1),
     TensorOneBool(Tensor1Bool),
+    TensorOneInt(Tensor1Int),
     TensorTwo(Tensor2),
     TensorTwoBool(Tensor2Bool),
+    TensorTwoInt(Tensor2Int),
     TensorThree(Tensor3),
     TensorThreeBool(Tensor3Bool),
+    TensorThreeInt(Tensor3Int),
     TensorFour(Tensor4),
     TensorFourBool(Tensor4Bool),
+    TensorFourInt(Tensor4Int),
     TensorFive(Tensor5),
     TensorFiveBool(Tensor5Bool),
+    TensorFiveInt(Tensor5Int),
 }
 
 #[pymethods]
@@ -98,10 +134,15 @@ impl TensorPy {
     fn abs(&self) -> Option<Self> {
         match self {
             TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorTwoInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorThreeInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorFourInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorFiveInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             _ => None,
         }
     }
@@ -181,6 +222,13 @@ impl TensorPy {
             TensorPy::TensorThree(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorFour(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
             TensorPy::TensorFive(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorTwoInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorThreeInt(val) => {
+                Into::<TensorPy>::into(val.inner.clone().all_dim(dim))
+            }
+            TensorPy::TensorFourInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorFiveInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
+            TensorPy::TensorOneInt(val) => Into::<TensorPy>::into(val.inner.clone().all_dim(dim)),
         }
     }
 
@@ -263,6 +311,11 @@ impl TensorPy {
             TensorPy::TensorThreeBool(val) => val.inner.shape(),
             TensorPy::TensorFourBool(val) => val.inner.shape(),
             TensorPy::TensorFiveBool(val) => val.inner.shape(),
+            TensorPy::TensorOneInt(val) => val.inner.shape(),
+            TensorPy::TensorTwoInt(val) => val.inner.shape(),
+            TensorPy::TensorThreeInt(val) => val.inner.shape(),
+            TensorPy::TensorFourInt(val) => val.inner.shape(),
+            TensorPy::TensorFiveInt(val) => val.inner.shape(),
         };
         println!("{:#?}", dim);
     }
@@ -674,13 +727,9 @@ impl TensorPy {
     fn zeros_like(&self) -> PyResult<Self> {
         match self {
             TensorPy::TensorOne(val) => Ok(val.inner.zeros_like().into()),
-
             TensorPy::TensorTwo(val) => Ok(val.inner.zeros_like().into()),
-
             TensorPy::TensorThree(val) => Ok(val.inner.zeros_like().into()),
-
             TensorPy::TensorFour(val) => Ok(val.inner.zeros_like().into()),
-
             TensorPy::TensorFive(val) => Ok(val.inner.zeros_like().into()),
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
@@ -688,11 +737,11 @@ impl TensorPy {
 }
 
 // Use the macro for each dimension
-impl_tensor_conversions_wgpu!(Tensor1, Tensor1Bool, 1, TensorOne, TensorOneBool);
-impl_tensor_conversions_wgpu!(Tensor2, Tensor2Bool, 2, TensorTwo, TensorTwoBool);
-impl_tensor_conversions_wgpu!(Tensor3, Tensor3Bool, 3, TensorThree, TensorThreeBool);
-impl_tensor_conversions_wgpu!(Tensor4, Tensor4Bool, 4, TensorFour, TensorFourBool);
-impl_tensor_conversions_wgpu!(Tensor5, Tensor5Bool, 5, TensorFive, TensorFiveBool);
+impl_tensor_conversions_wgpu!(Tensor1, Tensor1Bool, 1, TensorOne, TensorOneBool, TensorOneInt, Tensor1Int);
+impl_tensor_conversions_wgpu!(Tensor2, Tensor2Bool, 2, TensorTwo, TensorTwoBool, TensorTwoInt,  Tensor2Int);
+impl_tensor_conversions_wgpu!(Tensor3, Tensor3Bool, 3, TensorThree, TensorThreeBool, TensorThreeInt, Tensor3Int);
+impl_tensor_conversions_wgpu!(Tensor4, Tensor4Bool, 4, TensorFour, TensorFourBool, TensorFourInt, Tensor4Int);
+impl_tensor_conversions_wgpu!(Tensor5, Tensor5Bool, 5, TensorFive, TensorFiveBool, TensorFiveInt, Tensor5Int);
 
 mod quantization_exports {
     use crate::{for_normal_struct_enums, implement_wgpu_interface};
