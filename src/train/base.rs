@@ -211,7 +211,7 @@ pub mod wgpu {
                 targets: TensorPy, /*Tensor<B, 1, Int>*/
             ) -> Self {
                 let out = match outputs {
-                    TensorPy::TensorTwo(val) => Ok(val.inner    ),
+                    TensorPy::TensorTwo(val) => Ok(val.inner),
                     _ => Err(TensorError::WrongDimensions),
                 };
                 let target = match targets {
@@ -221,7 +221,6 @@ pub mod wgpu {
                 AccuracyInput::new(out.unwrap(), target.unwrap()).into()
             }
         }
-
 
         implement_wgpu_interface!(AccuracyMetricPy, AccuracyMetric);
 
@@ -238,20 +237,15 @@ pub mod wgpu {
             fn new(pad_token: Option<usize>) -> Self {
                 match pad_token {
                     Some(val) => AccuracyMetric::new().with_pad_token(val).into(),
-                    None => AccuracyMetric::new().into()
+                    None => AccuracyMetric::new().into(),
                 }
-                // if let Some(val) = pad_token {
-                //     AccuracyMetric::new().with_pad_token(val).into()
-                // }else{
-                //     AccuracyMetric::new().into()
-                // }
             }
         }
         implement_wgpu_interface!(AurocInputPy, AurocInput);
 
         impl From<AurocInput<Wgpu>> for AurocInputPy {
             fn from(other: AurocInput<Wgpu>) -> Self {
-                Self {inner: other}
+                Self { inner: other }
             }
         }
 
@@ -261,11 +255,11 @@ pub mod wgpu {
             fn new(output: TensorPy, targets: TensorPy) -> Self {
                 let out = match output {
                     TensorPy::TensorTwo(val) => Ok(val.inner),
-                    _  => Err(TensorError::WrongDimensions)
+                    _ => Err(TensorError::WrongDimensions),
                 };
                 let targets = match targets {
                     TensorPy::TensorOneInt(val) => Ok(val.inner),
-                    _ => Err(TensorError::WrongDimensions)
+                    _ => Err(TensorError::WrongDimensions),
                 };
 
                 AurocInput::new(out.unwrap(), targets.unwrap()).into()
@@ -276,7 +270,7 @@ pub mod wgpu {
 
         impl From<AurocMetric<Wgpu>> for AurocMetricPy {
             fn from(other: AurocMetric<Wgpu>) -> Self {
-                Self {inner: other}
+                Self { inner: other }
             }
         }
 
@@ -287,7 +281,6 @@ pub mod wgpu {
                 AurocMetric::new().into()
             }
         }
-
 
         implement_wgpu_interface!(ConfusionStatsInputPy, ConfusionStatsInput);
         implement_wgpu_interface!(FBetaScoreMetricPy, FBetaScoreMetric);

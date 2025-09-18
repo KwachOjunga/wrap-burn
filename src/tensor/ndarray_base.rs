@@ -135,6 +135,11 @@ impl TensorPy {
             TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorTwoInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorThreeInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorFourInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorFiveInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             _ => None,
         }
     }
@@ -196,6 +201,21 @@ impl TensorPy {
             TensorPy::TensorFive(val) => {
                 Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
             }
+            TensorPy::TensorOneInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorTwoInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorThreeInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorFourInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorFiveInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
             _ => None,
         }
     }
@@ -230,6 +250,36 @@ impl TensorPy {
             TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().sub(
                     Into::<anyhow::Result<Tensor<NdArray, 5>>>::into(other)
+                        .expect("expected 5 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().sub(
+                    Into::<anyhow::Result<Tensor<NdArray, 1, Int>>>::into(other)
+                        .expect("expected 1 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorTwoInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().sub(
+                    Into::<anyhow::Result<Tensor<NdArray, 2, Int>>>::into(other)
+                        .expect("expected 2 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorThreeInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().sub(
+                    Into::<anyhow::Result<Tensor<NdArray, 3, Int>>>::into(other)
+                        .expect("expected 3 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorFourInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().sub(
+                    Into::<anyhow::Result<Tensor<NdArray, 4, Int>>>::into(other)
+                        .expect("expected 4 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorFiveInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().sub(
+                    Into::<anyhow::Result<Tensor<NdArray, 5, Int>>>::into(other)
                         .expect("expected 5 dim tensor"),
                 ),
             )),
@@ -320,6 +370,21 @@ impl TensorPy {
             TensorPy::TensorFive(val) => {
                 Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
             }
+            // TensorPy::TensorOneInt(val) => {
+            //     Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            // }
+            // TensorPy::TensorTwoInt(val) => {
+            //     Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            // }
+            // TensorPy::TensorThreeInt(val) => {
+            //     Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            // }
+            // TensorPy::TensorFourInt(val) => {
+            //     Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            // }
+            // TensorPy::TensorFiveInt(val) => {
+            //     Ok(Into::<TensorPy>::into(val.inner.clone().contains_nan()))
+            // }
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
@@ -369,6 +434,8 @@ impl TensorPy {
         }
     }
 
+    // [TODO:] Implement this method for Int types.
+    /// Generate a tensor of random values whose type is Float
     #[staticmethod]
     fn random(
         shape: Vec<usize>,
@@ -406,6 +473,11 @@ impl TensorPy {
             TensorPy::TensorThree(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
             TensorPy::TensorFour(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
             TensorPy::TensorFive(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
+            // TensorPy::TensorOneInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
+            // TensorPy::TensorTwoInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
+            // TensorPy::TensorThreeInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
+            // TensorPy::TensorFourInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
+            // TensorPy::TensorFiveInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_nan())),
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
@@ -416,7 +488,12 @@ impl TensorPy {
             TensorPy::TensorTwo(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
             TensorPy::TensorThree(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
             TensorPy::TensorFour(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
-            TensorPy::TensorFive(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
+            // TensorPy::TensorFive(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
+            // TensorPy::TensorOneInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
+            // TensorPy::TensorTwoInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
+            // TensorPy::TensorThreeInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
+            // TensorPy::TensorFourInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
+            // TensorPy::TensorFiveInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_inf())),
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
@@ -427,7 +504,12 @@ impl TensorPy {
             TensorPy::TensorTwo(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
             TensorPy::TensorThree(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
             TensorPy::TensorFour(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
-            TensorPy::TensorFive(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
+            // TensorPy::TensorFive(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
+            // TensorPy::TensorOneInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
+            // TensorPy::TensorTwoInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
+            // TensorPy::TensorThreeInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
+            // TensorPy::TensorFourInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
+            // TensorPy::TensorFiveInt(val) => Ok(Into::<TensorPy>::into(val.inner.clone().is_finite())),
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
@@ -439,6 +521,11 @@ impl TensorPy {
             TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
             TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
             TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorTwoInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorThreeInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorFourInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
+            TensorPy::TensorFiveInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().mean())),
             _ => None,
         }
     }
@@ -461,10 +548,26 @@ impl TensorPy {
             TensorPy::TensorFive(val) => {
                 Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
             }
+            TensorPy::TensorOneInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorTwoInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorThreeInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorFourInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
+            TensorPy::TensorFiveInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().mean_dim(dim)))
+            }
             _ => None,
         }
     }
 
+    /// By default this creates a tensor of ones whose type is a float
     #[staticmethod]
     fn ones(shape: Vec<usize>, dim: usize) -> PyResult<Self> {
         match dim {
@@ -482,14 +585,15 @@ impl TensorPy {
     fn ones_like(&self) -> PyResult<Self> {
         match self {
             TensorPy::TensorOne(val) => Ok(val.inner.ones_like().into()),
-
             TensorPy::TensorTwo(val) => Ok(val.inner.ones_like().into()),
-
             TensorPy::TensorThree(val) => Ok(val.inner.ones_like().into()),
-
             TensorPy::TensorFour(val) => Ok(val.inner.ones_like().into()),
-
             TensorPy::TensorFive(val) => Ok(val.inner.ones_like().into()),
+            TensorPy::TensorOneInt(val) => Ok(val.inner.ones_like().into()),
+            TensorPy::TensorTwoInt(val) => Ok(val.inner.ones_like().into()),
+            TensorPy::TensorThreeInt(val) => Ok(val.inner.ones_like().into()),
+            TensorPy::TensorFourInt(val) => Ok(val.inner.ones_like().into()),
+            TensorPy::TensorFiveInt(val) => Ok(val.inner.ones_like().into()),
             _ => Err(TensorError::NonApplicableMethod.into()),
         }
     }
