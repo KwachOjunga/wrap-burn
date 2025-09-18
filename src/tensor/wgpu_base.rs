@@ -180,6 +180,36 @@ impl TensorPy {
                         .expect("expected 5 dim tensor"),
                 ),
             )),
+            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 1, Int>>>::into(other)
+                        .expect("expected 1 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorTwoInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 2, Int>>>::into(other)
+                        .expect("expected 2 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorThreeInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 3, Int>>>::into(other)
+                        .expect("expected 3 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorFourInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 4, Int>>>::into(other)
+                        .expect("expected 4 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorFiveInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<Wgpu, 5, Int>>>::into(other)
+                        .expect("expected 5 dim tensor"),
+                ),
+            )),
             _ => None,
         }
     }
@@ -201,6 +231,21 @@ impl TensorPy {
                 Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
             }
             TensorPy::TensorFive(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorOneInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorTwoInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorThreeInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorFourInt(val) => {
+                Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
+            }
+            TensorPy::TensorFiveInt(val) => {
                 Some(Into::<TensorPy>::into(val.inner.clone().add_scalar(input)))
             }
             _ => None,
@@ -237,6 +282,11 @@ impl TensorPy {
             TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
             TensorPy::TensorFour(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
             TensorPy::TensorFive(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorTwoInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorThreeInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorFourInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
+            TensorPy::TensorFiveInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().any())),
             _ => None,
         }
     }

@@ -178,6 +178,36 @@ impl TensorPy {
                         .expect("expected 5 dim tensor"),
                 ),
             )),
+            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<NdArray, 1, Int>>>::into(other)
+                        .expect("expected 1 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorTwoInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<NdArray, 2, Int>>>::into(other)
+                        .expect("expected 2 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorThreeInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<NdArray, 3, Int>>>::into(other)
+                        .expect("expected 3 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorFourInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<NdArray, 4, Int>>>::into(other)
+                        .expect("expected 4 dim tensor"),
+                ),
+            )),
+            TensorPy::TensorFiveInt(val) => Some(Into::<TensorPy>::into(
+                val.inner.clone().add(
+                    Into::<anyhow::Result<Tensor<NdArray, 5, Int>>>::into(other)
+                        .expect("expected 5 dim tensor"),
+                ),
+            )),
             _ => None,
         }
     }
