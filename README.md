@@ -12,10 +12,12 @@ on both backends and allows for both inference and training.
 To install 
 
 ```python
-    pip install pyburn
+pip install pyburn
 ```
 
 
 ---
+⚠️ WIP
+
 Pyburn is still in its early phase but its foundations are well defined and mature.
 There is more to come.
