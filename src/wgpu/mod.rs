@@ -12,7 +12,9 @@ pub mod wgpu {
     #[pymodule_export]
     use super::nn::mod_nn::nn;
     #[pymodule_export]
-    use crate::module::package::wgpu_module::module;
-    #[pymodule_export]
     use super::tensor::wg_tensor::tensor;
+    #[pymodule_export]
+    use super::train::wgpu_train::train;
+    #[pymodule_export]
+    use crate::module::package::wgpu_module::module;
 }

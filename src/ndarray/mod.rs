@@ -9,8 +9,14 @@ mod train;
 #[cfg(feature = "ndarray")]
 #[pymodule]
 pub mod ndarray {
+    use super::*;
+
     #[pymodule_export]
     use super::nn::nn;
+    #[pymodule_export]
+    use super::tensor::nd_tensor::tensor;
+    #[pymodule_export]
+    use super::train::ndarray_train::train;
     #[pymodule_export]
     use crate::module::package::nd_module::module;
 }

@@ -2,9 +2,9 @@
 
 use std::f32;
 
-use crate::tensor::common_tensor_exports;
 use crate::impl_tensor_conversions_ndarray;
 use crate::nn::NDARRAYDEVICE;
+use crate::tensor::common_tensor_exports;
 
 use crate::tensor::tensor_error::*;
 use burn::backend::NdArray;

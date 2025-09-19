@@ -4,9 +4,9 @@ use std::f32;
 // use pyo3::types::PyBytes;
 
 // use std::sync::{Arc, Mutex};
-use crate::tensor::{common_tensor_exports, tensor_error::*};
 use crate::impl_tensor_conversions_wgpu;
 use crate::nn::WGPUDEVICE;
+use crate::tensor::{common_tensor_exports, tensor_error::*};
 // use crate::optim::common;
 use burn::backend::Wgpu;
 use burn::prelude::*;

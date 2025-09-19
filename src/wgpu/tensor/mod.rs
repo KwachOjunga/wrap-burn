@@ -7,7 +7,7 @@ pub mod wg_tensor {
     use super::*;
     #[pymodule]
     pub mod tensor {
-    
+
         #[pymodule_export]
         use super::wgpu_base::TensorPy;
 

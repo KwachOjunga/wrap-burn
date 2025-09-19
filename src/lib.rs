@@ -1,7 +1,7 @@
 #![recursion_limit = "256"]
 
-use burn::backend::ndarray::NdArray;
-use burn::backend::wgpu::Wgpu;
+// use burn::backend::ndarray::NdArray;
+// use burn::backend::wgpu::Wgpu;
 use pyo3::prelude::*;
 mod ndarray;
 mod wgpu;
@@ -14,7 +14,7 @@ pub mod optim;
 mod record;
 pub mod tensor;
 mod tests;
-mod train;
+// mod train;
 // use tensor::wgpu_base::*;
 
 #[macro_export]
