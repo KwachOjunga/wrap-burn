@@ -1,23 +1,20 @@
+use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
+use std::usize;
 
-use crate::nn::NDARRAYDEVICE;
+use crate::nn::WGPUDEVICE;
 use crate::nn::common_nn_exports::*;
-use crate::tensor::{ndarray_base::TensorPy, tensor_error::TensorError};
-use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
-use burn::nn::Linear;
-use burn::nn::{
-    BatchNorm, BatchNormConfig, Embedding, EmbeddingConfig, GateController, GroupNorm,
-    GroupNormConfig, InstanceNorm, InstanceNormConfig, InstanceNormRecord, LayerNorm,
-    LayerNormConfig, LayerNormRecord, Lstm, LstmConfig, LstmRecord, PRelu, PReluConfig,
-    PReluRecord, PositionalEncoding, PositionalEncodingConfig, PositionalEncodingRecord, RmsNorm,
-    RmsNormConfig, RmsNormRecord, RotaryEncoding, RotaryEncodingConfig, RotaryEncodingRecord,
-    SwiGlu, SwiGluConfig, SwiGluRecord, conv::*,
-};
+use crate::tensor::{tensor_error::TensorError, wgpu_base::TensorPy};
+use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_interface};
+use burn::backend::Wgpu;
+use burn::nn::Initializer as _;
+use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
+use pyo3::types::*;
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
-implement_ndarray_interface!(
+implement_wgpu_interface!(
     GateControllerPy,
     GateController,
     "A GateController represents a gate in an LSTM cell.\n An LSTM cell generally contains three gates: an input gate, forget gate,\n and output gate. Additionally, cell gate is just used to compute the cell state
@@ -25,20 +22,61 @@ implement_ndarray_interface!(
      To delve deeper into the whole system of gates and the problems it attempts to solve; i highly recommend [Learning to forget:Continual prediction with LSTM](https://citeseerx.ist.psu.edu/document?repid=rep1&type=pdf&doi=e10f98b86797ebf6c8caea6f54cacbc5a50e8b34)"
 );
 
-// This is now neccesary; there is a clash between the // common_nn_exports::Initializer and Initializer in the burn::nn module.
-// [TODO] @kwach refactor the new method in GateControllerPy to use the Initializer instead of InitializerPy.
+// [TODO] @kwach implement this new method with the Initializer type defined in common module.
 #[pymethods]
 impl GateControllerPy {
-    // #[staticmethod]
-    // pub fn new(input: usize, output: usize, bias: bool, initializer: InitializerPy) -> Self {
-    //     GateController::new(input, output, bias, initializer.0, &NDARRAYDEVICE).into()
-    // }
+    #[staticmethod]
+    pub fn new(
+        input: usize,
+        output: usize,
+        bias: bool,
+        initializer: crate::nn::common_nn_exports::Initializer,
+    ) -> Self {
+        let init = match initializer {
+            crate::nn::common_nn_exports::Initializer::Constant { value: val } => {
+                burn::nn::Initializer::Constant { value: val }
+            }
 
-    /// yield the gate product given two Tensors of 2 dimensions
-    ///
-    /// def gate_product(input: TensorPy, output: TensorPy) -> TensorPy :
-    ///
-    #[pyo3(text_signature = "(input: TensorPy, output: TensorPy -> PyResult<TensorPy>)")]
+            // Initializer::Constant { val } => burn::nn::Initializer::Constant { value: val },
+            crate::nn::common_nn_exports::Initializer::One() => burn::nn::Initializer::Ones,
+            crate::nn::common_nn_exports::Initializer::Zero() => burn::nn::Initializer::Zeros,
+            crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                burn::nn::Initializer::Uniform { min: min, max: max }
+            }
+            crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                burn::nn::Initializer::Normal {
+                    mean: mean,
+                    std: std,
+                }
+            }
+            crate::nn::common_nn_exports::Initializer::KaimingUniform { gain, fan_out_only } => {
+                burn::nn::Initializer::KaimingUniform {
+                    gain: gain,
+                    fan_out_only: fan_out_only,
+                }
+            }
+            crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                burn::nn::Initializer::KaimingNormal {
+                    gain: gain,
+                    fan_out_only: fan_out_only,
+                }
+            }
+            crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                burn::nn::Initializer::XavierUniform { gain: gain }
+            }
+            crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                burn::nn::Initializer::XavierNormal { gain: gain }
+            }
+            crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                burn::nn::Initializer::Orthogonal { gain: gain }
+            }
+        };
+        GateController::new(input, output, bias, init, &WGPUDEVICE).into()
+    }
+    /// Helper function for performing weighted matrix product for a gate and adds bias, if any.
+    /// Mathematically, performs `Wx*X + Wh*H + b`, where: Wx = weight matrix for the connection
+    /// to input vector X Wh = weight matrix for the connection to hidden state H X = input vector
+    /// H = hidden state b = bias terms
     pub fn gate_product(&self, input: TensorPy, hidden: TensorPy) -> PyResult<TensorPy> {
         let i = match input {
             TensorPy::TensorTwo(val) => Ok(val),
@@ -52,20 +90,20 @@ impl GateControllerPy {
     }
 }
 
-impl From<GateController<NdArray>> for GateControllerPy {
-    fn from(other: GateController<NdArray>) -> Self {
+impl From<GateController<Wgpu>> for GateControllerPy {
+    fn from(other: GateController<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
 
-implement_ndarray_interface!(
+implement_wgpu_interface!(
     EmbeddingPy,
     Embedding,
     "Lookup table to store a fix number of vectors."
 );
 
-impl From<Embedding<NdArray>> for EmbeddingPy {
-    fn from(other: Embedding<NdArray>) -> Self {
+impl From<Embedding<Wgpu>> for EmbeddingPy {
+    fn from(other: Embedding<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -118,10 +156,10 @@ impl EmbeddingPy {
         match init {
             Some(init) => EmbeddingConfig::new(n_embedding, d_model)
                 .with_initializer(init)
-                .init(&NDARRAYDEVICE)
+                .init(&WGPUDEVICE)
                 .into(),
             None => EmbeddingConfig::new(n_embedding, d_model)
-                .init(&NDARRAYDEVICE)
+                .init(&WGPUDEVICE)
                 .into(),
         }
     }
@@ -141,13 +179,13 @@ impl EmbeddingPy {
 #[pyclass]
 #[derive(Debug, Clone)]
 pub struct BatchNormPy {
-    inner: BatchNorm<NdArray, 0>,
+    inner: BatchNorm<Wgpu, 0>,
 }
 
 implement_send_and_sync!(BatchNormPy);
 
-impl From<BatchNorm<NdArray, 0>> for BatchNormPy {
-    fn from(other: BatchNorm<NdArray, 0>) -> Self {
+impl From<BatchNorm<Wgpu, 0>> for BatchNormPy {
+    fn from(other: BatchNorm<Wgpu, 0>) -> Self {
         Self { inner: other }
     }
 }
@@ -161,10 +199,10 @@ impl BatchNormPy {
     fn new(num_features: usize, epsilon: Option<f64>, momentum: Option<f64>) -> Self {
         let epsilon = epsilon.unwrap_or(1e-5);
         let momentum = momentum.unwrap_or(0.1);
-        let batch_norm: BatchNorm<NdArray, 0> = BatchNormConfig::new(num_features)
+        let batch_norm: BatchNorm<Wgpu, 0> = BatchNormConfig::new(num_features)
             .with_epsilon(epsilon)
             .with_momentum(momentum)
-            .init(&NDARRAYDEVICE);
+            .init(&WGPUDEVICE);
 
         batch_norm.into()
     }
@@ -185,14 +223,14 @@ impl BatchNormPy {
     }
 }
 
-implement_ndarray_interface!(
+implement_wgpu_interface!(
     GroupNormPy,
     GroupNorm,
     "Applies Group Normalization over a mini-batch of inputs"
 );
 
-impl From<GroupNorm<NdArray>> for GroupNormPy {
-    fn from(other: GroupNorm<NdArray>) -> Self {
+impl From<GroupNorm<Wgpu>> for GroupNormPy {
+    fn from(other: GroupNorm<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -214,7 +252,7 @@ impl GroupNormPy {
         GroupNormConfig::new(num_groups, num_channels)
             .with_epsilon(epsilon)
             .with_affine(affine)
-            .init(&NDARRAYDEVICE)
+            .init(&WGPUDEVICE)
             .into()
     }
 
@@ -229,14 +267,15 @@ impl GroupNormPy {
         }
     }
 }
-implement_ndarray_interface!(
+
+implement_wgpu_interface!(
     InstanceNormPy,
     InstanceNorm,
     "Applies Instance Normalization over a tensor"
 );
 
-impl From<InstanceNorm<NdArray>> for InstanceNormPy {
-    fn from(other: InstanceNorm<NdArray>) -> Self {
+impl From<InstanceNorm<Wgpu>> for InstanceNormPy {
+    fn from(other: InstanceNorm<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -251,7 +290,7 @@ impl InstanceNormPy {
         InstanceNormConfig::new(num_channels)
             .with_epsilon(epsilon)
             .with_affine(affine)
-            .init(&NDARRAYDEVICE)
+            .init(&WGPUDEVICE)
             .into()
     }
 
@@ -267,19 +306,20 @@ impl InstanceNormPy {
     }
 }
 
-implement_ndarray_interface!(
+implement_wgpu_interface!(
     InstanceNormRecordPy,
     InstanceNormRecord,
     "Record type of the InstanceNorm module"
 );
-implement_ndarray_interface!(
+
+implement_wgpu_interface!(
     LayerNormPy,
     LayerNorm,
     "Applies Layer Normalization over a tensor"
 );
 
-impl From<LayerNorm<NdArray>> for LayerNormPy {
-    fn from(other: LayerNorm<NdArray>) -> Self {
+impl From<LayerNorm<Wgpu>> for LayerNormPy {
+    fn from(other: LayerNorm<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -292,7 +332,7 @@ impl LayerNormPy {
         let epsilon = epsilon.unwrap_or(1e-5);
         LayerNormConfig::new(d_model)
             .with_epsilon(epsilon)
-            .init(&NDARRAYDEVICE)
+            .init(&WGPUDEVICE)
             .into()
     }
 
@@ -308,20 +348,21 @@ impl LayerNormPy {
     }
 }
 
-implement_ndarray_interface!(
+implement_wgpu_interface!(
     LayerNormRecordPy,
     LayerNormRecord,
     "Record type of the LayerNorm record"
 );
-// implement_ndarray_interface!(PyLinearRecord, LinearRecord);
-implement_ndarray_interface!(
+
+// implement_wgpu_interface!(PyLinearRecord, LinearRecord);
+implement_wgpu_interface!(
     LstmPy,
     Lstm,
     "The Lstm module. This implementation is for a unidirectional, stateless, Lstm"
 );
 
-impl From<Lstm<NdArray>> for LstmPy {
-    fn from(other: Lstm<NdArray>) -> Self {
+impl From<Lstm<Wgpu>> for LstmPy {
+    fn from(other: Lstm<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -377,20 +418,20 @@ impl LstmPy {
         match init {
             Some(init) => LstmConfig::new(d_input, d_hidden, bias)
                 .with_initializer(init)
-                .init(&NDARRAYDEVICE)
+                .init(&WGPUDEVICE)
                 .into(),
             None => LstmConfig::new(d_input, d_hidden, bias)
-                .init(&NDARRAYDEVICE)
+                .init(&WGPUDEVICE)
                 .into(),
         }
     }
 }
 
-implement_ndarray_interface!(LstmRecordPy, LstmRecord, "Record type of the Lstm module");
-implement_ndarray_interface!(PReluPy, PRelu, "Parametric Relu Layer");
+implement_wgpu_interface!(LstmRecordPy, LstmRecord, "Record type of the Lstm module");
+implement_wgpu_interface!(PReluPy, PRelu, "Parametric Relu Layer");
 
-impl From<PRelu<NdArray>> for PReluPy {
-    fn from(other: PRelu<NdArray>) -> Self {
+impl From<PRelu<Wgpu>> for PReluPy {
+    fn from(other: PRelu<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -406,10 +447,10 @@ impl PReluPy {
         };
         let alpha = alpha.unwrap_or(0.25);
         match param {
-            Some(param) => param.with_alpha(alpha).init(&NDARRAYDEVICE).into(),
+            Some(param) => param.with_alpha(alpha).init(&WGPUDEVICE).into(),
             None => PReluConfig::new()
                 .with_alpha(alpha)
-                .init(&NDARRAYDEVICE)
+                .init(&WGPUDEVICE)
                 .into(),
         }
     }
@@ -425,16 +466,18 @@ impl PReluPy {
         }
     }
 }
-implement_ndarray_interface!(
+
+implement_wgpu_interface!(
     PReluRecordPy,
     PReluRecord,
     "record type of the PRelu module"
 );
-implement_ndarray_interface!(PositionalEncodingPy, PositionalEncoding, "
+
+implement_wgpu_interface!(PositionalEncodingPy, PositionalEncoding, "
 Positional encoding layer for transformer models \n This layer adds positional information to the input embeddings,\nallowing the transformer model to take into account the order of the sequence.\n The positional encoding is added to the input embeddings by computing\n a set of sinusoidal functions with different frequencies and phases.");
 
-impl From<PositionalEncoding<NdArray>> for PositionalEncodingPy {
-    fn from(other: PositionalEncoding<NdArray>) -> Self {
+impl From<PositionalEncoding<Wgpu>> for PositionalEncodingPy {
+    fn from(other: PositionalEncoding<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -449,7 +492,7 @@ impl PositionalEncodingPy {
         PositionalEncodingConfig::new(d_model)
             .with_max_sequence_size(max_sequence_size)
             .with_max_timescale(max_timescale)
-            .init(&NDARRAYDEVICE)
+            .init(&WGPUDEVICE)
             .into()
     }
 
@@ -460,19 +503,21 @@ impl PositionalEncodingPy {
         }
     }
 }
-implement_ndarray_interface!(
+
+implement_wgpu_interface!(
     PositionalEncodingRecordPy,
     PositionalEncodingRecord,
     "Record type of the PositionalEncoding module"
 );
-implement_ndarray_interface!(
+
+implement_wgpu_interface!(
     RmsNormPy,
     RmsNorm,
     "Applies RMS Normalization over an input tensor along the last dimension"
 );
 
-impl From<RmsNorm<NdArray>> for RmsNormPy {
-    fn from(other: RmsNorm<NdArray>) -> Self {
+impl From<RmsNorm<Wgpu>> for RmsNormPy {
+    fn from(other: RmsNorm<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -485,7 +530,7 @@ impl RmsNormPy {
         let eps = eps.unwrap_or(1e-5);
         RmsNormConfig::new(d_model)
             .with_epsilon(eps)
-            .init(&NDARRAYDEVICE)
+            .init(&WGPUDEVICE)
             .into()
     }
 
@@ -501,18 +546,20 @@ impl RmsNormPy {
     }
 }
 
-implement_ndarray_interface!(
+implement_wgpu_interface!(
     RmsNormRecordPy,
     RmsNormRecord,
     "Record type of the RmsNormRecord"
 );
-implement_ndarray_interface!(
+
+implement_wgpu_interface!(
     RotaryEncodingPy,
     RotaryEncoding,
     "A module that applies rotary positional encoding to a tensor.\n Rotary Position Encoding or Embedding (RoPE), is a type of \nposition embedding which encodes absolute positional\n information with rotation matrix and naturally incorporates explicit relative \nposition dependency in self-attention formulation."
 );
-impl From<RotaryEncoding<NdArray>> for RotaryEncodingPy {
-    fn from(other: RotaryEncoding<NdArray>) -> Self {
+
+impl From<RotaryEncoding<Wgpu>> for RotaryEncodingPy {
+    fn from(other: RotaryEncoding<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -528,7 +575,7 @@ impl RotaryEncodingPy {
         let theta = theta.unwrap_or(10000.0);
         RotaryEncodingConfig::new(max_sequence_length, d_model)
             .with_theta(theta)
-            .init(&NDARRAYDEVICE)
+            .init(&WGPUDEVICE)
             .into()
     }
 
@@ -543,19 +590,21 @@ impl RotaryEncodingPy {
         }
     }
 }
-implement_ndarray_interface!(
+
+implement_wgpu_interface!(
     RotaryEncodingRecordPy,
     RotaryEncodingRecord,
     "Record type of the RotaryEncoding layer."
 );
-implement_ndarray_interface!(
+
+implement_wgpu_interface!(
     SwiGluPy,
     SwiGlu,
     "Applies the SwiGLU or Swish Gated Linear Unit to the input tensor."
 );
 
-impl From<SwiGlu<NdArray>> for SwiGluPy {
-    fn from(other: SwiGlu<NdArray>) -> Self {
+impl From<SwiGlu<Wgpu>> for SwiGluPy {
+    fn from(other: SwiGlu<Wgpu>) -> Self {
         Self { inner: other }
     }
 }
@@ -611,12 +660,12 @@ impl SwiGluPy {
             Some(init) => SwiGluConfig::new(d_input, d_output)
                 .with_bias(bias)
                 .with_initializer(init)
-                .init(&NDARRAYDEVICE)
+                .init(&WGPUDEVICE)
                 .into(),
 
             None => SwiGluConfig::new(d_input, d_output)
                 .with_bias(bias)
-                .init(&NDARRAYDEVICE)
+                .init(&WGPUDEVICE)
                 .into(),
         }
     }
@@ -632,8 +681,10 @@ impl SwiGluPy {
         }
     }
 }
+// implement_wgpu_interface!(PySwiGluRecord, SwiGluRecord);
 
 implement_send_and_sync!(SwiGluPy);
+// implement_send_and_sync!(PySwiGluRecord);
 implement_send_and_sync!(RotaryEncodingPy);
 implement_send_and_sync!(RotaryEncodingRecordPy);
 implement_send_and_sync!(RmsNormPy);
@@ -644,6 +695,7 @@ implement_send_and_sync!(PReluRecordPy);
 implement_send_and_sync!(PReluPy);
 implement_send_and_sync!(LstmPy);
 implement_send_and_sync!(LstmRecordPy);
+// implement_send_and_sync!(PyLinearRecord);
 implement_send_and_sync!(LayerNormPy);
 implement_send_and_sync!(LayerNormRecordPy);
 implement_send_and_sync!(InstanceNormRecordPy);
@@ -656,14 +708,16 @@ pub mod attention_exports {
     use super::*;
     use burn::nn::attention::*;
 
-    implement_ndarray_interface!(
+    // vec![GeneratePaddingMask, MhaCache, MhaInput, MultiHeadAttention];
+
+    implement_wgpu_interface!(
         GeneratePaddingMaskPy,
         GeneratePaddingMask,
         "Generate a padding attention mask."
     );
 
-    impl From<GeneratePaddingMask<NdArray>> for GeneratePaddingMaskPy {
-        fn from(other: GeneratePaddingMask<NdArray>) -> Self {
+    impl From<GeneratePaddingMask<Wgpu>> for GeneratePaddingMaskPy {
+        fn from(other: GeneratePaddingMask<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -671,36 +725,33 @@ pub mod attention_exports {
     #[pymethods]
     impl GeneratePaddingMaskPy {
         #[new]
+        #[pyo3(signature = (pad_token, tokens_list, max_seq_length = None))]
         fn new(
             pad_token: usize,
             tokens_list: Vec<Vec<usize>>,
             max_seq_length: Option<usize>,
         ) -> Self {
-            generate_padding_mask(pad_token, tokens_list, max_seq_length, &NDARRAYDEVICE).into()
+            generate_padding_mask(pad_token, tokens_list, max_seq_length, &WGPUDEVICE).into()
         }
     }
 
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         MhaCachePy,
         MhaCache,
         "Cache for the Multi Head Attention layer."
     );
-
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         MhaInputPy,
         MhaInput,
         "Multihead attention forward pass input argument."
     );
-
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         MultiHeadAttentionPy,
         MultiHeadAttention,
         "The multihead attention module as describe in the paper Attention Is All You Need."
     );
-
-    implement_ndarray_interface!(MhaOutputPy, MhaOutput, "Multihead attention outputs.");
-
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(MhaOutputPy, MhaOutput, "Multihead attention outputs.");
+    implement_wgpu_interface!(
         MultiHeadAttentionRecordPy,
         MultiHeadAttentionRecord,
         "Record type for the MultiHeadAttention"
@@ -721,19 +772,14 @@ pub mod transformer_exports {
     use super::*;
     use burn::nn::transformer::*;
 
-    implement_ndarray_interface!(
-        PositionWiseFeedForwardRecordPy,
-        PositionWiseFeedForwardRecord,
-        "Record type for position wise feed forward record"
-    );
-
+    /// Applies the position-wise feed-forward network to the input tensor from the paper [`Attention Is All You Need`](https://arxiv.org/pdf/1706.03762v7).
     #[pyclass]
     pub struct PositionWiseFeedForwardPy {
-        pub inner: PositionWiseFeedForward<NdArray>,
+        pub inner: PositionWiseFeedForward<Wgpu>,
     }
 
-    impl From<PositionWiseFeedForward<NdArray>> for PositionWiseFeedForwardPy {
-        fn from(other: PositionWiseFeedForward<NdArray>) -> Self {
+    impl From<PositionWiseFeedForward<Wgpu>> for PositionWiseFeedForwardPy {
+        fn from(other: PositionWiseFeedForward<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -796,11 +842,11 @@ pub mod transformer_exports {
                 Some(init) => PositionWiseFeedForwardConfig::new(d_model, d_ff)
                     .with_dropout(dropout)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => PositionWiseFeedForwardConfig::new(d_model, d_ff)
                     .with_dropout(dropout)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -816,10 +862,17 @@ pub mod transformer_exports {
             }
         }
     }
-    implement_ndarray_interface!(TransformerDecoderPy, TransformerDecoder);
 
-    impl From<TransformerDecoder<NdArray>> for TransformerDecoderPy {
-        fn from(other: TransformerDecoder<NdArray>) -> Self {
+    implement_wgpu_interface!(
+        PositionWiseFeedForwardRecordPy,
+        PositionWiseFeedForwardRecord,
+        "Record type for position wise feed forward record"
+    );
+
+    implement_wgpu_interface!(TransformerDecoderPy, TransformerDecoder);
+
+    impl From<TransformerDecoder<Wgpu>> for TransformerDecoderPy {
+        fn from(other: TransformerDecoder<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -899,13 +952,13 @@ pub mod transformer_exports {
                     .with_norm_first(norm_first)
                     .with_quiet_softmax(quet_softmax)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => TransformerDecoderConfig::new(d_model, d_ff, n_heads, n_layers)
                     .with_dropout(dropout)
                     .with_norm_first(norm_first)
                     .with_quiet_softmax(quet_softmax)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -913,7 +966,7 @@ pub mod transformer_exports {
         // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
 
         fn forward(&self, input: &mut TransformerDecoderInputPy) -> TensorPy {
-            let mut guard = input.inner.lock().unwrap().take().unwrap();
+            let guard = input.inner.lock().unwrap().take().unwrap();
             self.inner.forward(guard).into()
             // match guard {
             //     Some(inner) => Ok(self.inner.forward(inner).into()),
@@ -921,24 +974,28 @@ pub mod transformer_exports {
             // }
         }
     }
-    implement_ndarray_interface!(
+
+    implement_wgpu_interface!(
         TransformerDecoderAutoregressiveCachePy,
         TransformerDecoderAutoregressiveCache,
         "Autoregressive cache for the Transformer Decoder layer"
     );
-    // implement_ndarray_interface!(
-    //     TransformerDecoderInputPy,
-    //     TransformerDecoderInput,
-    //     "Transformer Decoder forward pass input argument"
-    // );
 
-    #[pyclass]
-    pub struct TransformerDecoderInputPy {
-        pub inner: Arc<Mutex<Option<TransformerDecoderInput<NdArray>>>>,
+    impl From<TransformerDecoderAutoregressiveCache<Wgpu>> for TransformerDecoderAutoregressiveCachePy {
+        fn from(other: TransformerDecoderAutoregressiveCache<Wgpu>) -> Self {
+            Self { inner: other }
+        }
     }
 
-    impl From<TransformerDecoderInput<NdArray>> for TransformerDecoderInputPy {
-        fn from(other: TransformerDecoderInput<NdArray>) -> Self {
+    //[NOTE:] @kwach This type is more of a landmine than anything else.
+    //               while its interface is safe; i'm afraid the implications of its usage are more than what one may expect.
+    #[pyclass]
+    pub struct TransformerDecoderInputPy {
+        pub inner: Arc<Mutex<Option<TransformerDecoderInput<Wgpu>>>>,
+    }
+
+    impl From<TransformerDecoderInput<Wgpu>> for TransformerDecoderInputPy {
+        fn from(other: TransformerDecoderInput<Wgpu>) -> Self {
             Self {
                 inner: Arc::new(Mutex::new(Some(other))),
             }
@@ -972,29 +1029,30 @@ pub mod transformer_exports {
             }
         }
     }
-    implement_ndarray_interface!(
+
+    implement_wgpu_interface!(
         TransformerDecoderLayerPy,
         TransformerDecoderLayer,
         "Transformer Decoder layer module."
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         TransformerDecoderLayerRecordPy,
         TransformerDecoderLayerRecord,
         "Record type for the transformer decoder layer"
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         TransformerDecoderRecordPy,
         TransformerDecoderRecord,
         "Record type for the transformer decoder"
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         TransformerEncoderPy,
         TransformerEncoder,
         "The transformer encoder module as describe in the paper Attention Is All You Need."
     );
 
-    impl From<TransformerEncoder<NdArray>> for TransformerEncoderPy {
-        fn from(other: TransformerEncoder<NdArray>) -> Self {
+    impl From<TransformerEncoder<Wgpu>> for TransformerEncoderPy {
+        fn from(other: TransformerEncoder<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -1072,13 +1130,13 @@ pub mod transformer_exports {
                     .with_norm_first(norm_first)
                     .with_quiet_softmax(quet_softmax)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => TransformerEncoderConfig::new(d_model, d_ff, n_heads, n_layers)
                     .with_dropout(dropout)
                     .with_norm_first(norm_first)
                     .with_quiet_softmax(quet_softmax)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -1086,26 +1144,27 @@ pub mod transformer_exports {
         // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
 
         fn forward(&self, input: &mut TransformerEncoderInputPy) -> TensorPy {
-            let mut guard = input.inner.lock().unwrap().take().unwrap();
+            let guard = input.inner.lock().unwrap().take().unwrap();
             self.inner.forward(guard).into()
         }
     }
-    implement_ndarray_interface!(
+
+    implement_wgpu_interface!(
         TransformerEncoderAutoregressiveCachePy,
         TransformerEncoderAutoregressiveCache,
         "Autoregressive cache for the Transformer Encoder layer.\nTo be used during inference when decoding tokens."
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         TransformerEncoderLayerPy,
         TransformerEncoderLayer,
         "Transformer encoder layer module."
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         TransformerEncoderLayerRecordPy,
         TransformerEncoderLayerRecord,
         "Record type of the transformer encoder layer module"
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         TransformerEncoderRecordPy,
         TransformerEncoderRecord,
         "Record type of the transformer encoder module"
@@ -1113,11 +1172,11 @@ pub mod transformer_exports {
 
     #[pyclass]
     pub struct TransformerEncoderInputPy {
-        pub inner: Arc<Mutex<Option<TransformerEncoderInput<NdArray>>>>,
+        pub inner: Arc<Mutex<Option<TransformerEncoderInput<Wgpu>>>>,
     }
 
-    impl From<TransformerEncoderInput<NdArray>> for TransformerEncoderInputPy {
-        fn from(other: TransformerEncoderInput<NdArray>) -> Self {
+    impl From<TransformerEncoderInput<Wgpu>> for TransformerEncoderInputPy {
+        fn from(other: TransformerEncoderInput<Wgpu>) -> Self {
             Self {
                 inner: Arc::new(Mutex::new(Some(other))),
             }
@@ -1128,8 +1187,8 @@ pub mod transformer_exports {
     impl TransformerEncoderInputPy {
         #[new]
         fn new(tensor: TensorPy) -> PyResult<Self> {
-            match (tensor) {
-                (TensorPy::TensorThree(t1)) => Ok(TransformerEncoderInput::new(t1.inner).into()),
+            match tensor {
+                TensorPy::TensorThree(t1) => Ok(TransformerEncoderInput::new(t1.inner).into()),
 
                 _ => Err(TensorError::NonApplicableMethod.into()),
             }
@@ -1191,15 +1250,15 @@ pub mod conv_exports {
     use burn::nn::conv::*;
     use burn::prelude::*;
 
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         DeformConv2dPy,
         DeformConv2d,
         "
 Applies a deformable 2D convolution over input tensors."
     );
 
-    impl From<DeformConv2d<NdArray>> for DeformConv2dPy {
-        fn from(other: DeformConv2d<NdArray>) -> Self {
+    impl From<DeformConv2d<Wgpu>> for DeformConv2dPy {
+        fn from(other: DeformConv2d<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -1271,7 +1330,7 @@ Applies a deformable 2D convolution over input tensors."
                     .with_padding(padding.0)
                     .with_bias(bias)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => DeformConv2dConfig::new(channels, kernel_size)
                     .with_stride(stride)
@@ -1280,7 +1339,7 @@ Applies a deformable 2D convolution over input tensors."
                     .with_offset_groups(offset_groups)
                     .with_padding(padding.0)
                     .with_bias(bias)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -1315,19 +1374,19 @@ Applies a deformable 2D convolution over input tensors."
         }
     }
 
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         DeformConv2dRecordPy,
         DeformConv2dRecord,
         "record type for the 2d deformable conolution module"
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         Conv1dPy,
         Conv1d,
         "Applies a 1D convolution over input tensors."
     );
 
-    impl From<Conv1d<NdArray>> for Conv1dPy {
-        fn from(other: Conv1d<NdArray>) -> Self {
+    impl From<Conv1d<Wgpu>> for Conv1dPy {
+        fn from(other: Conv1d<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -1396,17 +1455,19 @@ Applies a deformable 2D convolution over input tensors."
                         .with_stride(stride)
                         .with_dilation(dilation)
                         .with_padding(padding.0)
+                        .with_groups(groups)
                         .with_bias(bias)
                         .with_initializer(init)
-                        .init(&NDARRAYDEVICE)
+                        .init(&WGPUDEVICE)
                         .into()
                 }
                 None => burn::nn::conv::Conv1dConfig::new(channels_in, channels_out, kernel_size)
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding.0)
+                    .with_groups(groups)
                     .with_bias(bias)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -1418,21 +1479,20 @@ Applies a deformable 2D convolution over input tensors."
             }
         }
     }
-
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         Conv1dRecordPy,
         Conv1dRecord,
         "record type for the 1D convolutional module."
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         Conv2dPy,
         Conv2d,
         "
 Applies a 2D convolution over input tensors."
     );
 
-    impl From<Conv2d<NdArray>> for Conv2dPy {
-        fn from(other: Conv2d<NdArray>) -> Self {
+    impl From<Conv2d<Wgpu>> for Conv2dPy {
+        fn from(other: Conv2d<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -1502,7 +1562,7 @@ Applies a 2D convolution over input tensors."
                     .with_groups(groups)
                     .with_bias(bias)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => burn::nn::conv::Conv2dConfig::new(channels, kernel_size)
                     .with_stride(stride)
@@ -1510,7 +1570,7 @@ Applies a 2D convolution over input tensors."
                     .with_padding(padding.0)
                     .with_groups(groups)
                     .with_bias(bias)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -1523,20 +1583,20 @@ Applies a 2D convolution over input tensors."
             }
         }
     }
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         Conv2dRecordPy,
         Conv2dRecord,
         "record type for the 2D convolutional module."
     );
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         Conv3DPy,
         Conv3d,
         "
 Applies a 3D convolution over input tensors."
     );
 
-    impl From<Conv3d<NdArray>> for Conv3DPy {
-        fn from(other: Conv3d<NdArray>) -> Self {
+    impl From<Conv3d<Wgpu>> for Conv3DPy {
+        fn from(other: Conv3d<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -1606,7 +1666,7 @@ Applies a 3D convolution over input tensors."
                     .with_groups(groups)
                     .with_bias(bias)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => burn::nn::conv::Conv3dConfig::new(channels, kernel_size)
                     .with_stride(stride)
@@ -1614,7 +1674,7 @@ Applies a 3D convolution over input tensors."
                     .with_padding(padding.0)
                     .with_groups(groups)
                     .with_bias(bias)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -1627,14 +1687,15 @@ Applies a 3D convolution over input tensors."
             }
         }
     }
-    implement_ndarray_interface!(
+
+    implement_wgpu_interface!(
         ConvTranspose1dPy,
         ConvTranspose1d,
         "Applies a 1D transposed convolution over input tensors"
     );
 
-    impl From<ConvTranspose1d<NdArray>> for ConvTranspose1dPy {
-        fn from(other: ConvTranspose1d<NdArray>) -> Self {
+    impl From<ConvTranspose1d<Wgpu>> for ConvTranspose1dPy {
+        fn from(other: ConvTranspose1d<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -1704,7 +1765,7 @@ Applies a 3D convolution over input tensors."
                     .with_groups(groups)
                     .with_bias(bias)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => burn::nn::conv::ConvTranspose1dConfig::new(channels, kernel_size)
                     .with_stride(stride)
@@ -1712,7 +1773,7 @@ Applies a 3D convolution over input tensors."
                     .with_padding(padding)
                     .with_groups(groups)
                     .with_bias(bias)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -1725,19 +1786,20 @@ Applies a 3D convolution over input tensors."
         }
     }
 
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         ConvTranspose1dRecordPy,
         ConvTranspose1dRecord,
         " record type for the 1D convolutional transpose module."
     );
-    implement_ndarray_interface!(
+
+    implement_wgpu_interface!(
         ConvTranspose2dPy,
         ConvTranspose2d,
         "Applies a 2D transposed convolution over input tensors."
     );
 
-    impl From<ConvTranspose2d<NdArray>> for ConvTranspose2dPy {
-        fn from(other: ConvTranspose2d<NdArray>) -> Self {
+    impl From<ConvTranspose2d<Wgpu>> for ConvTranspose2dPy {
+        fn from(other: ConvTranspose2d<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -1809,7 +1871,7 @@ Applies a 3D convolution over input tensors."
                     .with_groups(groups)
                     .with_bias(bias)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => burn::nn::conv::ConvTranspose2dConfig::new(channels, kernel_size)
                     .with_stride(stride)
@@ -1817,7 +1879,7 @@ Applies a 3D convolution over input tensors."
                     .with_padding(padding)
                     .with_groups(groups)
                     .with_bias(bias)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -1830,25 +1892,20 @@ Applies a 3D convolution over input tensors."
         }
     }
 
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(
         ConvTranspose2dRecordPy,
         ConvTranspose2dRecord,
         "record type for the 3D convolutional transpose module"
     );
-    implement_ndarray_interface!(
+
+    implement_wgpu_interface!(
         ConvTranspose3dPy,
         ConvTranspose3d,
         "Applies a 3D transposed convolution over input tensors."
     );
 
-    implement_ndarray_interface!(
-        ConvTranspose3dRecordPy,
-        ConvTranspose3dRecord,
-        " record type for the 3D convolutional transpose module."
-    );
-
-    impl From<ConvTranspose3d<NdArray>> for ConvTranspose3dPy {
-        fn from(other: ConvTranspose3d<NdArray>) -> Self {
+    impl From<ConvTranspose3d<Wgpu>> for ConvTranspose3dPy {
+        fn from(other: ConvTranspose3d<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -1917,20 +1974,19 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
-                    .with_padding_out(padding_out)
                     .with_groups(groups)
+                    .with_padding_out(padding_out)
                     .with_bias(bias)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => burn::nn::conv::ConvTranspose3dConfig::new(channels, kernel_size)
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
-                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }
@@ -1942,6 +1998,12 @@ Applies a 3D convolution over input tensors."
             }
         }
     }
+
+    implement_wgpu_interface!(
+        ConvTranspose3dRecordPy,
+        ConvTranspose3dRecord,
+        " record type for the 3D convolutional transpose module."
+    );
 
     implement_send_and_sync!(Conv1dPy);
     implement_send_and_sync!(Conv3DPy);
@@ -1962,15 +2024,15 @@ pub mod gru_exports {
     use super::*;
     use burn::nn::gru::*;
 
-    implement_ndarray_interface!(GruRecordPy, GruRecord, "record type for the Gru module");
-    implement_ndarray_interface!(
+    implement_wgpu_interface!(GruRecordPy, GruRecord, "record type for the Gru module");
+    implement_wgpu_interface!(
         GruPy,
         Gru,
         "The Gru (Gated recurrent unit) module. This implementation is for a unidirectional, stateless, Gru."
     );
 
-    impl From<Gru<NdArray>> for GruPy {
-        fn from(other: Gru<NdArray>) -> Self {
+    impl From<Gru<Wgpu>> for GruPy {
+        fn from(other: Gru<Wgpu>) -> Self {
             Self { inner: other }
         }
     }
@@ -2035,11 +2097,11 @@ pub mod gru_exports {
                 Some(init) => GruConfig::new(d_input, d_hidden, bias)
                     .with_reset_after(reset_after)
                     .with_initializer(init)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
                 None => GruConfig::new(d_input, d_hidden, bias)
                     .with_reset_after(reset_after)
-                    .init(&NDARRAYDEVICE)
+                    .init(&WGPUDEVICE)
                     .into(),
             }
         }

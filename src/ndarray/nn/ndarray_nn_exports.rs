@@ -15,6 +15,7 @@ use burn::nn::{
 };
 use burn::prelude::*;
 use pyo3::prelude::*;
+use burn::backend::ndarray::NdArray;
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_ndarray_interface!(
@@ -913,7 +914,7 @@ pub mod transformer_exports {
         // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
 
         fn forward(&self, input: &mut TransformerDecoderInputPy) -> TensorPy {
-            let mut guard = input.inner.lock().unwrap().take().unwrap();
+            let guard = input.inner.lock().unwrap().take().unwrap();
             self.inner.forward(guard).into()
             // match guard {
             //     Some(inner) => Ok(self.inner.forward(inner).into()),
@@ -1086,7 +1087,7 @@ pub mod transformer_exports {
         // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
 
         fn forward(&self, input: &mut TransformerEncoderInputPy) -> TensorPy {
-            let mut guard = input.inner.lock().unwrap().take().unwrap();
+            let guard = input.inner.lock().unwrap().take().unwrap();
             self.inner.forward(guard).into()
         }
     }
@@ -1128,8 +1129,8 @@ pub mod transformer_exports {
     impl TransformerEncoderInputPy {
         #[new]
         fn new(tensor: TensorPy) -> PyResult<Self> {
-            match (tensor) {
-                (TensorPy::TensorThree(t1)) => Ok(TransformerEncoderInput::new(t1.inner).into()),
+            match tensor {
+                TensorPy::TensorThree(t1) => Ok(TransformerEncoderInput::new(t1.inner).into()),
 
                 _ => Err(TensorError::NonApplicableMethod.into()),
             }
@@ -1396,6 +1397,7 @@ Applies a deformable 2D convolution over input tensors."
                         .with_stride(stride)
                         .with_dilation(dilation)
                         .with_padding(padding.0)
+                        .with_groups(groups)
                         .with_bias(bias)
                         .with_initializer(init)
                         .init(&NDARRAYDEVICE)
@@ -1405,6 +1407,7 @@ Applies a deformable 2D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding.0)
+                    .with_groups(groups)
                     .with_bias(bias)
                     .init(&NDARRAYDEVICE)
                     .into(),
@@ -1806,6 +1809,7 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
+                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
                     .with_initializer(init)
@@ -1815,6 +1819,7 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
+                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
                     .init(&NDARRAYDEVICE)

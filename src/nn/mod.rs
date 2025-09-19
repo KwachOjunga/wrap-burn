@@ -16,7 +16,7 @@ use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
 
-mod common_nn_exports;
+pub mod common_nn_exports;
 mod ndarray_nn_exports;
 mod wgpu_nn_exports;
 // I thought send and Sync were implemented automatically??
