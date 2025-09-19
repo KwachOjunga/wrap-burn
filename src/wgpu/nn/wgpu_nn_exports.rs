@@ -1,4 +1,3 @@
-use std::ops::DerefMut;
 use std::sync::{Arc, Mutex};
 use std::usize;
 
@@ -7,11 +6,9 @@ use crate::nn::common_nn_exports::*;
 use crate::tensor::{tensor_error::TensorError, wgpu_base::TensorPy};
 use crate::{for_normal_struct_enums, implement_send_and_sync, implement_wgpu_interface};
 use burn::backend::Wgpu;
-use burn::nn::Initializer as _;
 use burn::nn::*;
 use burn::prelude::*;
 use pyo3::prelude::*;
-use pyo3::types::*;
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_wgpu_interface!(
@@ -1248,7 +1245,7 @@ pub mod transformer_exports {
 pub mod conv_exports {
     use super::*;
     use burn::nn::conv::*;
-    use burn::prelude::*;
+    // use burn::prelude::*;
 
     implement_wgpu_interface!(
         DeformConv2dPy,
@@ -1868,6 +1865,7 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
+                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
                     .with_initializer(init)
@@ -1877,6 +1875,7 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
+                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
                     .init(&WGPUDEVICE)

@@ -4,6 +4,7 @@ use crate::nn::NDARRAYDEVICE;
 use crate::nn::common_nn_exports::*;
 use crate::tensor::{ndarray_base::TensorPy, tensor_error::TensorError};
 use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
+use burn::backend::ndarray::NdArray;
 use burn::nn::Linear;
 use burn::nn::{
     BatchNorm, BatchNormConfig, Embedding, EmbeddingConfig, GateController, GroupNorm,
@@ -15,7 +16,6 @@ use burn::nn::{
 };
 use burn::prelude::*;
 use pyo3::prelude::*;
-use burn::backend::ndarray::NdArray;
 
 // [`TODO`] Update the documentation to reference the papers. Some of us learn through these frameworks.
 implement_ndarray_interface!(

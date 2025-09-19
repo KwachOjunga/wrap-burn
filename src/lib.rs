@@ -1,8 +1,8 @@
 #![recursion_limit = "256"]
 
-use pyo3::prelude::*;
 use burn::backend::ndarray::NdArray;
 use burn::backend::wgpu::Wgpu;
+use pyo3::prelude::*;
 mod ndarray;
 mod wgpu;
 
@@ -330,13 +330,12 @@ macro_rules! for_normal_struct_enums {
 //     }
 // }
 
-
 #[pymodule]
 mod pyburn {
     use super::*;
 
     #[pymodule_export]
-    use super::wgpu::wgpu;
-    #[pymodule_export]
     use super::ndarray::ndarray;
+    #[pymodule_export]
+    use super::wgpu::wgpu;
 }
