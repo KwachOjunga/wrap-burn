@@ -25,11 +25,54 @@ implement_wgpu_interface!(
 // [TODO] @kwach implement this new method with the Initializer type defined in common module.
 #[pymethods]
 impl GateControllerPy {
-    // #[staticmethod]
-    // pub fn new(input: usize, output: usize, bias: bool, initializer: InitializerPy) -> Self {
-    //     GateController::new(input, output, bias, initializer.0, &WGPUDEVICE).into()
-    // }
+    #[staticmethod]
+    pub fn new(
+        input: usize,
+        output: usize,
+        bias: bool,
+        initializer: crate::nn::common_nn_exports::Initializer,
+    ) -> Self {
+        let init = match initializer {
+            crate::nn::common_nn_exports::Initializer::Constant { value: val } => {
+                burn::nn::Initializer::Constant { value: val }
+            }
 
+            // Initializer::Constant { val } => burn::nn::Initializer::Constant { value: val },
+            crate::nn::common_nn_exports::Initializer::One() => burn::nn::Initializer::Ones,
+            crate::nn::common_nn_exports::Initializer::Zero() => burn::nn::Initializer::Zeros,
+            crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                burn::nn::Initializer::Uniform { min: min, max: max }
+            }
+            crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                burn::nn::Initializer::Normal {
+                    mean: mean,
+                    std: std,
+                }
+            }
+            crate::nn::common_nn_exports::Initializer::KaimingUniform { gain, fan_out_only } => {
+                burn::nn::Initializer::KaimingUniform {
+                    gain: gain,
+                    fan_out_only: fan_out_only,
+                }
+            }
+            crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                burn::nn::Initializer::KaimingNormal {
+                    gain: gain,
+                    fan_out_only: fan_out_only,
+                }
+            }
+            crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                burn::nn::Initializer::XavierUniform { gain: gain }
+            }
+            crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                burn::nn::Initializer::XavierNormal { gain: gain }
+            }
+            crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                burn::nn::Initializer::Orthogonal { gain: gain }
+            }
+        };
+        GateController::new(input, output, bias, init, &WGPUDEVICE).into()
+    }
     /// Helper function for performing weighted matrix product for a gate and adds bias, if any.
     /// Mathematically, performs `Wx*X + Wh*H + b`, where: Wx = weight matrix for the connection
     /// to input vector X Wh = weight matrix for the connection to hidden state H X = input vector
