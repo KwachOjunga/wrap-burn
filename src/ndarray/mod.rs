@@ -1,7 +1,6 @@
 use pyo3::prelude::*;
 
 mod nn;
-mod optim;
 mod tensor;
 mod train;
 
@@ -19,4 +18,6 @@ pub mod ndarray {
     use super::train::ndarray_train::train;
     #[pymodule_export]
     use crate::module::package::nd_module::module;
+    #[pymodule_export]
+    use crate::optim::ndarray_optim::optim;
 }

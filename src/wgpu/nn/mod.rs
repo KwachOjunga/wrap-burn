@@ -1,9 +1,8 @@
 use burn::nn::Linear;
 use burn::nn::*;
 // use burn::prelude::*;
-mod wgpu_nn_exports;
+pub mod wgpu_nn_exports;
 use pyo3::prelude::*;
-// use crate::implement_ndarray_interface;
 use crate::implement_send_and_sync;
 use crate::nn::WGPUDEVICE;
 use crate::tensor::tensor_error::TensorError;

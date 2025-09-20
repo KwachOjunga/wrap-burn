@@ -1,8 +1,7 @@
 use pyo3::prelude::*;
-mod nn;
-mod optim;
-mod tensor;
-mod train;
+pub mod nn;
+pub mod tensor;
+pub mod train;
 
 /// This is the primary entry point for the wgpu backend
 #[cfg(feature = "wgpu")]
@@ -17,4 +16,6 @@ pub mod wgpu {
     use super::train::wgpu_train::train;
     #[pymodule_export]
     use crate::module::package::wgpu_module::module;
+    #[pymodule_export]
+    use crate::optim::wgpu_optim::optim;
 }
