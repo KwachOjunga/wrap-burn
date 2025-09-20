@@ -1,6 +1,6 @@
 use burn::nn::Linear;
 use burn::nn::*;
-// use burn::prelude::*;
+pub mod common_nn_exports;
 pub mod wgpu_nn_exports;
 use pyo3::prelude::*;
 use crate::implement_send_and_sync;
@@ -32,21 +32,21 @@ pub mod mod_nn {
         use super::*;
 
         #[pymodule_export]
-        use crate::nn::common_nn_exports::GeLuPy;
+        use super::common_nn_exports::GeLuPy;
         #[pymodule_export]
-        use crate::nn::common_nn_exports::HardSigmoidPy;
+        use super::common_nn_exports::HardSigmoidPy;
         #[pymodule_export]
-        use crate::nn::common_nn_exports::LeakyReluPy;
+        use super::common_nn_exports::LeakyReluPy;
         #[pymodule_export]
-        use crate::nn::common_nn_exports::PaddingConfig1dPy;
+        use super::common_nn_exports::PaddingConfig1dPy;
         #[pymodule_export]
-        use crate::nn::common_nn_exports::PaddingConfig2dPy;
+        use super::common_nn_exports::PaddingConfig2dPy;
         #[pymodule_export]
-        use crate::nn::common_nn_exports::PaddingConfig3dPy;
+        use super::common_nn_exports::PaddingConfig3dPy;
         #[pymodule_export]
-        use crate::nn::common_nn_exports::SigmoidPy;
+        use super::common_nn_exports::SigmoidPy;
         #[pymodule_export]
-        use crate::nn::common_nn_exports::TanhPy;
+        use super::common_nn_exports::TanhPy;
         #[pymodule_export]
         use wgpu_nn_exports::EmbeddingPy;
         #[pymodule_export]
@@ -80,9 +80,9 @@ pub mod mod_nn {
 
         // [TODO:] Note the current implementation of this
         #[pymodule_export]
-        use crate::nn::common_nn_exports::Initializer;
+        use super::common_nn_exports::Initializer;
         #[pymodule_export]
-        use crate::nn::common_nn_exports::Unfold4dPy;
+        use super::common_nn_exports::Unfold4dPy;
         #[pymodule_export]
         use crate::tensor::wgpu_base::TensorPy;
 
@@ -201,40 +201,40 @@ pub mod mod_nn {
                 d_input: usize,
                 d_hidden: usize,
                 bias: bool,
-                initializer: Option<crate::nn::common_nn_exports::Initializer>,
+                initializer: Option<super::common_nn_exports::Initializer>,
             ) -> Self {
                 let init = match initializer {
                     Some(init) => match init {
-                        crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                        super::common_nn_exports::Initializer::Constant { value } => {
                             Some(burn::nn::Initializer::Constant { value })
                         }
-                        crate::nn::common_nn_exports::Initializer::One() => {
+                        super::common_nn_exports::Initializer::One() => {
                             Some(burn::nn::Initializer::Ones)
                         }
-                        crate::nn::common_nn_exports::Initializer::Zero() => {
+                        super::common_nn_exports::Initializer::Zero() => {
                             Some(burn::nn::Initializer::Zeros)
                         }
-                        crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                        super::common_nn_exports::Initializer::Uniform { min, max } => {
                             Some(burn::nn::Initializer::Uniform { min, max })
                         }
-                        crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                        super::common_nn_exports::Initializer::Normal { mean, std } => {
                             Some(burn::nn::Initializer::Normal { mean, std })
                         }
-                        crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                        super::common_nn_exports::Initializer::KaimingNormal {
                             gain,
                             fan_out_only,
                         } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                        crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                        super::common_nn_exports::Initializer::KaimingUniform {
                             gain,
                             fan_out_only,
                         } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                        crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                        super::common_nn_exports::Initializer::XavierNormal { gain } => {
                             Some(burn::nn::Initializer::XavierNormal { gain })
                         }
-                        crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                        super::common_nn_exports::Initializer::XavierUniform { gain } => {
                             Some(burn::nn::Initializer::XavierUniform { gain })
                         }
-                        crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                        super::common_nn_exports::Initializer::Orthogonal { gain } => {
                             Some(burn::nn::Initializer::Orthogonal { gain })
                         }
                     },
@@ -385,32 +385,32 @@ pub mod mod_nn {
             // use super::*;
 
             #[pymodule_export]
-            use crate::nn::common_nn_exports::interpolate_exports::Interpolate1dPy;
+            use super::common_nn_exports::interpolate_exports::Interpolate1dPy;
             #[pymodule_export]
-            use crate::nn::common_nn_exports::interpolate_exports::Interpolate2dPy;
+            use super::common_nn_exports::interpolate_exports::Interpolate2dPy;
             #[pymodule_export]
-            use crate::nn::common_nn_exports::interpolate_exports::InterpolateModePy;
+            use super::common_nn_exports::interpolate_exports::InterpolateModePy;
         }
 
         #[pymodule]
         pub mod pool {
             // use super::*;
-            // use crate::nn::common_nn_exports::pool_exports::PyAdaptiveAvgPool1d as AdaptiveAvgPool1d_Py;
+            // use super::common_nn_exports::pool_exports::PyAdaptiveAvgPool1d as AdaptiveAvgPool1d_Py;
 
             #[pymodule_export]
-            use crate::nn::common_nn_exports::pool_exports::AdaptiveAvgPool1dPy;
+            use super::common_nn_exports::pool_exports::AdaptiveAvgPool1dPy;
 
             #[pymodule_export]
-            use crate::nn::common_nn_exports::pool_exports::AdaptiveAvgPool1dConfigPy;
+            use super::common_nn_exports::pool_exports::AdaptiveAvgPool1dConfigPy;
 
             #[pymodule_export]
-            use crate::nn::common_nn_exports::pool_exports::AdaptiveAvgPool2dPy;
+            use super::common_nn_exports::pool_exports::AdaptiveAvgPool2dPy;
 
             #[pymodule_export]
-            use crate::nn::common_nn_exports::pool_exports::AdaptiveAvgPool2dConfigPy;
+            use super::common_nn_exports::pool_exports::AdaptiveAvgPool2dConfigPy;
 
             #[pymodule_export]
-            use crate::nn::common_nn_exports::pool_exports::AvgPool1dPy;
+            use super::common_nn_exports::pool_exports::AvgPool1dPy;
         }
 
         #[pymodule]

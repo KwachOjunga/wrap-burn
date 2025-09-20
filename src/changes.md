@@ -6,6 +6,7 @@
 - On the nn module ;
     you cannot eliminate the common_nn_exports module
     all else is replacable
+    - Yes, so this was a flawed requirement
 
 ### Ticket1 20/09/25
 - 

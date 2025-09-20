@@ -8,7 +8,7 @@ mod train;
 #[cfg(feature = "ndarray")]
 #[pymodule]
 pub mod ndarray {
-    use super::*;
+    // use super::*;
 
     #[pymodule_export]
     use super::nn::nn;

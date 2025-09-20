@@ -1,12 +1,10 @@
-use crate::wgpu::nn::wgpu_nn_exports::*;
+// use crate::wgpu::nn::wgpu_nn_exports::*;
 use crate::for_normal_struct_enums;
 use crate::tensor::tensor_error::TensorError;
-use crate::tensor::wgpu_base::*;
+use crate::tensor::ndarray_base::*;
 use burn::nn::*;
-use burn::prelude::*;
 use pyo3::prelude::*;
-use pyo3::pyclass_init::PyClassInitializer;
-use pyo3::types::PyInt;
+
 
 /// Enum specifying with what values a tensor should be initialized
 #[pyclass]
@@ -275,10 +273,10 @@ impl PaddingConfig3dPy {
 
 pub mod pool_exports {
     pub(crate) use super::*;
-    use burn::{backend::Wgpu, nn::pool::*};
-    use pyo3::exceptions::PyResourceWarning;
+    use burn::nn::pool::*;
+    // use pyo3::exceptions::PyResourceWarning;
 
-    /// This is  the typical AdaptivePool1d layer
+    
     for_normal_struct_enums!(
         AdaptiveAvgPool1dPy,
         AdaptiveAvgPool1d,
@@ -357,7 +355,7 @@ Applies a 2D max pooling over input tensors."
 
         #[new]
         fn new(output: usize) -> Self {
-            let mut pool_layer = AdaptiveAvgPool1dConfig::new(output);
+            let pool_layer = AdaptiveAvgPool1dConfig::new(output);
             pool_layer.init().into()
         }
 
@@ -381,7 +379,7 @@ Applies a 2D max pooling over input tensors."
 
         #[new]
         fn new(output: [usize; 2]) -> Self {
-            let mut pool_layer = AdaptiveAvgPool2dConfig::new(output);
+            let pool_layer = AdaptiveAvgPool2dConfig::new(output);
             pool_layer.init().into()
         }
 
@@ -401,7 +399,7 @@ Applies a 2D max pooling over input tensors."
         #[new]
         #[pyo3(signature = (kernel_size , stride = None, padding = None, count_bool_pad = None))]
         fn new(
-            py: Python<'_>,
+            // py: Python<'_>,
             kernel_size: usize,
             stride: Option<usize>,
             padding: Option<PaddingConfig1dPy>,
@@ -412,8 +410,8 @@ Applies a 2D max pooling over input tensors."
             let count_bool_pad = count_bool_pad.unwrap_or(true);
 
             AvgPool1dConfigPy::new(kernel_size)
-                .with_stride(py, stride)
-                .with_padding(py, padding)
+                .with_stride(/*py,*/ stride)
+                .with_padding(/*py,*/ padding)
                 .with_count_include_pad(count_bool_pad)
                 .init()
         }
@@ -426,13 +424,13 @@ Applies a 2D max pooling over input tensors."
             AvgPool1dConfigPy(AvgPool1dConfig::new(kernel_size))
         }
 
-        pub fn with_stride(&self, py: Python<'_>, stride: usize) -> AvgPool1dConfigPy {
+        pub fn with_stride(&self, /*py: Python<'_>,*/ stride: usize) -> AvgPool1dConfigPy {
             AvgPool1dConfigPy(self.0.clone().with_stride(stride))
         }
 
         pub fn with_padding(
             &mut self,
-            py: Python<'_>,
+            // py: Python<'_>,
             padding: PaddingConfig1dPy,
         ) -> AvgPool1dConfigPy {
             match padding.0 {
@@ -465,7 +463,7 @@ Applies a 2D max pooling over input tensors."
         #[new]
         #[pyo3(signature = (kernel_size , stride = None, padding = None, count_bool_pad = None))]
         fn new(
-            py: Python<'_>,
+            // py: Python<'_>,
             kernel_size: [usize; 2],
             stride: Option<[usize; 2]>,
             padding: Option<PaddingConfig2dPy>,
@@ -476,8 +474,8 @@ Applies a 2D max pooling over input tensors."
             let count_bool_pad = count_bool_pad.unwrap_or(true);
 
             AvgPool2dConfigPy::new(kernel_size)
-                .with_strides(py, stride)
-                .with_padding(py, padding)
+                .with_strides(/*py,*/ stride)
+                .with_padding(/*py,*/ padding)
                 .with_count_include_pad(count_bool_pad)
                 .init()
         }
@@ -490,13 +488,13 @@ Applies a 2D max pooling over input tensors."
             AvgPool2dConfigPy(AvgPool2dConfig::new(kernel_size))
         }
 
-        pub fn with_strides(&self, py: Python<'_>, stride: [usize; 2]) -> AvgPool2dConfigPy {
+        pub fn with_strides(&self, /*py: Python<'_>,*/ stride: [usize; 2]) -> AvgPool2dConfigPy {
             AvgPool2dConfigPy(self.0.clone().with_strides(stride))
         }
 
         pub fn with_padding(
             &mut self,
-            py: Python<'_>,
+            // py: Python<'_>,
             padding: PaddingConfig2dPy,
         ) -> AvgPool2dConfigPy {
             match padding.0 {
@@ -531,7 +529,7 @@ Applies a 2D max pooling over input tensors."
         #[staticmethod]
         #[pyo3(signature = (kernel_size , stride = None, padding = None, dilation = Some(1)))]
         fn new(
-            py: Python<'_>,
+            // py: Python<'_>,
             kernel_size: usize,
             stride: Option<usize>,
             padding: Option<PaddingConfig1dPy>,
@@ -542,8 +540,8 @@ Applies a 2D max pooling over input tensors."
             let dilation = dilation.unwrap_or(1);
 
             MaxPool1dConfigPy::new(kernel_size)
-                .with_stride(py, stride)
-                .with_padding(py, padding)
+                .with_stride(/*py*/ stride)
+                .with_padding(/*py*/ padding)
                 .with_dilation(dilation)
                 .init()
         }
@@ -551,18 +549,18 @@ Applies a 2D max pooling over input tensors."
 
     #[pymethods]
     impl MaxPool1dConfigPy {
-        #[staticmethod]
+        #[new]
         pub fn new(kernel_size: usize) -> MaxPool1dConfigPy {
             MaxPool1dConfigPy(MaxPool1dConfig::new(kernel_size))
         }
 
-        pub fn with_stride(&self, py: Python<'_>, stride: usize) -> MaxPool1dConfigPy {
+        pub fn with_stride(&self, /*py: Python<'_>*/ stride: usize) -> MaxPool1dConfigPy {
             MaxPool1dConfigPy(self.0.clone().with_stride(stride))
         }
 
         pub fn with_padding(
             &mut self,
-            py: Python<'_>,
+            // py: Python<'_>,
             padding: PaddingConfig1dPy,
         ) -> MaxPool1dConfigPy {
             match padding.0 {
@@ -595,7 +593,7 @@ Applies a 2D max pooling over input tensors."
         #[staticmethod]
         #[pyo3(signature = (kernel_size , stride = None, padding = None, dilation = None))]
         fn new(
-            py: Python<'_>,
+            // py: Python<'_>,
             kernel_size: [usize; 2],
             stride: Option<[usize; 2]>,
             padding: Option<PaddingConfig2dPy>,
@@ -606,8 +604,8 @@ Applies a 2D max pooling over input tensors."
             let dilation = dilation.unwrap_or([1, 1]);
 
             MaxPool2dConfigPy::new(kernel_size)
-                .with_strides(py, stride)
-                .with_padding(py, padding)
+                .with_strides(/*py,*/ stride)
+                .with_padding(/*py,*/ padding)
                 .with_dilation(dilation)
                 .init()
         }
@@ -620,13 +618,13 @@ Applies a 2D max pooling over input tensors."
             MaxPool2dConfigPy(MaxPool2dConfig::new(kernel_size))
         }
 
-        pub fn with_strides(&self, py: Python<'_>, stride: [usize; 2]) -> MaxPool2dConfigPy {
+        pub fn with_strides(&self, /*py: Python<'_>,*/ stride: [usize; 2]) -> MaxPool2dConfigPy {
             MaxPool2dConfigPy(self.0.clone().with_strides(stride))
         }
 
         pub fn with_padding(
             &mut self,
-            py: Python<'_>,
+            /*py: Python<'_>,*/
             padding: PaddingConfig2dPy,
         ) -> MaxPool2dConfigPy {
             match padding.0 {

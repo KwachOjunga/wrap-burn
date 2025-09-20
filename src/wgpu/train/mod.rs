@@ -37,7 +37,7 @@ pub mod wgpu_train {
         #[pymodule]
         pub mod checkpoint {
 
-            use super::*;
+            // use super::*;
 
             #[pymodule_export]
             use super::base::wg_train::checkpoint::CheckPointError;
@@ -106,7 +106,7 @@ pub mod wgpu_train {
             #[pymodule]
             pub mod state {
 
-                use super::*;
+                // use super::*;
 
                 #[pymodule_export]
                 use super::base::wg_train::metric::state::FormatOptionsPy;
@@ -116,7 +116,7 @@ pub mod wgpu_train {
 
             #[pymodule]
             pub mod store {
-                use super::*;
+                // use super::*;
 
                 #[pymodule_export]
                 use super::base::wg_train::metric::store::AggregatePy;
@@ -135,7 +135,7 @@ pub mod wgpu_train {
 
         #[pymodule]
         pub mod renderer {
-            use super::*;
+            // use super::*;
 
             #[pymodule_export]
             use super::base::wg_train::renderer::MetricStatePy;
