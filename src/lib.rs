@@ -1,17 +1,17 @@
 #![recursion_limit = "256"]
 
 use pyo3::prelude::*;
+mod ndarray;
+mod wgpu;
 
 mod grad_clipping;
 mod lr_scheduler;
-mod module;
+pub mod module;
 pub mod nn;
 pub mod optim;
 mod record;
 pub mod tensor;
 mod tests;
-mod train;
-// use tensor::wgpu_base::*;
 
 #[macro_export]
 macro_rules! impl_tensor_conversions_wgpu {
@@ -217,7 +217,7 @@ macro_rules! implement_send_and_sync {
 #[macro_export]
 macro_rules! implement_wgpu_interface {
     ($(#[$meta:meta])* $name:ident, $actual_type:ident, $doc:literal) => {
-        // use burn::backend::wgpu::*;
+        use burn::backend::wgpu::*;
         #[doc = $doc]
         #[pyclass]
         // #[derive(Clone)]
@@ -265,63 +265,11 @@ macro_rules! for_normal_struct_enums {
 }
 
 #[pymodule]
-pub mod pyburn {
-
+mod pyburn {
     use super::*;
 
-    /// Modules built for the wgpu backend
-    #[cfg(feature = "wgpu")]
-    #[pymodule]
-    mod wgpu {
-
-        #[pymodule_export]
-        use super::module::module;
-
-        #[pymodule_export]
-        use super::lr_scheduler::scheduler;
-
-        /// Train module
-        #[pymodule_export]
-        use super::train::wgpu_train;
-
-        /// Neural network module
-        #[pymodule_export]
-        use super::nn::wgpu_nn;
-
-        /// Basic Tensor module with wgpu as its backend
-        #[pymodule_export]
-        use super::tensor::wgpu_tensor;
-
-        /// Optimization module for wgpu backend
-        #[pymodule_export]
-        use super::optim::wgpu_optim;
-    }
-
-    /// Modules built for the ndarray backend
-    #[cfg(feature = "ndarray")]
-    #[pymodule]
-    mod ndarray {
-
-        #[pymodule_export]
-        use super::module::module;
-
-        #[pymodule_export]
-        use super::lr_scheduler::scheduler;
-
-        /// Train module
-        #[pymodule_export]
-        use super::train::ndarray_train;
-
-        /// Neural network module
-        #[pymodule_export(name = "ndarray_nn")]
-        use super::nn::ndarray_nn;
-
-        /// Basic tensor module with the cpu as its backend
-        #[pymodule_export]
-        use super::tensor::ndarray_tensor;
-
-        /// Optimization module for ndarray backend
-        #[pymodule_export]
-        use super::optim::ndarray_optim;
-    }
+    #[pymodule_export]
+    use super::ndarray::ndarray;
+    #[pymodule_export]
+    use super::wgpu::wgpu;
 }

@@ -1,17 +1,19 @@
 use std::sync::{Arc, Mutex};
 
 use crate::nn::NDARRAYDEVICE;
-use crate::nn::common_nn_exports::*;
+use super::common_nn_exports::*;
+use super::common_nn_exports;
 use crate::tensor::{ndarray_base::TensorPy, tensor_error::TensorError};
 use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
-use burn::nn::Linear;
+use burn::backend::ndarray::NdArray;
+// use burn::nn::Linear;
 use burn::nn::{
     BatchNorm, BatchNormConfig, Embedding, EmbeddingConfig, GateController, GroupNorm,
     GroupNormConfig, InstanceNorm, InstanceNormConfig, InstanceNormRecord, LayerNorm,
     LayerNormConfig, LayerNormRecord, Lstm, LstmConfig, LstmRecord, PRelu, PReluConfig,
     PReluRecord, PositionalEncoding, PositionalEncodingConfig, PositionalEncodingRecord, RmsNorm,
     RmsNormConfig, RmsNormRecord, RotaryEncoding, RotaryEncodingConfig, RotaryEncodingRecord,
-    SwiGlu, SwiGluConfig, SwiGluRecord, conv::*,
+    SwiGlu, SwiGluConfig, /*SwiGluRecord*/ conv::*,
 };
 use burn::prelude::*;
 use pyo3::prelude::*;
@@ -77,39 +79,39 @@ impl EmbeddingPy {
     fn new(
         n_embedding: usize,
         d_model: usize,
-        initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        initializer: Option<super::common_nn_exports::Initializer>,
     ) -> Self {
         let init = match initializer {
             Some(init) => match init {
-                crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                super::common_nn_exports::Initializer::Constant { value } => {
                     Some(burn::nn::Initializer::Constant { value })
                 }
-                crate::nn::common_nn_exports::Initializer::One() => {
+                super::common_nn_exports::Initializer::One() => {
                     Some(burn::nn::Initializer::Ones)
                 }
-                crate::nn::common_nn_exports::Initializer::Zero() => {
+                super::common_nn_exports::Initializer::Zero() => {
                     Some(burn::nn::Initializer::Zeros)
                 }
-                crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                super::common_nn_exports::Initializer::Uniform { min, max } => {
                     Some(burn::nn::Initializer::Uniform { min, max })
                 }
-                crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                super::common_nn_exports::Initializer::Normal { mean, std } => {
                     Some(burn::nn::Initializer::Normal { mean, std })
                 }
-                crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
                     Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
                 }
-                crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                super::common_nn_exports::Initializer::KaimingUniform {
                     gain,
                     fan_out_only,
                 } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                super::common_nn_exports::Initializer::XavierNormal { gain } => {
                     Some(burn::nn::Initializer::XavierNormal { gain })
                 }
-                crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                super::common_nn_exports::Initializer::XavierUniform { gain } => {
                     Some(burn::nn::Initializer::XavierUniform { gain })
                 }
-                crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                super::common_nn_exports::Initializer::Orthogonal { gain } => {
                     Some(burn::nn::Initializer::Orthogonal { gain })
                 }
             },
@@ -336,39 +338,39 @@ impl LstmPy {
         d_input: usize,
         d_hidden: usize,
         bias: bool,
-        initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        initializer: Option<super::common_nn_exports::Initializer>,
     ) -> Self {
         let init = match initializer {
             Some(init) => match init {
-                crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                super::common_nn_exports::Initializer::Constant { value } => {
                     Some(burn::nn::Initializer::Constant { value })
                 }
-                crate::nn::common_nn_exports::Initializer::One() => {
+                super::common_nn_exports::Initializer::One() => {
                     Some(burn::nn::Initializer::Ones)
                 }
-                crate::nn::common_nn_exports::Initializer::Zero() => {
+                super::common_nn_exports::Initializer::Zero() => {
                     Some(burn::nn::Initializer::Zeros)
                 }
-                crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                super::common_nn_exports::Initializer::Uniform { min, max } => {
                     Some(burn::nn::Initializer::Uniform { min, max })
                 }
-                crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                super::common_nn_exports::Initializer::Normal { mean, std } => {
                     Some(burn::nn::Initializer::Normal { mean, std })
                 }
-                crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
                     Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
                 }
-                crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                super::common_nn_exports::Initializer::KaimingUniform {
                     gain,
                     fan_out_only,
                 } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                super::common_nn_exports::Initializer::XavierNormal { gain } => {
                     Some(burn::nn::Initializer::XavierNormal { gain })
                 }
-                crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                super::common_nn_exports::Initializer::XavierUniform { gain } => {
                     Some(burn::nn::Initializer::XavierUniform { gain })
                 }
-                crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                super::common_nn_exports::Initializer::Orthogonal { gain } => {
                     Some(burn::nn::Initializer::Orthogonal { gain })
                 }
             },
@@ -568,40 +570,40 @@ impl SwiGluPy {
         d_input: usize,
         d_output: usize,
         bias: Option<bool>,
-        initializer: Option<crate::nn::common_nn_exports::Initializer>,
+        initializer: Option<super::common_nn_exports::Initializer>,
     ) -> Self {
         let bias = bias.unwrap_or(false);
         let init = match initializer {
             Some(init) => match init {
-                crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                super::common_nn_exports::Initializer::Constant { value } => {
                     Some(burn::nn::Initializer::Constant { value })
                 }
-                crate::nn::common_nn_exports::Initializer::One() => {
+                super::common_nn_exports::Initializer::One() => {
                     Some(burn::nn::Initializer::Ones)
                 }
-                crate::nn::common_nn_exports::Initializer::Zero() => {
+                super::common_nn_exports::Initializer::Zero() => {
                     Some(burn::nn::Initializer::Zeros)
                 }
-                crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                super::common_nn_exports::Initializer::Uniform { min, max } => {
                     Some(burn::nn::Initializer::Uniform { min, max })
                 }
-                crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                super::common_nn_exports::Initializer::Normal { mean, std } => {
                     Some(burn::nn::Initializer::Normal { mean, std })
                 }
-                crate::nn::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
                     Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
                 }
-                crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                super::common_nn_exports::Initializer::KaimingUniform {
                     gain,
                     fan_out_only,
                 } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                super::common_nn_exports::Initializer::XavierNormal { gain } => {
                     Some(burn::nn::Initializer::XavierNormal { gain })
                 }
-                crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                super::common_nn_exports::Initializer::XavierUniform { gain } => {
                     Some(burn::nn::Initializer::XavierUniform { gain })
                 }
-                crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                super::common_nn_exports::Initializer::Orthogonal { gain } => {
                     Some(burn::nn::Initializer::Orthogonal { gain })
                 }
             },
@@ -752,41 +754,41 @@ pub mod transformer_exports {
             d_model: usize,
             d_ff: usize,
             dropout: Option<f64>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let dropout = dropout.unwrap_or(0.1);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -850,43 +852,43 @@ pub mod transformer_exports {
             dropout: Option<f64>,
             norm_first: Option<bool>,
             quiet_softmax: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let dropout = dropout.unwrap_or(0.1);
             let norm_first = norm_first.unwrap_or(false);
             let quet_softmax = quiet_softmax.unwrap_or(false);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -913,7 +915,7 @@ pub mod transformer_exports {
         // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
 
         fn forward(&self, input: &mut TransformerDecoderInputPy) -> TensorPy {
-            let mut guard = input.inner.lock().unwrap().take().unwrap();
+            let guard = input.inner.lock().unwrap().take().unwrap();
             self.inner.forward(guard).into()
             // match guard {
             //     Some(inner) => Ok(self.inner.forward(inner).into()),
@@ -1023,43 +1025,43 @@ pub mod transformer_exports {
             dropout: Option<f64>,
             norm_first: Option<bool>,
             quiet_softmax: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let dropout = dropout.unwrap_or(0.1);
             let norm_first = norm_first.unwrap_or(false);
             let quet_softmax = quiet_softmax.unwrap_or(false);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -1086,7 +1088,7 @@ pub mod transformer_exports {
         // [TODO:] @kwach You need to test out these implementations in a Python setting; ie. the data may just be consumed and removed from memory
 
         fn forward(&self, input: &mut TransformerEncoderInputPy) -> TensorPy {
-            let mut guard = input.inner.lock().unwrap().take().unwrap();
+            let guard = input.inner.lock().unwrap().take().unwrap();
             self.inner.forward(guard).into()
         }
     }
@@ -1128,8 +1130,8 @@ pub mod transformer_exports {
     impl TransformerEncoderInputPy {
         #[new]
         fn new(tensor: TensorPy) -> PyResult<Self> {
-            match (tensor) {
-                (TensorPy::TensorThree(t1)) => Ok(TransformerEncoderInput::new(t1.inner).into()),
+            match tensor {
+                TensorPy::TensorThree(t1) => Ok(TransformerEncoderInput::new(t1.inner).into()),
 
                 _ => Err(TensorError::NonApplicableMethod.into()),
             }
@@ -1188,8 +1190,8 @@ pub mod transformer_exports {
 
 pub mod conv_exports {
     use super::*;
-    use burn::nn::conv::*;
-    use burn::prelude::*;
+    // use burn::nn::conv::*;
+    // use burn::prelude::*;
 
     implement_ndarray_interface!(
         DeformConv2dPy,
@@ -1217,7 +1219,7 @@ Applies a deformable 2D convolution over input tensors."
             offset_groups: Option<usize>,
             padding: Option<PaddingConfig2dPy>,
             bias: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let stride = stride.unwrap_or([1, 1]);
             let offset_groups = offset_groups.unwrap_or(1);
@@ -1227,36 +1229,36 @@ Applies a deformable 2D convolution over input tensors."
             let bias = bias.unwrap_or(true);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -1345,7 +1347,7 @@ Applies a deformable 2D convolution over input tensors."
             groups: Option<usize>,
             padding: Option<PaddingConfig1dPy>,
             bias: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let stride = stride.unwrap_or(1);
             let dilation = dilation.unwrap_or(1);
@@ -1353,36 +1355,36 @@ Applies a deformable 2D convolution over input tensors."
             let bias = bias.unwrap_or(true);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -1396,6 +1398,7 @@ Applies a deformable 2D convolution over input tensors."
                         .with_stride(stride)
                         .with_dilation(dilation)
                         .with_padding(padding.0)
+                        .with_groups(groups)
                         .with_bias(bias)
                         .with_initializer(init)
                         .init(&NDARRAYDEVICE)
@@ -1405,6 +1408,7 @@ Applies a deformable 2D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding.0)
+                    .with_groups(groups)
                     .with_bias(bias)
                     .init(&NDARRAYDEVICE)
                     .into(),
@@ -1449,7 +1453,7 @@ Applies a 2D convolution over input tensors."
             groups: Option<usize>,
             padding: Option<PaddingConfig2dPy>,
             bias: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let stride = stride.unwrap_or([1, 1]);
             let dilation = dilation.unwrap_or([1, 1]);
@@ -1457,36 +1461,36 @@ Applies a 2D convolution over input tensors."
             let bias = bias.unwrap_or(true);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -1553,7 +1557,7 @@ Applies a 3D convolution over input tensors."
             groups: Option<usize>,
             padding: Option<PaddingConfig3dPy>,
             bias: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let stride = stride.unwrap_or([1, 1, 1]);
             let dilation = dilation.unwrap_or([1, 1, 1]);
@@ -1561,36 +1565,36 @@ Applies a 3D convolution over input tensors."
             let bias = bias.unwrap_or(true);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -1651,7 +1655,7 @@ Applies a 3D convolution over input tensors."
             groups: Option<usize>,
             padding: Option<usize>,
             bias: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let stride = stride.unwrap_or(1);
             let dilation = dilation.unwrap_or(1);
@@ -1660,36 +1664,36 @@ Applies a 3D convolution over input tensors."
             let padding = padding.unwrap_or(0);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -1755,7 +1759,7 @@ Applies a 3D convolution over input tensors."
             padding: Option<[usize; 2]>,
             padding_out: Option<[usize; 2]>,
             bias: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let stride = stride.unwrap_or([1, 1]);
             let dilation = dilation.unwrap_or([1, 1]);
@@ -1765,36 +1769,36 @@ Applies a 3D convolution over input tensors."
             let padding = padding.unwrap_or([0, 0]);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -1806,6 +1810,7 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
+                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
                     .with_initializer(init)
@@ -1815,6 +1820,7 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
+                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
                     .init(&NDARRAYDEVICE)
@@ -1866,7 +1872,7 @@ Applies a 3D convolution over input tensors."
             padding: Option<[usize; 3]>,
             padding_out: Option<[usize; 3]>,
             bias: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             let stride = stride.unwrap_or([1, 1, 1]);
             let dilation = dilation.unwrap_or([1, 1, 1]);
@@ -1876,36 +1882,36 @@ Applies a 3D convolution over input tensors."
             let padding = padding.unwrap_or([0, 0, 0]);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },
@@ -1917,6 +1923,7 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
+                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
                     .with_initializer(init)
@@ -1926,6 +1933,7 @@ Applies a 3D convolution over input tensors."
                     .with_stride(stride)
                     .with_dilation(dilation)
                     .with_padding(padding)
+                    .with_padding_out(padding_out)
                     .with_groups(groups)
                     .with_bias(bias)
                     .init(&NDARRAYDEVICE)
@@ -1988,42 +1996,42 @@ pub mod gru_exports {
             d_hidden: usize,
             bias: bool,
             reset_after: Option<bool>,
-            initializer: Option<crate::nn::common_nn_exports::Initializer>,
+            initializer: Option<super::common_nn_exports::Initializer>,
         ) -> Self {
             // let bias = bias.unwrap_or(true);
             let reset_after = reset_after.unwrap_or(true);
             let init = match initializer {
                 Some(init) => match init {
-                    crate::nn::common_nn_exports::Initializer::Constant { value } => {
+                    super::common_nn_exports::Initializer::Constant { value } => {
                         Some(burn::nn::Initializer::Constant { value })
                     }
-                    crate::nn::common_nn_exports::Initializer::One() => {
+                    super::common_nn_exports::Initializer::One() => {
                         Some(burn::nn::Initializer::Ones)
                     }
-                    crate::nn::common_nn_exports::Initializer::Zero() => {
+                    super::common_nn_exports::Initializer::Zero() => {
                         Some(burn::nn::Initializer::Zeros)
                     }
-                    crate::nn::common_nn_exports::Initializer::Uniform { min, max } => {
+                    super::common_nn_exports::Initializer::Uniform { min, max } => {
                         Some(burn::nn::Initializer::Uniform { min, max })
                     }
-                    crate::nn::common_nn_exports::Initializer::Normal { mean, std } => {
+                    super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    crate::nn::common_nn_exports::Initializer::KaimingNormal {
+                    super::common_nn_exports::Initializer::KaimingNormal {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::KaimingUniform {
+                    super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
                     } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
-                    crate::nn::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    super::common_nn_exports::Initializer::XavierNormal { gain } => {
                         Some(burn::nn::Initializer::XavierNormal { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    super::common_nn_exports::Initializer::XavierUniform { gain } => {
                         Some(burn::nn::Initializer::XavierUniform { gain })
                     }
-                    crate::nn::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    super::common_nn_exports::Initializer::Orthogonal { gain } => {
                         Some(burn::nn::Initializer::Orthogonal { gain })
                     }
                 },

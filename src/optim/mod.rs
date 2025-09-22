@@ -42,13 +42,22 @@ pub mod common {
 #[cfg(feature = "ndarray")]
 #[pymodule]
 pub mod ndarray_optim {
-    #[pymodule_export]
-    use super::common;
+
+    use super::*;
+    #[pymodule]
+    pub mod optim {
+        #[pymodule_export]
+        use super::common;
+    }
 }
 
 #[cfg(feature = "wgpu")]
 #[pymodule]
 pub mod wgpu_optim {
-    #[pymodule_export]
-    use super::common;
+    use super::*;
+    #[pymodule]
+    pub mod optim {
+        #[pymodule_export]
+        use super::common;
+    }
 }
