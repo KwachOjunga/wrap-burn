@@ -17,7 +17,7 @@ wgpu = ["wgpu"]
 ndarray = ["ndarray"]
 
 [tool.maturin]
-profile = "dev"
+profile = "release"
 features = ["pyo3/extension-module", "wgpu", "ndarray"]
 
 [project.urls]

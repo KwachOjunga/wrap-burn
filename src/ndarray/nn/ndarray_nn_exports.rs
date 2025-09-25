@@ -31,10 +31,46 @@ implement_ndarray_interface!(
 // [TODO] @kwach refactor the new method in GateControllerPy to use the Initializer instead of InitializerPy.
 #[pymethods]
 impl GateControllerPy {
-    // #[staticmethod]
-    // pub fn new(input: usize, output: usize, bias: bool, initializer: InitializerPy) -> Self {
-    //     GateController::new(input, output, bias, initializer.0, &NDARRAYDEVICE).into()
-    // }
+    #[staticmethod]
+    pub fn new(input: usize, output: usize, bias: bool, initializer: super::common_nn_exports::Initializer) -> Self {
+        let init = match initializer {
+               super::common_nn_exports::Initializer::Constant { value } => {
+                    Some(burn::nn::Initializer::Constant { value })
+                }
+                super::common_nn_exports::Initializer::One() => {
+                    Some(burn::nn::Initializer::Ones)
+                }
+                super::common_nn_exports::Initializer::Zero() => {
+                    Some(burn::nn::Initializer::Zeros)
+                }
+                super::common_nn_exports::Initializer::Uniform { min, max } => {
+                    Some(burn::nn::Initializer::Uniform { min, max })
+                }
+                super::common_nn_exports::Initializer::Normal { mean, std } => {
+                    Some(burn::nn::Initializer::Normal { mean, std })
+                }
+                super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                    Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                }
+                super::common_nn_exports::Initializer::KaimingUniform {
+                    gain,
+                    fan_out_only,
+                } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                super::common_nn_exports::Initializer::XavierNormal { gain } => {
+                    Some(burn::nn::Initializer::XavierNormal { gain })
+                }
+                super::common_nn_exports::Initializer::XavierUniform { gain } => {
+                    Some(burn::nn::Initializer::XavierUniform { gain })
+                }
+                super::common_nn_exports::Initializer::Orthogonal { gain } => {
+                    Some(burn::nn::Initializer::Orthogonal { gain })
+                }
+            };
+            /*KaimingUniform{gain:1.0/num_traits::Float::sqrt(3.0), fan_out_only:false}*/
+        // };
+
+        GateController::new(input, output, bias, init.unwrap(), &NDARRAYDEVICE).into()
+    }
 
     /// yield the gate product given two Tensors of 2 dimensions
     ///
