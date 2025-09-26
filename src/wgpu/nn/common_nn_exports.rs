@@ -425,7 +425,7 @@ Applies a 2D max pooling over input tensors."
             AvgPool1dConfigPy(AvgPool1dConfig::new(kernel_size))
         }
 
-        pub fn with_stride(&self, py: Python<'_>, stride: usize) -> AvgPool1dConfigPy {
+        pub fn with_stride(&self, _py: Python<'_>, stride: usize) -> AvgPool1dConfigPy {
             AvgPool1dConfigPy(self.0.clone().with_stride(stride))
         }
 
@@ -489,7 +489,7 @@ Applies a 2D max pooling over input tensors."
             AvgPool2dConfigPy(AvgPool2dConfig::new(kernel_size))
         }
 
-        pub fn with_strides(&self, py: Python<'_>, stride: [usize; 2]) -> AvgPool2dConfigPy {
+        pub fn with_strides(&self, _py: Python<'_>, stride: [usize; 2]) -> AvgPool2dConfigPy {
             AvgPool2dConfigPy(self.0.clone().with_strides(stride))
         }
 
