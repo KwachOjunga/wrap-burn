@@ -5,7 +5,7 @@ mod ndarray;
 mod wgpu;
 
 mod grad_clipping;
-mod lr_scheduler;
+pub mod lr_scheduler;
 pub mod module;
 pub mod nn;
 pub mod optim;

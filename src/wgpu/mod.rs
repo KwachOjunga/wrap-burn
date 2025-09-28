@@ -18,4 +18,6 @@ pub mod wgpu {
     use crate::module::package::wgpu_module::module;
     #[pymodule_export]
     use crate::optim::wgpu_optim::optim;
+    #[pymodule_export]
+    use crate::lr_scheduler::scheduler;
 }

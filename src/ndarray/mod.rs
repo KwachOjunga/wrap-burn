@@ -20,4 +20,7 @@ pub mod ndarray {
     use crate::module::package::nd_module::module;
     #[pymodule_export]
     use crate::optim::ndarray_optim::optim;
+    #[pymodule_export]
+    use crate::lr_scheduler::scheduler;
+
 }

@@ -8,8 +8,7 @@ use burn::lr_scheduler::step::*;
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 
-#[pymodule]
-pub mod scheduler {
+mod scheduler_exports {
     use super::*;
 
     for_normal_struct_enums!(
@@ -154,4 +153,20 @@ pub mod scheduler {
             }
         }
     }
+}
+
+#[pymodule]
+pub mod scheduler {
+    use super::*;
+
+    #[pymodule_export]
+    use super::scheduler_exports::ConstantLrPy;
+    #[pymodule_export]
+    use scheduler_exports::CosineAnnealingLrSchedulerPy;
+    #[pymodule_export]
+    use scheduler_exports::ExponentialLrSchedulerPy;
+    #[pymodule_export]
+    use scheduler_exports::LinearLrSchedulerPy;
+    #[pymodule_export]
+    use scheduler_exports::NoamLrSchedulerPy;
 }
