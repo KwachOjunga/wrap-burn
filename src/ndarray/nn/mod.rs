@@ -1,8 +1,8 @@
 use burn::nn::Linear;
 use burn::nn::*;
 // use burn::prelude::*;
-mod ndarray_nn_exports;
 pub mod common_nn_exports;
+mod ndarray_nn_exports;
 use pyo3::prelude::*;
 // use crate::implement_ndarray_interface;
 use crate::implement_send_and_sync;
@@ -214,10 +214,9 @@ pub mod nn {
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -377,7 +376,7 @@ pub mod nn {
 
     #[pymodule]
     pub mod interpolate {
-        // 
+        //
 
         #[pymodule_export]
         use super::common_nn_exports::interpolate_exports::Interpolate1dPy;

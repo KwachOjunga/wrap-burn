@@ -1,10 +1,9 @@
 // use crate::wgpu::nn::wgpu_nn_exports::*;
 use crate::for_normal_struct_enums;
-use crate::tensor::tensor_error::TensorError;
 use crate::tensor::ndarray_base::*;
+use crate::tensor::tensor_error::TensorError;
 use burn::nn::*;
 use pyo3::prelude::*;
-
 
 /// Enum specifying with what values a tensor should be initialized
 #[pyclass]
@@ -276,7 +275,6 @@ pub mod pool_exports {
     use burn::nn::pool::*;
     // use pyo3::exceptions::PyResourceWarning;
 
-    
     for_normal_struct_enums!(
         AdaptiveAvgPool1dPy,
         AdaptiveAvgPool1d,
@@ -488,7 +486,10 @@ Applies a 2D max pooling over input tensors."
             AvgPool2dConfigPy(AvgPool2dConfig::new(kernel_size))
         }
 
-        pub fn with_strides(&self, /*py: Python<'_>,*/ stride: [usize; 2]) -> AvgPool2dConfigPy {
+        pub fn with_strides(
+            &self,
+            /*py: Python<'_>,*/ stride: [usize; 2],
+        ) -> AvgPool2dConfigPy {
             AvgPool2dConfigPy(self.0.clone().with_strides(stride))
         }
 
@@ -618,7 +619,10 @@ Applies a 2D max pooling over input tensors."
             MaxPool2dConfigPy(MaxPool2dConfig::new(kernel_size))
         }
 
-        pub fn with_strides(&self, /*py: Python<'_>,*/ stride: [usize; 2]) -> MaxPool2dConfigPy {
+        pub fn with_strides(
+            &self,
+            /*py: Python<'_>,*/ stride: [usize; 2],
+        ) -> MaxPool2dConfigPy {
             MaxPool2dConfigPy(self.0.clone().with_strides(stride))
         }
 

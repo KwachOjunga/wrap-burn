@@ -1,8 +1,8 @@
 use std::sync::{Arc, Mutex};
 
-use crate::nn::NDARRAYDEVICE;
-use super::common_nn_exports::*;
 use super::common_nn_exports;
+use super::common_nn_exports::*;
+use crate::nn::NDARRAYDEVICE;
 use crate::tensor::{ndarray_base::TensorPy, tensor_error::TensorError};
 use crate::{for_normal_struct_enums, implement_ndarray_interface, implement_send_and_sync};
 use burn::backend::ndarray::NdArray;
@@ -86,12 +86,8 @@ impl EmbeddingPy {
                 super::common_nn_exports::Initializer::Constant { value } => {
                     Some(burn::nn::Initializer::Constant { value })
                 }
-                super::common_nn_exports::Initializer::One() => {
-                    Some(burn::nn::Initializer::Ones)
-                }
-                super::common_nn_exports::Initializer::Zero() => {
-                    Some(burn::nn::Initializer::Zeros)
-                }
+                super::common_nn_exports::Initializer::One() => Some(burn::nn::Initializer::Ones),
+                super::common_nn_exports::Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
                 super::common_nn_exports::Initializer::Uniform { min, max } => {
                     Some(burn::nn::Initializer::Uniform { min, max })
                 }
@@ -101,10 +97,9 @@ impl EmbeddingPy {
                 super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
                     Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
                 }
-                super::common_nn_exports::Initializer::KaimingUniform {
-                    gain,
-                    fan_out_only,
-                } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                super::common_nn_exports::Initializer::KaimingUniform { gain, fan_out_only } => {
+                    Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only })
+                }
                 super::common_nn_exports::Initializer::XavierNormal { gain } => {
                     Some(burn::nn::Initializer::XavierNormal { gain })
                 }
@@ -345,12 +340,8 @@ impl LstmPy {
                 super::common_nn_exports::Initializer::Constant { value } => {
                     Some(burn::nn::Initializer::Constant { value })
                 }
-                super::common_nn_exports::Initializer::One() => {
-                    Some(burn::nn::Initializer::Ones)
-                }
-                super::common_nn_exports::Initializer::Zero() => {
-                    Some(burn::nn::Initializer::Zeros)
-                }
+                super::common_nn_exports::Initializer::One() => Some(burn::nn::Initializer::Ones),
+                super::common_nn_exports::Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
                 super::common_nn_exports::Initializer::Uniform { min, max } => {
                     Some(burn::nn::Initializer::Uniform { min, max })
                 }
@@ -360,10 +351,9 @@ impl LstmPy {
                 super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
                     Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
                 }
-                super::common_nn_exports::Initializer::KaimingUniform {
-                    gain,
-                    fan_out_only,
-                } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                super::common_nn_exports::Initializer::KaimingUniform { gain, fan_out_only } => {
+                    Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only })
+                }
                 super::common_nn_exports::Initializer::XavierNormal { gain } => {
                     Some(burn::nn::Initializer::XavierNormal { gain })
                 }
@@ -578,12 +568,8 @@ impl SwiGluPy {
                 super::common_nn_exports::Initializer::Constant { value } => {
                     Some(burn::nn::Initializer::Constant { value })
                 }
-                super::common_nn_exports::Initializer::One() => {
-                    Some(burn::nn::Initializer::Ones)
-                }
-                super::common_nn_exports::Initializer::Zero() => {
-                    Some(burn::nn::Initializer::Zeros)
-                }
+                super::common_nn_exports::Initializer::One() => Some(burn::nn::Initializer::Ones),
+                super::common_nn_exports::Initializer::Zero() => Some(burn::nn::Initializer::Zeros),
                 super::common_nn_exports::Initializer::Uniform { min, max } => {
                     Some(burn::nn::Initializer::Uniform { min, max })
                 }
@@ -593,10 +579,9 @@ impl SwiGluPy {
                 super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
                     Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
                 }
-                super::common_nn_exports::Initializer::KaimingUniform {
-                    gain,
-                    fan_out_only,
-                } => Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only }),
+                super::common_nn_exports::Initializer::KaimingUniform { gain, fan_out_only } => {
+                    Some(burn::nn::Initializer::KaimingUniform { gain, fan_out_only })
+                }
                 super::common_nn_exports::Initializer::XavierNormal { gain } => {
                     Some(burn::nn::Initializer::XavierNormal { gain })
                 }
@@ -774,10 +759,9 @@ pub mod transformer_exports {
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -874,10 +858,9 @@ pub mod transformer_exports {
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -1047,10 +1030,9 @@ pub mod transformer_exports {
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -1244,10 +1226,9 @@ Applies a deformable 2D convolution over input tensors."
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -1370,10 +1351,9 @@ Applies a deformable 2D convolution over input tensors."
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -1476,10 +1456,9 @@ Applies a 2D convolution over input tensors."
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -1580,10 +1559,9 @@ Applies a 3D convolution over input tensors."
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -1679,10 +1657,9 @@ Applies a 3D convolution over input tensors."
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -1784,10 +1761,9 @@ Applies a 3D convolution over input tensors."
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -1897,10 +1873,9 @@ Applies a 3D convolution over input tensors."
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,
@@ -2017,10 +1992,9 @@ pub mod gru_exports {
                     super::common_nn_exports::Initializer::Normal { mean, std } => {
                         Some(burn::nn::Initializer::Normal { mean, std })
                     }
-                    super::common_nn_exports::Initializer::KaimingNormal {
-                        gain,
-                        fan_out_only,
-                    } => Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only }),
+                    super::common_nn_exports::Initializer::KaimingNormal { gain, fan_out_only } => {
+                        Some(burn::nn::Initializer::KaimingNormal { gain, fan_out_only })
+                    }
                     super::common_nn_exports::Initializer::KaimingUniform {
                         gain,
                         fan_out_only,

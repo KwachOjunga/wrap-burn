@@ -1,5 +1,5 @@
 //! Warning. The current implementation of TensorPy is grossly inefficient.
-
+use std::cell::RefCell;
 use std::f32;
 // use pyo3::types::PyBytes;
 
@@ -15,19 +15,19 @@ use pyo3::prelude::*;
 #[derive(Clone, Debug)]
 #[pyclass]
 pub struct Tensor1 {
-    pub inner: Tensor<Wgpu, 1>,
+    pub inner: RefCell<Tensor<Wgpu, 1>>,
 }
 
 #[derive(Clone, Debug)]
 #[pyclass]
 pub struct Tensor1Bool {
-    pub inner: Tensor<Wgpu, 1, Bool>,
+    pub inner: RefCell<Tensor<Wgpu, 1, Bool>>,
 }
 
 #[derive(Clone, Debug)]
 #[pyclass]
 pub struct Tensor1Int {
-    pub inner: Tensor<Wgpu, 1, Int>,
+    pub inner: RefCell<Tensor<Wgpu, 1, Int>>,
 }
 
 #[derive(Clone)]
@@ -132,8 +132,8 @@ impl TensorPy {
     /// [note] Non-existent on boolean tensors
     fn abs(&self) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
-            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
+            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(val.inner.get_mut().abs())),
+            TensorPy::TensorOneInt(val) => Some(Into::<TensorPy>::into(val.inner.get_mut().abs())),
             TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             TensorPy::TensorTwoInt(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
             TensorPy::TensorThree(val) => Some(Into::<TensorPy>::into(val.inner.clone().abs())),
@@ -150,12 +150,24 @@ impl TensorPy {
     /// Performs addition on tensors of similar dimensions
     fn add(&self, other: TensorPy) -> Option<Self> {
         match self {
-            TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(
-                val.inner.clone().add(
-                    Into::<anyhow::Result<Tensor<Wgpu, 1>>>::into(other)
-                        .expect("expected 1 dim tensor"),
-                ),
-            )),
+            // TensorPy::TensorOne(val) => Some(Into::<TensorPy>::into(
+            //     val.inner.get_mut()).add(
+            //         Into::<anyhow::Result<Tensor<Wgpu, 1>>>::into(other.inner.get_mut())
+            //             .expect("expected 1 dim tensor"),
+            //     ),
+            // )),
+            TensorPy::TensorOne(val) => {
+                _ = val.replace_with(|x| {
+                    x.inplace(|x| {
+                        x.add(
+                            Into::<anyhow::Result<Tensor<Wgpu, 3>>>::into(other)
+                                .expect("expected 3 dim tensor"),
+                        );
+                        x
+                    })
+                });
+                Some(Temsor::TensorOne(val))
+            }
             TensorPy::TensorTwo(val) => Some(Into::<TensorPy>::into(
                 val.inner.clone().add(
                     Into::<anyhow::Result<Tensor<Wgpu, 2>>>::into(other)
@@ -783,16 +795,64 @@ impl TensorPy {
     }
 }
 
+impl From<Tensor<Wgpu, 1>> for TensorPy {
+    fn from(other: Tensor<Wgpu, 1>) -> TensorPy {
+        TensorPy::TensorOne(Tensor1 {
+            inner: RefCell::new(other),
+        })
+    }
+}
+
+impl From<Tensor<Wgpu, 1, Int>> for TensorPy {
+    fn from(other: Tensor<Wgpu, 1, Int>) -> TensorPy {
+        TensorPy::TensorOneInt(Tensor1Int {
+            inner: RefCell::new(other),
+        })
+    }
+}
+
+impl From<Tensor<Wgpu, 1, Bool>> for TensorPy {
+    fn from(other: Tensor<Wgpu, 1, Bool>) -> TensorPy {
+        TensorPy::TensorOneBool(Tensor1Bool {
+            inner: RefCell::new(other),
+        })
+    }
+}
+
+impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 1>> {
+    fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 1>> {
+        match other {
+            TensorPy::TensorOne(val) => Ok(val.inner),
+            _ => Err(WrongDimensions.into()),
+        }
+    }
+}
+impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 1, Int>> {
+    fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 1, Int>> {
+        match other {
+            TensorPy::TensorOneInt(val) => Ok(val.inner),
+            _ => Err(WrongDimensions.into()),
+        }
+    }
+}
+impl From<TensorPy> for anyhow::Result<Tensor<Wgpu, 1, Bool>> {
+    fn from(other: TensorPy) -> anyhow::Result<Tensor<Wgpu, 1, Bool>> {
+        match other {
+            TensorPy::TensorOneBool(val) => Ok(val.inner),
+            _ => Err(WrongDimensions.into()),
+        }
+    }
+}
 // Use the macro for each dimension
-impl_tensor_conversions_wgpu!(
-    Tensor1,
-    Tensor1Bool,
-    1,
-    TensorOne,
-    TensorOneBool,
-    TensorOneInt,
-    Tensor1Int
-);
+// impl_tensor_conversions_wgpu!(
+//     Tensor1,
+//     Tensor1Bool,
+//     1,
+//     TensorOne,
+//     TensorOneBool,
+//     TensorOneInt,
+//     Tensor1Int
+// );
 impl_tensor_conversions_wgpu!(
     Tensor2,
     Tensor2Bool,
