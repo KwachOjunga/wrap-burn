@@ -82,6 +82,17 @@ Considerations;
     
     ```
 
+
+Update: (Mar 2026)
+
+I am uncertain if there is a way to circumvent this hard limitation placed by the language.
+While undoubtedly there are benefits to using this approach, to expose burn as is with its 
+lightweight nature to python simply involves a lot of regression in the progress made by burn
+to make accessible easy to develop.
+
+That said, i am exploring alternatives to burn that can make it easier to build 
+gpu kernels using systems languages like Rust. I am positive that the right approach is 
+what mojo is doing and that is the future of ML infra.
     
 
 ----

@@ -1,6 +1,10 @@
-# Pyburn
+## Pyburn
 
 [![CI](https://github.com/KwachOjunga/wrap-burn/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/KwachOjunga/wrap-burn/actions/workflows/CI.yml)
+
+THIS PROJECT HAS LONG SINCE BEEN DISCONTINUED. 
+
+For more information you can read the [docs](./docs.md) and particularly the [ideas](./ideas.md) document.
 
 A modern deep learning framework built to utilize your hardware.
 Pyburn leverages the Burn framework to use a diverse range of backends.
@@ -14,10 +18,3 @@ To install
 ```python
 pip install pyburn
 ```
-
-
----
-⚠️ WIP
-
-Pyburn is still in its early phase but its foundations are well defined and mature.
-There is more to come.
