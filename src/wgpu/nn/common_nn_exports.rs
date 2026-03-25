@@ -3,10 +3,7 @@ use crate::for_normal_struct_enums;
 use crate::tensor::tensor_error::TensorError;
 use crate::tensor::wgpu_base::*;
 use burn::nn::*;
-// use burn::prelude::*;
 use pyo3::prelude::*;
-// use pyo3::pyclass_init::PyClassInitializer;
-// use pyo3::types::PyInt;
 
 /// Enum specifying with what values a tensor should be initialized
 #[pyclass]
